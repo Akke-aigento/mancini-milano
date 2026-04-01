@@ -57,6 +57,7 @@ function DropdownMenu({ label, links, slug }: { label: string; links: { label: s
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { itemCount, openDrawer } = useCart();
 
   return (
