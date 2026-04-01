@@ -82,7 +82,7 @@ const Index = () => {
           className="absolute inset-0 w-full h-full object-cover object-top"
         />
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        <div className="absolute inset-x-0 bottom-16 z-10 flex flex-col items-center gap-4 px-6">
+        <div className="absolute inset-x-0 bottom-24 z-10 flex flex-col items-center gap-4 px-6">
           <div className="flex gap-4 w-full max-w-xs">
             <Link
               to="/collections/for-him"
@@ -98,7 +98,7 @@ const Index = () => {
             </Link>
           </div>
         </div>
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce z-10">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce z-10">
           <span className="text-muted-foreground text-[10px] uppercase tracking-button">Scroll</span>
           <ChevronDown className="h-4 w-4 text-muted-foreground" />
         </div>

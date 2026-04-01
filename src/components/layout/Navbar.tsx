@@ -102,7 +102,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="sticky top-9 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
+      <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
           {/* Logo */}
           <Link to="/" className="font-heading text-lg tracking-logo uppercase text-foreground">
