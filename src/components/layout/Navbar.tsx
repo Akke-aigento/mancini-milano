@@ -30,7 +30,7 @@ function DropdownMenu({ label, links, slug }: { label: string; links: { label: s
     >
       <Link
         to={`/collections/${slug}`}
-        className="flex items-center gap-1 text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-foreground transition-colors"
+        className="flex items-center gap-1 text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors"
       >
         {label}
         <ChevronDown className="h-3 w-3" />
@@ -55,87 +55,153 @@ function DropdownMenu({ label, links, slug }: { label: string; links: { label: s
   );
 }
 
+function MobileAccordion({ label, slug, links, onClose }: { label: string; slug: string; links: { label: string; slug: string }[]; onClose: () => void }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between">
+        <Link
+          to={`/collections/${slug}`}
+          onClick={onClose}
+          className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center"
+        >
+          {label}
+        </Link>
+        <button
+          onClick={() => setOpen(!open)}
+          className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground"
+        >
+          <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+        </button>
+      </div>
+      {open && (
+        <div className="pl-4 pb-2 space-y-1">
+          {links.map(l => (
+            <Link
+              key={l.slug}
+              to={`/collections/${l.slug}`}
+              onClick={onClose}
+              className="block py-2.5 text-sm uppercase tracking-button text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center"
+            >
+              {l.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const { itemCount, openDrawer } = useCart();
 
+  const closeMobile = () => setMobileOpen(false);
+
   return (
     <>
-    <nav className="sticky top-9 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
-      <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
-        {/* Logo */}
-        <Link to="/" className="font-heading text-lg tracking-logo uppercase text-foreground">
-          Mancini Milano
-        </Link>
+      <nav className="sticky top-9 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
+        <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
+          {/* Logo */}
+          <Link to="/" className="font-heading text-lg tracking-logo uppercase text-foreground">
+            Mancini Milano
+          </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center gap-8">
-          <Link to="/" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Home
-          </Link>
-          <DropdownMenu label="For Him" links={forHimLinks} slug="for-him" />
-          <DropdownMenu label="For Her" links={forHerLinks} slug="for-her" />
-          <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Fragrances
-          </Link>
-          <Link to="/contact" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Contact
-          </Link>
+          {/* Desktop Nav */}
+          <div className="hidden lg:flex items-center gap-8">
+            <Link to="/" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
+              Home
+            </Link>
+            <DropdownMenu label="For Him" links={forHimLinks} slug="for-him" />
+            <DropdownMenu label="For Her" links={forHerLinks} slug="for-her" />
+            <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
+              Fragrances
+            </Link>
+            <Link to="/contact" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
+              Contact
+            </Link>
+          </div>
+
+          {/* Icons */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Search"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+            <button
+              className="min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors hidden sm:flex"
+              aria-label="Account"
+            >
+              <User className="h-5 w-5" />
+            </button>
+            <button
+              onClick={openDrawer}
+              className="relative min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Cart"
+            >
+              <ShoppingBag className="h-5 w-5" />
+              {itemCount > 0 && (
+                <span className="absolute top-1 right-1 bg-primary text-primary-foreground text-[10px] font-medium rounded-full h-4 w-4 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+            </button>
+            <button
+              className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            >
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
+      </nav>
 
-        {/* Icons */}
-        <div className="flex items-center gap-4">
-          <button onClick={() => setSearchOpen(true)} className="text-muted-foreground hover:text-foreground transition-colors">
-            <Search className="h-5 w-5" />
-          </button>
-          <button className="text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
-            <User className="h-5 w-5" />
-          </button>
-          <button onClick={openDrawer} className="relative text-muted-foreground hover:text-foreground transition-colors">
-            <ShoppingBag className="h-5 w-5" />
-            {itemCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[10px] font-medium rounded-full h-4 w-4 flex items-center justify-center">
-                {itemCount}
-              </span>
-            )}
-          </button>
-          <button
-            className="lg:hidden text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
+      {/* Full-screen mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden bg-background border-t border-border">
-          <div className="px-4 py-6 space-y-4">
-            <Link to="/" onClick={() => setMobileOpen(false)} className="block text-sm uppercase tracking-button font-medium text-foreground">Home</Link>
-            <Link to="/collections/for-him" onClick={() => setMobileOpen(false)} className="block text-sm uppercase tracking-button font-medium text-foreground">For Him</Link>
-            <div className="pl-4 space-y-2">
-              {forHimLinks.map(l => (
-                <Link key={l.slug} to={`/collections/${l.slug}`} onClick={() => setMobileOpen(false)} className="block text-xs uppercase tracking-button text-muted-foreground">{l.label}</Link>
-              ))}
+        <div className="fixed inset-0 z-50 bg-background lg:hidden">
+          <div className="flex items-center justify-between h-16 px-4 border-b border-border">
+            <Link to="/" onClick={closeMobile} className="font-heading text-lg tracking-logo uppercase text-foreground">
+              Mancini Milano
+            </Link>
+            <button
+              onClick={closeMobile}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground"
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="px-6 py-4 overflow-y-auto h-[calc(100vh-64px)]">
+            <Link to="/" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+              Home
+            </Link>
+            <MobileAccordion label="For Him" slug="for-him" links={forHimLinks} onClose={closeMobile} />
+            <MobileAccordion label="For Her" slug="for-her" links={forHerLinks} onClose={closeMobile} />
+            <Link to="/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+              Fragrances
+            </Link>
+            <Link to="/contact" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+              Contact
+            </Link>
+
+            <div className="border-t border-border mt-6 pt-6 space-y-1">
+              <Link to="/about" onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">About Us</Link>
+              <Link to="/faq" onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">FAQ</Link>
+              <Link to="/size-guide" onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">Size Guide</Link>
             </div>
-            <Link to="/collections/for-her" onClick={() => setMobileOpen(false)} className="block text-sm uppercase tracking-button font-medium text-foreground">For Her</Link>
-            <div className="pl-4 space-y-2">
-              {forHerLinks.map(l => (
-                <Link key={l.slug} to={`/collections/${l.slug}`} onClick={() => setMobileOpen(false)} className="block text-xs uppercase tracking-button text-muted-foreground">{l.label}</Link>
-              ))}
-            </div>
-            <Link to="/collections/fragrances" onClick={() => setMobileOpen(false)} className="block text-sm uppercase tracking-button font-medium text-foreground">Fragrances</Link>
-            <Link to="/contact" onClick={() => setMobileOpen(false)} className="block text-sm uppercase tracking-button font-medium text-foreground">Contact</Link>
           </div>
         </div>
       )}
-    </nav>
-    <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
-
 };
 
 export default Navbar;

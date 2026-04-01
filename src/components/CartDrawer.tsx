@@ -41,7 +41,7 @@ const CartDrawer = () => {
       />
 
       {/* Drawer */}
-      <div className="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-card border-l border-border flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="fixed top-0 right-0 z-50 h-full w-full sm:max-w-md bg-card border-l border-border flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border">
           <h2 className="text-sm uppercase tracking-button font-medium text-foreground">

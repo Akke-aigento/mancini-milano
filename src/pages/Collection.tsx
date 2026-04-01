@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 import ProductCard from '@/components/ProductCard';
 import {
   getCollectionProducts,
@@ -73,6 +74,7 @@ const Collection = () => {
 
   return (
     <Layout>
+      <SEO title={title} description={`Shop ${title} at Mancini Milano. Premium Italian luxury streetwear.`} />
       {/* Header */}
       <section className="max-w-site mx-auto px-4 lg:px-8 pt-12 pb-6 lg:pt-16 lg:pb-8">
         <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-2 text-center">

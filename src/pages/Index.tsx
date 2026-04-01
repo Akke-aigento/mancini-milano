@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 import {
   getProducts,
   getCollections,
@@ -69,6 +70,7 @@ const Index = () => {
 
   return (
     <Layout>
+      <SEO />
       {/* SECTION 1: HERO */}
       <section className="relative h-[calc(100vh-100px)] min-h-[600px] flex items-center overflow-hidden">
         <img
