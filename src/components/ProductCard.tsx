@@ -28,10 +28,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <img
             src={product.images[0].url}
             alt={product.images[0].alt || product.title}
+            loading="lazy"
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${
               hasSecondImage
                 ? 'group-hover:opacity-0'
-                : 'group-hover:scale-110'
+                : 'group-hover:scale-105'
             }`}
           />
         )}
