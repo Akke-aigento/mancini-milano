@@ -61,6 +61,7 @@ const Navbar = () => {
   const { itemCount, openDrawer } = useCart();
 
   return (
+    <>
     <nav className="sticky top-9 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
       <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
         {/* Logo */}
