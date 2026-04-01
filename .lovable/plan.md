@@ -1,53 +1,25 @@
 
 
-# Hero Section Update — Doberman Image + Brand Banner
+# Fix Mobile Hero CTA Positioning + Sticky Navbar
 
-## Overview
-Modify the existing homepage hero section to feature the Doberman brand illustration, and add a typography banner between sections. No other sections change.
+## Two issues to fix
 
-## Changes
+### 1. Mobile scroll CTA positioning
+The "SCROLL" indicator and CTA buttons are too close together at the bottom. The buttons need more breathing room from the bottom edge, and the scroll indicator should sit cleanly below them without overlapping.
 
-### 1. Copy uploaded images to project assets
-- Copy Doberman image to `src/assets/hero-doberman.png`
-- Copy MANCINIMILANO banner to `src/assets/brand-banner.png`
+**Fix in `src/pages/Index.tsx`:**
+- Move CTA buttons higher (change `bottom-16` to `bottom-24`)
+- Keep scroll indicator at `bottom-6` so there's clear separation
 
-### 2. Hero Section Rewrite (Section 1 in Index.tsx, lines 74-115)
+### 2. Sticky Navbar after Announcement Bar scrolls away
+The user wants: announcement bar scrolls away naturally, then the navbar "sticks" to the top of the viewport. This is a classic sticky-header pattern.
 
-**Mobile-first (default):**
-- Full viewport height hero with Doberman image covering the entire section
-- No text overlay (image already contains "MANCINI MILANO" branding)
-- Bottom gradient (transparent to black) with CTA buttons ("SHOP MEN" / "SHOP WOMEN") positioned at the bottom
-- Scroll indicator below buttons
+**Fix in `src/components/layout/Layout.tsx` + `src/components/layout/Navbar.tsx`:**
+- Make the navbar `sticky top-0 z-50` so it sticks to the top once the announcement bar (which sits above it in the flow) scrolls out of view
+- The announcement bar stays non-sticky (scrolls away naturally)
+- This gives the exact behavior described: announcement bar disappears on scroll, navbar slides up and locks at the top
 
-**Desktop (md: breakpoint):**
-- Split layout: left 50% pure black with headline text + CTAs vertically centered, right 50% Doberman image full height
-- Left side shows "DEFINE YOUR OWN LEGACY" headline + subtitle + CTA buttons
-- Right image uses `object-fit: cover; object-position: center top`
-- Subtle gradient on left edge of image blending into black background
-
-### 3. Brand Banner (new section between categories and trending)
-
-Insert a new full-width section between Section 3 (Featured Categories, line 158) and Section 4 (Trending Now, line 160):
-- Full-bleed image of the MANCINIMILANO typography banner
-- `loading="lazy"`, max-height ~450px on desktop with `object-fit: cover`
-- Simple parallax effect using `background-attachment: fixed` on desktop via a div with background-image instead of an img tag
-- No padding/margin — edge-to-edge visual break
-
-### Technical Details
-
-**Files modified:**
-- `src/pages/Index.tsx` — hero section rewrite + new banner section insertion
-- Two asset files copied into `src/assets/`
-
-**Import pattern:**
-```typescript
-import heroDoberman from '@/assets/hero-doberman.png';
-import brandBanner from '@/assets/brand-banner.png';
-```
-
-**Hero responsive approach:**
-- Mobile: single full-bleed image, buttons at bottom with gradient overlay
-- Desktop: CSS grid `grid-cols-2`, left col = text content, right col = image with gradient-to-left overlay on its left edge
-
-**Parallax banner:** Use a `div` with `style={{ backgroundImage }}` and `bg-fixed bg-cover bg-center` classes for the parallax effect, with an `img` fallback for mobile (where `background-attachment: fixed` doesn't work well).
+### Files changed
+- `src/components/layout/Navbar.tsx` — add `sticky top-0 z-50` to the navbar wrapper
+- `src/pages/Index.tsx` — adjust mobile hero CTA button positioning (more space from bottom)
 
