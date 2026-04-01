@@ -129,6 +129,25 @@ const ProductDetail = () => {
 
   return (
     <Layout>
+      <SEO
+        title={product.title}
+        description={product.description}
+        image={product.images?.[0]?.url}
+        type="product"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.title,
+          description: product.description,
+          image: product.images?.map((i: any) => i.url),
+          offers: {
+            '@type': 'Offer',
+            price: displayPrice,
+            priceCurrency: product.currency || 'EUR',
+            availability: product.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          },
+        }}
+      />
       <div className="max-w-site mx-auto px-4 lg:px-8 py-8 lg:py-12">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-8">
