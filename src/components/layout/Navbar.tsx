@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import SearchOverlay from '@/components/SearchOverlay';
 
 const forHimLinks = [
   { label: 'T-Shirts', slug: 't-shirts' },
@@ -56,9 +57,11 @@ function DropdownMenu({ label, links, slug }: { label: string; links: { label: s
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { itemCount, openDrawer } = useCart();
 
   return (
+    <>
     <nav className="sticky top-9 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
       <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
         {/* Logo */}
@@ -83,7 +86,7 @@ const Navbar = () => {
 
         {/* Icons */}
         <div className="flex items-center gap-4">
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => setSearchOpen(true)} className="text-muted-foreground hover:text-foreground transition-colors">
             <Search className="h-5 w-5" />
           </button>
           <button className="text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
@@ -129,7 +132,10 @@ const Navbar = () => {
         </div>
       )}
     </nav>
+    <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+    </>
   );
+
 };
 
 export default Navbar;
