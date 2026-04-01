@@ -89,14 +89,14 @@ const Navbar = () => {
           <button className="text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
             <User className="h-5 w-5" />
           </button>
-          <Link to="/cart" className="relative text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={openDrawer} className="relative text-muted-foreground hover:text-foreground transition-colors">
             <ShoppingBag className="h-5 w-5" />
             {itemCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[10px] font-medium rounded-full h-4 w-4 flex items-center justify-center">
                 {itemCount}
               </span>
             )}
-          </Link>
+          </button>
           <button
             className="lg:hidden text-muted-foreground hover:text-foreground transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
