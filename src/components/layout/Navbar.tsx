@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import SearchOverlay from '@/components/SearchOverlay';
 
 const forHimLinks = [
   { label: 'T-Shirts', slug: 't-shirts' },
