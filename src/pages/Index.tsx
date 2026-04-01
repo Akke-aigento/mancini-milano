@@ -191,6 +191,26 @@ const Index = () => {
         </div>
       </section>
 
+      {/* BRAND BANNER */}
+      <section className="w-full overflow-hidden">
+        {/* Mobile: regular image */}
+        <div className="block md:hidden">
+          <img
+            src={brandBanner}
+            alt="Mancini Milano brand typography"
+            loading="lazy"
+            className="w-full h-auto"
+          />
+        </div>
+        {/* Desktop: parallax */}
+        <div
+          className="hidden md:block h-[450px] bg-fixed bg-cover bg-center"
+          style={{ backgroundImage: `url(${brandBanner})` }}
+          role="img"
+          aria-label="Mancini Milano brand typography"
+        />
+      </section>
+
       {/* SECTION 4: TRENDING NOW */}
       <section className="pb-20 lg:pb-28">
         <div className="max-w-site mx-auto px-4 lg:px-8">
