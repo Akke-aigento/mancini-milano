@@ -98,7 +98,7 @@ const Index = () => {
             </Link>
           </div>
         </div>
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce z-10">
+        <div className="absolute bottom-10 inset-x-0 flex flex-col items-center gap-1 animate-bounce z-10">
           <span className="text-muted-foreground text-[10px] uppercase tracking-button">Scroll</span>
           <ChevronDown className="h-4 w-4 text-muted-foreground" />
         </div>
