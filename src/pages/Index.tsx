@@ -70,6 +70,7 @@ const Index = () => {
 
   return (
     <Layout>
+      <SEO />
       {/* SECTION 1: HERO */}
       <section className="relative h-[calc(100vh-100px)] min-h-[600px] flex items-center overflow-hidden">
         <img
