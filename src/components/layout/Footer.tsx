@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { SiInstagram } from '@icons-pack/react-simple-icons';
 import { useState } from 'react';
 
 const Footer = () => {
