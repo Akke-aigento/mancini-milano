@@ -344,6 +344,31 @@ const ProductDetail = () => {
           </div>
         </section>
       )}
+
+      {/* Sticky mobile add to cart bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-card border-t border-border p-4 lg:hidden">
+        <div className="flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">{product.title}</p>
+            <p className="text-sm text-primary font-medium">{formatPrice(displayPrice)}</p>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={!canAddToCart}
+            className={`px-6 py-3 text-xs uppercase tracking-button font-medium transition-colors flex-shrink-0 min-h-[44px] ${
+              addedToCart
+                ? 'bg-green-700 text-foreground'
+                : canAddToCart
+                  ? 'bg-primary text-primary-foreground hover:bg-gold-hover'
+                  : 'bg-muted text-muted-foreground cursor-not-allowed'
+            }`}
+          >
+            {addedToCart ? '✓ Added' : canAddToCart ? 'Add to Cart' : 'Select Size'}
+          </button>
+        </div>
+      </div>
+      {/* Spacer for sticky bar on mobile */}
+      <div className="h-20 lg:hidden" />
     </Layout>
   );
 };
