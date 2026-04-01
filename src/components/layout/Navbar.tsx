@@ -56,7 +56,7 @@ function DropdownMenu({ label, links, slug }: { label: string; links: { label: s
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { itemCount } = useCart();
+  const { itemCount, openDrawer } = useCart();
 
   return (
     <nav className="sticky top-9 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
