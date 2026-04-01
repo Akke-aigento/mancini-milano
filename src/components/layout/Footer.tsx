@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Instagram } from 'lucide-react';
+import { SiInstagram } from '@icons-pack/react-simple-icons';
 import { useState } from 'react';
 
 const Footer = () => {
