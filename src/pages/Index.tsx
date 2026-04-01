@@ -74,43 +74,75 @@ const Index = () => {
     <Layout>
       <SEO />
       {/* SECTION 1: HERO */}
-      <section className="relative h-[calc(100vh-100px)] min-h-[600px] flex items-center overflow-hidden">
+      {/* Mobile Hero — full-bleed Doberman image */}
+      <section className="relative h-[calc(100vh-60px)] min-h-[600px] overflow-hidden md:hidden">
         <img
-          src="https://mancinimilano.com/cdn/shop/files/WhatsApp_Image_2026-02-21_at_16.18.43_1x1.jpg?v=1771687166"
-          alt="Mancini Milano Hero"
-          className="absolute inset-0 w-full h-full object-cover"
+          src={heroDoberman}
+          alt="Mancini Milano — Italian luxury streetwear brand illustration featuring signature Doberman design"
+          className="absolute inset-0 w-full h-full object-cover object-top"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
-        <div className="relative z-10 max-w-site mx-auto px-4 lg:px-8 w-full">
-          <div className="max-w-xl">
-            <span className="inline-block text-primary text-xs uppercase tracking-button font-medium mb-4">
-              New Collection
-            </span>
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-[56px] leading-[1.1] tracking-heading uppercase text-foreground mb-5">
-              Define Your Own Legacy
-            </h1>
-            <p className="text-muted-foreground text-base lg:text-lg leading-relaxed mb-8 max-w-md">
-              Italian craftsmanship meets modern street authority. Elevated essentials for those who refuse to blend in.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link
-                to="/collections/for-him"
-                className="border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
-              >
-                Shop Men
-              </Link>
-              <Link
-                to="/collections/for-her"
-                className="bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
-              >
-                Shop Women
-              </Link>
-            </div>
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background via-background/80 to-transparent" />
+        <div className="absolute inset-x-0 bottom-16 z-10 flex flex-col items-center gap-4 px-6">
+          <div className="flex gap-4 w-full max-w-xs">
+            <Link
+              to="/collections/for-him"
+              className="flex-1 text-center border border-foreground text-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
+            >
+              Shop Men
+            </Link>
+            <Link
+              to="/collections/for-her"
+              className="flex-1 text-center bg-primary text-primary-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
+            >
+              Shop Women
+            </Link>
           </div>
         </div>
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce z-10">
+          <span className="text-muted-foreground text-[10px] uppercase tracking-button">Scroll</span>
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        </div>
+      </section>
 
+      {/* Desktop Hero — split layout */}
+      <section className="relative hidden md:grid md:grid-cols-2 h-[calc(100vh-80px)] min-h-[600px] overflow-hidden">
+        {/* Left: text content */}
+        <div className="flex flex-col justify-center px-8 lg:px-16 xl:px-24 bg-background">
+          <span className="inline-block text-primary text-xs uppercase tracking-button font-medium mb-4">
+            New Collection
+          </span>
+          <h1 className="font-heading text-4xl lg:text-[56px] leading-[1.1] tracking-heading uppercase text-foreground mb-5">
+            Define Your Own Legacy
+          </h1>
+          <p className="text-muted-foreground text-base lg:text-lg leading-relaxed mb-8 max-w-md">
+            Italian craftsmanship meets modern street authority. Elevated essentials for those who refuse to blend in.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              to="/collections/for-him"
+              className="border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
+            >
+              Shop Men
+            </Link>
+            <Link
+              to="/collections/for-her"
+              className="bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
+            >
+              Shop Women
+            </Link>
+          </div>
+        </div>
+        {/* Right: Doberman image */}
+        <div className="relative">
+          <img
+            src={heroDoberman}
+            alt="Mancini Milano — Italian luxury streetwear brand illustration featuring signature Doberman design"
+            className="absolute inset-0 w-full h-full object-cover object-top"
+          />
+          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent" />
+        </div>
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce z-10">
           <span className="text-muted-foreground text-[10px] uppercase tracking-button">Scroll</span>
           <ChevronDown className="h-4 w-4 text-muted-foreground" />
         </div>
