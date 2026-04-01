@@ -82,7 +82,7 @@ const Index = () => {
           className="absolute inset-0 w-full h-full object-cover object-top"
         />
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        <div className="absolute inset-x-0 bottom-16 z-10 flex flex-col items-center gap-4 px-6">
+        <div className="absolute inset-x-0 bottom-24 z-10 flex flex-col items-center gap-4 px-6">
           <div className="flex gap-4 w-full max-w-xs">
             <Link
               to="/collections/for-him"
