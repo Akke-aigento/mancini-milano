@@ -75,15 +75,17 @@ const ProductDetail = () => {
   const canAddToCart = (!needsSize || selectedSize) && (!needsColor || selectedColor);
   const displayPrice = selectedVariant?.price ?? product?.price ?? 0;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product || !canAddToCart) return;
-    addItem({
+    await addItem({
       product_id: product.id,
       variant_id: selectedVariant?.id,
       title: product.title + (selectedVariant ? ` - ${selectedVariant.title}` : ''),
       price: displayPrice,
       quantity: 1,
       image: product.images?.[0]?.url,
+      size: selectedSize || undefined,
+      color: selectedColor || undefined,
     });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2500);
