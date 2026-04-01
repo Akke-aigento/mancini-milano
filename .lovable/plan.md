@@ -1,62 +1,53 @@
 
 
-# Mancini Milano — Luxury E-Commerce Frontend
+# Hero Section Update — Doberman Image + Brand Banner
 
 ## Overview
-Premium dark luxury fashion webshop for "Mancini Milano" with a high-end aesthetic, full routing, and global layout components.
+Modify the existing homepage hero section to feature the Doberman brand illustration, and add a typography banner between sections. No other sections change.
 
-## Design System Setup
-- Update CSS variables to match the dark luxury palette (#0A0A0A background, #C9A96E gold accent, etc.)
-- Import Google Fonts: Playfair Display (headings/logo) and Inter (body)
-- Configure Tailwind with custom colors, fonts, spacing, and 0px border-radius on buttons
-- All text in English
+## Changes
 
-## Global Layout Components
+### 1. Copy uploaded images to project assets
+- Copy Doberman image to `src/assets/hero-doberman.png`
+- Copy MANCINIMILANO banner to `src/assets/brand-banner.png`
 
-### Announcement Bar
-- Fixed top bar, 36px, gold background (#C9A96E), black text
-- "FREE WORLDWIDE SHIPPING ON ALL ORDERS"
+### 2. Hero Section Rewrite (Section 1 in Index.tsx, lines 74-115)
 
-### Navbar
-- Sticky below announcement bar with backdrop blur on #0A0A0A
-- Left: "MANCINI MILANO" logo text (Playfair Display, uppercase, wide tracking)
-- Center: HOME, FOR HIM (dropdown), FOR HER (dropdown), FRAGRANCES, CONTACT
-- Right: Search, Account, Cart icons (with badge)
-- Dropdowns: dark overlay with category links
-- Mobile: hamburger menu with slide-in drawer
+**Mobile-first (default):**
+- Full viewport height hero with Doberman image covering the entire section
+- No text overlay (image already contains "MANCINI MILANO" branding)
+- Bottom gradient (transparent to black) with CTA buttons ("SHOP MEN" / "SHOP WOMEN") positioned at the bottom
+- Scroll indicator below buttons
 
-### Footer
-- 4-column layout: Brand info, Shop links, Info links, Social + Newsletter
-- Bottom bar: copyright + payment method icons
-- No "Powered by" text
+**Desktop (md: breakpoint):**
+- Split layout: left 50% pure black with headline text + CTAs vertically centered, right 50% Doberman image full height
+- Left side shows "DEFINE YOUR OWN LEGACY" headline + subtitle + CTA buttons
+- Right image uses `object-fit: cover; object-position: center top`
+- Subtle gradient on left edge of image blending into black background
 
-## Routing (React Router)
-All pages as styled placeholder pages with consistent layout:
-- `/` — Homepage
-- `/collections/:slug` — Collection page
-- `/products/:slug` — Product detail
-- `/contact` — Contact
-- `/about` — About Us
-- `/cart` — Cart
-- `/faq` — FAQ
-- `/privacy-policy` — Privacy Policy
-- `/size-guide` — Size Guide
+### 3. Brand Banner (new section between categories and trending)
 
-## File Structure
-- `src/components/layout/AnnouncementBar.tsx`
-- `src/components/layout/Navbar.tsx`
-- `src/components/layout/Footer.tsx`
-- `src/components/layout/Layout.tsx` (wraps all pages)
-- `src/pages/Index.tsx` (Homepage placeholder)
-- `src/pages/Collection.tsx`
-- `src/pages/ProductDetail.tsx`
-- `src/pages/Contact.tsx`
-- `src/pages/About.tsx`
-- `src/pages/Cart.tsx`
-- `src/pages/FAQ.tsx`
-- `src/pages/PrivacyPolicy.tsx`
-- `src/pages/SizeGuide.tsx`
-- Updated `src/App.tsx` with all routes
-- Updated `src/index.css` and `tailwind.config.ts` with design system
-- Updated `index.html` with Google Fonts links
+Insert a new full-width section between Section 3 (Featured Categories, line 158) and Section 4 (Trending Now, line 160):
+- Full-bleed image of the MANCINIMILANO typography banner
+- `loading="lazy"`, max-height ~450px on desktop with `object-fit: cover`
+- Simple parallax effect using `background-attachment: fixed` on desktop via a div with background-image instead of an img tag
+- No padding/margin — edge-to-edge visual break
+
+### Technical Details
+
+**Files modified:**
+- `src/pages/Index.tsx` — hero section rewrite + new banner section insertion
+- Two asset files copied into `src/assets/`
+
+**Import pattern:**
+```typescript
+import heroDoberman from '@/assets/hero-doberman.png';
+import brandBanner from '@/assets/brand-banner.png';
+```
+
+**Hero responsive approach:**
+- Mobile: single full-bleed image, buttons at bottom with gradient overlay
+- Desktop: CSS grid `grid-cols-2`, left col = text content, right col = image with gradient-to-left overlay on its left edge
+
+**Parallax banner:** Use a `div` with `style={{ backgroundImage }}` and `bg-fixed bg-cover bg-center` classes for the parallax effect, with an `img` fallback for mobile (where `background-attachment: fixed` doesn't work well).
 
