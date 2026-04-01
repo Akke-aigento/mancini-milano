@@ -131,7 +131,10 @@ const Navbar = () => {
         </div>
       )}
     </nav>
+    <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+    </>
   );
+
 };
 
 export default Navbar;
