@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
-import { useCategories } from '@/integrations/sellqo/hooks';
+import { useCategories, useProducts } from '@/integrations/sellqo/hooks';
 import SearchOverlay from '@/components/SearchOverlay';
 import logoDoberman from '@/assets/logo-doberman.png';
 
-function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string; links: { label: string; slug: string }[]; slug: string; scrolled: boolean; isHome: boolean }) {
+function DropdownMenu({ label, links, slug, scrolled, isHome, linkPrefix }: { label: string; links: { label: string; slug: string }[]; slug: string; scrolled: boolean; isHome: boolean; linkPrefix?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -28,7 +28,7 @@ function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string;
             {links.map(link => (
               <Link
                 key={link.slug}
-                to={`/collections/${link.slug}`}
+                to={linkPrefix ? `/collections/${link.slug}?gender=${linkPrefix}` : `/collections/${link.slug}`}
                 className="block px-5 py-2.5 text-xs uppercase tracking-button text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
                 onClick={() => setOpen(false)}
               >
@@ -42,7 +42,7 @@ function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string;
   );
 }
 
-function MobileAccordion({ label, slug, links, onClose }: { label: string; slug: string; links: { label: string; slug: string }[]; onClose: () => void }) {
+function MobileAccordion({ label, slug, links, onClose, linkPrefix }: { label: string; slug: string; links: { label: string; slug: string }[]; onClose: () => void; linkPrefix?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -67,7 +67,7 @@ function MobileAccordion({ label, slug, links, onClose }: { label: string; slug:
           {links.map(l => (
             <Link
               key={l.slug}
-              to={`/collections/${l.slug}`}
+              to={linkPrefix ? `/collections/${l.slug}?gender=${linkPrefix}` : `/collections/${l.slug}`}
               onClick={onClose}
               className="block py-2.5 text-sm uppercase tracking-button text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center"
             >
@@ -102,6 +102,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
+  const { data: menProducts } = useProducts({ category_slug: 'men' });
+  const { data: womenProducts } = useProducts({ category_slug: 'women' });
   const location = useLocation();
   const isHome = location.pathname === '/';
 
@@ -112,29 +114,42 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Try to build nav links from API categories, fall back to defaults
-  const parentSlugsToExclude = ['for-him', 'for-her'];
+  // Build gender-aware dropdown links from actual product categories
+  const forHimLinks = useMemo(() => {
+    if (!menProducts || menProducts.length === 0) return defaultForHimLinks;
+    const catMap = new Map<string, string>();
+    menProducts.forEach(p => {
+      (p.categories || []).forEach(c => {
+        if (c.slug !== 'men' && c.slug !== 'for-him') {
+          catMap.set(c.slug, c.name);
+        }
+      });
+    });
+    if (catMap.size === 0) return defaultForHimLinks;
+    return Array.from(catMap.entries()).map(([slug, name]) => ({ label: name, slug }));
+  }, [menProducts]);
 
-  const forHimLinks = categories
-    ? categories
-        .filter((c: any) => c.parent_id && (c.product_count ?? 0) > 0 && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-him'))
-        .map((c: any) => ({ label: c.name, slug: c.slug }))
-    : [];
-  const forHerLinks = categories
-    ? categories
-        .filter((c: any) => c.parent_id && (c.product_count ?? 0) > 0 && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-her'))
-        .map((c: any) => ({ label: c.name, slug: c.slug }))
-    : [];
+  const forHerLinks = useMemo(() => {
+    if (!womenProducts || womenProducts.length === 0) return defaultForHerLinks;
+    const catMap = new Map<string, string>();
+    womenProducts.forEach(p => {
+      (p.categories || []).forEach(c => {
+        if (c.slug !== 'women' && c.slug !== 'for-her') {
+          catMap.set(c.slug, c.name);
+        }
+      });
+    });
+    if (catMap.size === 0) return defaultForHerLinks;
+    return Array.from(catMap.entries()).map(([slug, name]) => ({ label: name, slug }));
+  }, [womenProducts]);
 
   // "All" dropdown: all categories with products, excluding parent containers
+  const parentSlugsToExclude = ['for-him', 'for-her', 'men', 'women'];
   const allLinks = categories
     ? categories
         .filter((c: any) => (c.product_count ?? 0) > 0 && !parentSlugsToExclude.includes(c.slug))
         .map((c: any) => ({ label: c.name, slug: c.slug }))
     : [];
-
-  const himLinks = forHimLinks.length > 0 ? forHimLinks : defaultForHimLinks;
-  const herLinks = forHerLinks.length > 0 ? forHerLinks : defaultForHerLinks;
 
   const closeMobile = () => setMobileOpen(false);
 
@@ -160,8 +175,8 @@ const Navbar = () => {
             {allLinks.length > 0 && (
               <DropdownMenu label="All" links={allLinks} slug="all" scrolled={scrolled} isHome={isHome} />
             )}
-            <DropdownMenu label="For Him" links={himLinks} slug="for-him" scrolled={scrolled} isHome={isHome} />
-            <DropdownMenu label="For Her" links={herLinks} slug="for-her" scrolled={scrolled} isHome={isHome} />
+            <DropdownMenu label="For Him" links={forHimLinks} slug="men" scrolled={scrolled} isHome={isHome} linkPrefix="men" />
+            <DropdownMenu label="For Her" links={forHerLinks} slug="women" scrolled={scrolled} isHome={isHome} linkPrefix="women" />
             <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Fragrances
             </Link>
@@ -228,8 +243,8 @@ const Navbar = () => {
             {allLinks.length > 0 && (
               <MobileAccordion label="All" slug="all" links={allLinks} onClose={closeMobile} />
             )}
-            <MobileAccordion label="For Him" slug="for-him" links={himLinks} onClose={closeMobile} />
-            <MobileAccordion label="For Her" slug="for-her" links={herLinks} onClose={closeMobile} />
+            <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} linkPrefix="men" />
+            <MobileAccordion label="For Her" slug="women" links={forHerLinks} onClose={closeMobile} linkPrefix="women" />
             <Link to="/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
               Fragrances
             </Link>

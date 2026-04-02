@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
@@ -10,12 +10,23 @@ type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
 const Collection = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
+  const genderFilter = searchParams.get('gender'); // 'men' or 'women'
+  
   const { data: allProducts = [], isLoading: loading } = useProducts(slug ? { category_slug: slug } : undefined);
   const { data: categories = [] } = useCategories();
   const [sort, setSort] = useState<SortOption>('featured');
 
+  // Filter by gender if query param is present
+  const genderFilteredProducts = useMemo(() => {
+    if (!genderFilter) return allProducts;
+    return allProducts.filter(p =>
+      p.categories?.some(c => c.slug === genderFilter)
+    );
+  }, [allProducts, genderFilter]);
+
   const sortedProducts = useMemo(() => {
-    const sorted = [...allProducts];
+    const sorted = [...genderFilteredProducts];
     switch (sort) {
       case 'price-asc':
         return sorted.sort((a, b) => a.price - b.price);
@@ -26,10 +37,12 @@ const Collection = () => {
       default:
         return sorted;
     }
-  }, [allProducts, sort]);
+  }, [genderFilteredProducts, sort]);
 
   const collection = categories.find((c: any) => c.slug === slug);
-  const title = collection?.name || slug?.replace(/-/g, ' ') || '';
+  const baseTitle = collection?.name || slug?.replace(/-/g, ' ') || '';
+  const genderLabel = genderFilter === 'men' ? 'For Him' : genderFilter === 'women' ? 'For Her' : '';
+  const title = genderLabel ? `${baseTitle} — ${genderLabel}` : baseTitle;
 
   // Build subcategory pills from API categories
   const parentCategories = ['for-him', 'for-her'];
@@ -51,7 +64,7 @@ const Collection = () => {
           {title}
         </h1>
         <p className="text-sm text-muted-foreground text-center">
-          {allProducts.length} {allProducts.length === 1 ? 'product' : 'products'}
+          {genderFilteredProducts.length} {genderFilteredProducts.length === 1 ? 'product' : 'products'}
         </p>
       </section>
 
@@ -62,7 +75,7 @@ const Collection = () => {
               {pills.map((pill) => (
                 <Link
                   key={pill.slug}
-                  to={`/collections/${pill.slug}`}
+                  to={`/collections/${pill.slug}${genderFilter ? `?gender=${genderFilter}` : ''}`}
                   className={`px-4 py-1.5 text-xs uppercase tracking-button font-medium border transition-colors ${
                     slug === pill.slug
                       ? 'border-primary text-primary'
