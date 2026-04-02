@@ -81,20 +81,6 @@ function MobileAccordion({ label, slug, links, onClose, linkPrefix }: { label: s
 }
 
 // Fallback hardcoded links in case API categories haven't loaded yet
-const defaultForHimLinks = [
-  { label: 'T-Shirts', slug: 't-shirts' },
-  { label: 'Jackets', slug: 'jackets' },
-  { label: 'Pants', slug: 'pants' },
-  { label: 'Hoodies', slug: 'hoodies' },
-  { label: 'Accessories', slug: 'accessories' },
-];
-
-const defaultForHerLinks = [
-  { label: 'T-Shirts', slug: 't-shirts' },
-  { label: 'Jackets', slug: 'jackets' },
-  { label: 'Pants', slug: 'pants' },
-  { label: 'Hoodies', slug: 'hoodies' },
-];
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
