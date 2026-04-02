@@ -16,10 +16,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {isHome && <LookbookBanner />}
       <Navbar />
       <main className="flex-1">{children}</main>
-    <Footer />
-    <CartDrawer />
-    <BackToTop />
-  </div>
-);
+      <Footer />
+      <CartDrawer />
+      <BackToTop />
+    </div>
+  );
+};
 
 export default Layout;

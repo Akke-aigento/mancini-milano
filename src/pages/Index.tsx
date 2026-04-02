@@ -4,7 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import heroDoberman from '@/assets/hero-doberman.png';
 import brandBanner from '@/assets/brand-banner.png';
 import Layout from '@/components/layout/Layout';
-import LookbookBanner from '@/components/layout/LookbookBanner';
+
 import SEO from '@/components/SEO';
 import { useProducts, useCategories, useNewsletterSubscribe } from '@/integrations/sellqo/hooks';
 import type { Product } from '@/integrations/sellqo/types';
