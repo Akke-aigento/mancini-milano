@@ -65,7 +65,7 @@ const ProfileTab = () => {
         <Input value={phone} onChange={e => setPhone(e.target.value)} className={inputClasses} />
       </div>
       <div className="flex items-center justify-between py-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Nieuwsbrief</Label>
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Newsletter</Label>
         <Switch checked={newsletter} onCheckedChange={setNewsletter} />
       </div>
       <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 h-12" disabled={saving}>
