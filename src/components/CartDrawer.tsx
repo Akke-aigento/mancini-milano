@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useState } from 'react';
