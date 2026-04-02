@@ -37,6 +37,7 @@ const Index = () => {
       id: apiCat?.id || slug,
       name: apiCat?.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
       slug,
+      image: apiCat?.image || '',
     };
   });
 
