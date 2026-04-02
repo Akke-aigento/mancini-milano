@@ -113,14 +113,23 @@ const Navbar = () => {
   }, []);
 
   // Try to build nav links from API categories, fall back to defaults
+  const parentSlugsToExclude = ['for-him', 'for-her'];
+
   const forHimLinks = categories
     ? categories
-        .filter((c: any) => c.parent_id && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-him'))
+        .filter((c: any) => c.parent_id && (c.product_count ?? 0) > 0 && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-him'))
         .map((c: any) => ({ label: c.name, slug: c.slug }))
     : [];
   const forHerLinks = categories
     ? categories
-        .filter((c: any) => c.parent_id && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-her'))
+        .filter((c: any) => c.parent_id && (c.product_count ?? 0) > 0 && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-her'))
+        .map((c: any) => ({ label: c.name, slug: c.slug }))
+    : [];
+
+  // "All" dropdown: all categories with products, excluding parent containers
+  const allLinks = categories
+    ? categories
+        .filter((c: any) => (c.product_count ?? 0) > 0 && !parentSlugsToExclude.includes(c.slug))
         .map((c: any) => ({ label: c.name, slug: c.slug }))
     : [];
 
