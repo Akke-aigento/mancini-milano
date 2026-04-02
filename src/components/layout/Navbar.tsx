@@ -23,7 +23,7 @@ function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string;
         <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${isHome && !scrolled ? 'rotate-180' : ''}`} />
       </Link>
       {open && (
-        <div className={`absolute left-0 z-50 ${scrolled ? 'top-full pt-2' : 'bottom-full pb-2'}`}>
+        <div className={`absolute left-0 z-50 ${!isHome || scrolled ? 'top-full pt-2' : 'bottom-full pb-2'}`}>
           <div className="bg-card border border-border min-w-[180px] py-2">
             {links.map(link => (
               <Link
