@@ -6,7 +6,7 @@ import { useCategories } from '@/integrations/sellqo/hooks';
 import SearchOverlay from '@/components/SearchOverlay';
 import logoDoberman from '@/assets/logo-doberman.png';
 
-function DropdownMenu({ label, links, slug, scrolled }: { label: string; links: { label: string; slug: string }[]; slug: string; scrolled: boolean }) {
+function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string; links: { label: string; slug: string }[]; slug: string; scrolled: boolean; isHome: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -20,10 +20,10 @@ function DropdownMenu({ label, links, slug, scrolled }: { label: string; links: 
         className="flex items-center gap-1 text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors"
       >
         {label}
-        <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${!scrolled ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${isHome && !scrolled ? 'rotate-180' : ''}`} />
       </Link>
       {open && (
-        <div className={`absolute left-0 z-50 ${scrolled ? 'top-full pt-2' : 'bottom-full pb-2'}`}>
+        <div className={`absolute left-0 z-50 ${!isHome || scrolled ? 'top-full pt-2' : 'bottom-full pb-2'}`}>
           <div className="bg-card border border-border min-w-[180px] py-2">
             {links.map(link => (
               <Link
@@ -148,8 +148,8 @@ const Navbar = () => {
             <Link to="/" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Home
             </Link>
-            <DropdownMenu label="For Him" links={himLinks} slug="for-him" scrolled={scrolled} />
-            <DropdownMenu label="For Her" links={herLinks} slug="for-her" scrolled={scrolled} />
+            <DropdownMenu label="For Him" links={himLinks} slug="for-him" scrolled={scrolled} isHome={isHome} />
+            <DropdownMenu label="For Her" links={herLinks} slug="for-her" scrolled={scrolled} isHome={isHome} />
             <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Fragrances
             </Link>
