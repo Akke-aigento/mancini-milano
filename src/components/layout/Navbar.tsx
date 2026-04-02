@@ -6,7 +6,7 @@ import { useCategories, useProducts } from '@/integrations/sellqo/hooks';
 import SearchOverlay from '@/components/SearchOverlay';
 import logoDoberman from '@/assets/logo-doberman.png';
 
-function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string; links: { label: string; slug: string }[]; slug: string; scrolled: boolean; isHome: boolean }) {
+function DropdownMenu({ label, links, slug, scrolled, isHome, linkPrefix }: { label: string; links: { label: string; slug: string }[]; slug: string; scrolled: boolean; isHome: boolean; linkPrefix?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -28,7 +28,7 @@ function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string;
             {links.map(link => (
               <Link
                 key={link.slug}
-                to={`/collections/${link.slug}`}
+                to={linkPrefix ? `/collections/${link.slug}?gender=${linkPrefix}` : `/collections/${link.slug}`}
                 className="block px-5 py-2.5 text-xs uppercase tracking-button text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
                 onClick={() => setOpen(false)}
               >
