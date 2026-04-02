@@ -281,15 +281,10 @@ export function useCreateCheckout() {
     mutationFn: (options?: { success_url?: string; cancel_url?: string }) => {
       const cartId = getStoredCartId();
       if (!cartId) throw new Error('No cart found');
-      return checkoutAPI.create(cartId, options);
+      return checkoutAPI.start(cartId);
     },
     onSuccess: (response: any) => {
-      const url = response?.data?.checkout_url || response?.checkout_url || (typeof response === 'string' ? response : null);
-      if (url) {
-        window.location.href = url;
-      } else {
-        console.error('Checkout response missing checkout_url:', response);
-      }
+      console.log('Checkout started:', response);
     },
   });
 }
