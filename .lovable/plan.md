@@ -1,47 +1,31 @@
 
 
-# Fix: Categorie Afbeeldingen Laden Niet
+# Kleurenschema: Goud → Wit + Announcement Bar Zwart
 
-## Probleem
-De screenshot toont dat de categorie-afbeeldingen broken zijn — alleen alt-text ("T-shirts", "Jackets", "Hoodies") is zichtbaar. 
+## Wat verandert
 
-De `useCategories()` hook haalt categorieën op maar past **geen normalisatie** toe. De data wordt raw als `Category` getypt. Het `image` veld op de `Category` interface verwacht een string, maar de SellQo API stuurt het waarschijnlijk als `image_url` (net zoals bij collections, waar de normalizer `raw.image_url || raw.image` doet).
+**Primary kleur** gaat van goud (`38 43% 60%`) naar wit (`0 0% 100%`), met zwarte tekst erop (`primary-foreground` blijft `0 0% 0%`). Dit raakt automatisch alle knoppen, labels, prijzen, links die `text-primary`, `bg-primary`, `hover:bg-gold-hover` gebruiken.
 
-## Oplossing
-Voeg een `normalizeCategory` functie toe in de normalizer die `image_url` correct mapt, en gebruik deze in de `useCategories` hook.
+**Ring** kleur ook naar wit.
+
+**Gold custom variabelen** worden ook wit zodat `hover:bg-gold-hover` en `hover:text-gold-hover` consistent blijven.
+
+**Announcement Bar** krijgt een zwarte achtergrond met witte tekst — dit wordt `bg-background text-foreground` (want background = zwart, foreground = wit).
 
 ## Wijzigingen
 
-### 1. `src/integrations/sellqo/normalizer.ts`
-Nieuwe functie toevoegen:
-```tsx
-export function normalizeCategory(raw: any): Category {
-  return {
-    id: raw.id,
-    slug: raw.slug || '',
-    name: raw.name || raw.title || '',
-    description: raw.description || undefined,
-    image: raw.image_url || raw.image || undefined,
-    product_count: raw.product_count ?? undefined,
-    parent_id: raw.parent_id || undefined,
-    position: raw.position ?? 0,
-  };
-}
+### 1. `src/index.css` — CSS variabelen
+- `--primary: 0 0% 100%` (wit)
+- `--primary-foreground: 0 0% 0%` (zwart — tekst op witte knoppen)
+- `--ring: 0 0% 100%`
+- `--gold: 0 0% 100%`
+- `--gold-hover: 0 0% 85%` (lichtgrijs hover voor witte knoppen)
 
-export function normalizeCategories(rawCategories: any[]): Category[] {
-  return (rawCategories || []).map(normalizeCategory);
-}
-```
-
-### 2. `src/integrations/sellqo/hooks.ts`
-- Import `normalizeCategories`
-- In `useCategories()`, na `extractArray` de data normaliseren:
-```tsx
-const raw = extractArray<any>(res);
-return normalizeCategories(raw);
-```
+### 2. `src/components/layout/AnnouncementBar.tsx`
+- Van `bg-primary text-primary-foreground` → `bg-background text-foreground border-b border-border`
+- Zo wordt het zwart met witte tekst, met een subtiele border eronder
 
 ### Twee files
-- `src/integrations/sellqo/normalizer.ts`
-- `src/integrations/sellqo/hooks.ts`
+- `src/index.css`
+- `src/components/layout/AnnouncementBar.tsx`
 
