@@ -289,9 +289,17 @@ const Index = () => {
                 <h2 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-4">
                   The Signature Fragrance
                 </h2>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-md mx-auto lg:mx-0">
+              <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-md mx-auto lg:mx-0">
                   A fragrance for men who dominate without speaking. Intense. Powerful. Unforgettable. Crafted with bold notes of black pepper, cedarwood, and deep patchouli.
                 </p>
+                {/* Afbeelding — alleen op mobiel/tablet */}
+                <div className="flex justify-center my-8 lg:hidden">
+                  <div className="w-56">
+                    {fragrance.images?.[0] && (
+                      <img src={fragrance.images[0].url} alt={fragrance.title} className="w-full h-auto object-contain" />
+                    )}
+                  </div>
+                </div>
                 <p className="text-2xl text-primary font-heading mb-8">From {formatPrice(fragrance.price)}</p>
                 <Link
                   to={`/products/${fragrance.slug}`}
