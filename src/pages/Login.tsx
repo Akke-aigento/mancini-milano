@@ -11,9 +11,9 @@ import SEO from "@/components/SEO";
 
 const PasswordStrength = ({ password }: { password: string }) => {
   const checks = [
-    { label: "Min. 8 tekens", pass: password.length >= 8 },
-    { label: "Hoofdletter", pass: /[A-Z]/.test(password) },
-    { label: "Cijfer", pass: /\d/.test(password) },
+    { label: "Min. 8 characters", pass: password.length >= 8 },
+    { label: "Uppercase", pass: /[A-Z]/.test(password) },
+    { label: "Number", pass: /\d/.test(password) },
   ];
   if (!password) return null;
   return (
@@ -53,13 +53,13 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) { toast.error("Vul alle velden in"); return; }
+    if (!email || !password) { toast.error("Please fill in all fields"); return; }
     setLoading(true);
     try {
       await login(email, password);
-      toast.success("Succesvol ingelogd");
+      toast.success("Signed in successfully");
     } catch (err: any) {
-      toast.error(err.message || "Inloggen mislukt");
+      toast.error(err.message || "Sign in failed");
     } finally {
       setLoading(false);
     }
@@ -68,20 +68,20 @@ const Login = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!firstName || !lastName || !regEmail || !regPassword) {
-      toast.error("Vul alle velden in"); return;
+      toast.error("Please fill in all fields"); return;
     }
     if (regPassword !== regConfirm) {
-      toast.error("Wachtwoorden komen niet overeen"); return;
+      toast.error("Passwords do not match"); return;
     }
     if (regPassword.length < 8) {
-      toast.error("Wachtwoord moet minimaal 8 tekens bevatten"); return;
+      toast.error("Password must be at least 8 characters"); return;
     }
     setLoading(true);
     try {
       await register({ email: regEmail, password: regPassword, first_name: firstName, last_name: lastName });
-      toast.success("Account aangemaakt");
+      toast.success("Account created successfully");
     } catch (err: any) {
-      toast.error(err.message || "Registratie mislukt");
+      toast.error(err.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -91,7 +91,7 @@ const Login = () => {
 
   return (
     <Layout>
-      <SEO title="Account — Mancini Milano" description="Log in of registreer bij Mancini Milano." />
+      <SEO title="Account — Mancini Milano" description="Sign in or register at Mancini Milano." />
       <div className="min-h-[70vh] flex items-center justify-center px-4 py-16">
         <div className="w-full max-w-md">
           <h1 className="font-heading text-3xl tracking-logo uppercase text-foreground text-center mb-8">
@@ -108,7 +108,7 @@ const Login = () => {
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
-              Inloggen
+              Sign In
             </button>
             <button
               onClick={() => setTab("register")}
@@ -118,7 +118,7 @@ const Login = () => {
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
-              Registreren
+              Register
             </button>
           </div>
 
@@ -127,20 +127,20 @@ const Login = () => {
             <form onSubmit={handleLogin} className="space-y-5 animate-in fade-in-0 duration-300">
               <div className="space-y-2">
                 <Label htmlFor="login-email" className="text-xs uppercase tracking-wider text-muted-foreground">
-                  E-mail
+                  Email
                 </Label>
                 <Input
                   id="login-email"
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="je@email.com"
+                  placeholder="you@email.com"
                   className={inputClasses}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="login-password" className="text-xs uppercase tracking-wider text-muted-foreground">
-                  Wachtwoord
+                  Password
                 </Label>
                 <div className="relative">
                   <Input
@@ -161,7 +161,7 @@ const Login = () => {
               </div>
               <Button type="submit" className="w-full h-12 text-sm font-semibold gap-2 group bg-foreground text-background hover:bg-foreground/90" disabled={loading}>
                 {loading ? <Loader2 className="animate-spin" size={16} /> : null}
-                Inloggen
+                Sign In
                 {!loading && <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />}
               </Button>
             </form>
@@ -172,37 +172,37 @@ const Login = () => {
             <form onSubmit={handleRegister} className="space-y-5 animate-in fade-in-0 duration-300">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">Voornaam</Label>
+                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">First Name</Label>
                   <Input value={firstName} onChange={e => setFirstName(e.target.value)} className={inputClasses} />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">Achternaam</Label>
+                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">Last Name</Label>
                   <Input value={lastName} onChange={e => setLastName(e.target.value)} className={inputClasses} />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">E-mail</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Email</Label>
                 <Input
                   type="email"
                   value={regEmail}
                   onChange={e => setRegEmail(e.target.value)}
-                  placeholder="je@email.com"
+                  placeholder="you@email.com"
                   className={inputClasses}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Wachtwoord</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Password</Label>
                 <Input
                   type="password"
                   value={regPassword}
                   onChange={e => setRegPassword(e.target.value)}
-                  placeholder="Min. 8 tekens"
+                  placeholder="Min. 8 characters"
                   className={inputClasses}
                 />
                 <PasswordStrength password={regPassword} />
               </div>
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Bevestig wachtwoord</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Confirm Password</Label>
                 <Input
                   type="password"
                   value={regConfirm}
@@ -212,7 +212,7 @@ const Login = () => {
               </div>
               <Button type="submit" className="w-full h-12 text-sm font-semibold gap-2 group bg-foreground text-background hover:bg-foreground/90" disabled={loading}>
                 {loading ? <Loader2 className="animate-spin" size={16} /> : null}
-                Registreren
+                Register
                 {!loading && <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />}
               </Button>
             </form>
