@@ -1,4 +1,5 @@
 import AnnouncementBar from './AnnouncementBar';
+import LookbookBanner from './LookbookBanner';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import CartDrawer from '@/components/CartDrawer';
@@ -7,6 +8,7 @@ import BackToTop from '@/components/BackToTop';
 const Layout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen flex flex-col animate-in fade-in duration-300">
     <AnnouncementBar />
+    <LookbookBanner />
     <Navbar />
     <main className="flex-1">{children}</main>
     <Footer />
