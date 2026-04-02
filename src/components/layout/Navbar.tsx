@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCategories } from '@/integrations/sellqo/hooks';
 import SearchOverlay from '@/components/SearchOverlay';
+import logoDoberman from '@/assets/logo-doberman.png';
 
 function DropdownMenu({ label, links, slug }: { label: string; links: { label: string; slug: string }[]; slug: string }) {
   const [open, setOpen] = useState(false);
