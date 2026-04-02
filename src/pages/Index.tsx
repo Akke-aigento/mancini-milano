@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import heroDoberman from '@/assets/hero-doberman.png';
 import brandBanner from '@/assets/brand-banner.png';
+import lookbookBanner from '@/assets/lookbook-banner.jpg';
 import Layout from '@/components/layout/Layout';
 
 import SEO from '@/components/SEO';
@@ -69,8 +70,8 @@ const Index = () => {
       {/* Mobile Hero */}
       <section className="relative h-[calc(100vh-60px)] min-h-[600px] overflow-hidden md:hidden">
         <img
-          src={heroDoberman}
-          alt="Mancini Milano — Italian luxury streetwear brand illustration featuring signature Doberman design"
+          src={lookbookBanner}
+          alt="Mancini Milano Collection"
           className="absolute inset-0 w-full h-full object-cover object-top"
         />
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background via-background/80 to-transparent" />
