@@ -184,8 +184,11 @@ const Index = () => {
         <div className="block md:hidden">
           <img src={brandBanner} alt="Mancini Milano brand typography" loading="lazy" className="w-full h-auto" />
         </div>
+        <div className="hidden md:block lg:hidden h-[300px] overflow-hidden">
+          <img src={brandBanner} alt="Mancini Milano brand typography" loading="lazy" className="w-full h-full object-cover object-center" />
+        </div>
         <div
-          className="hidden md:block h-[450px] bg-fixed bg-cover bg-center"
+          className="hidden lg:block h-[450px] bg-fixed bg-cover bg-center"
           style={{ backgroundImage: `url(${brandBanner})` }}
           role="img"
           aria-label="Mancini Milano brand typography"
@@ -278,7 +281,7 @@ const Index = () => {
 
       {/* SECTION 6: FRAGRANCE HIGHLIGHT */}
       {fragrance && (
-        <section className="py-20 lg:py-28" style={{ background: 'linear-gradient(135deg, hsl(0 0% 4%) 0%, hsl(30 10% 8%) 50%, hsl(0 0% 4%) 100%)' }}>
+        <section className="py-20 lg:py-28 bg-black">
           <div className="max-w-site mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
               <div className="text-center lg:text-left">
@@ -286,9 +289,8 @@ const Index = () => {
                 <h2 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-4">
                   The Signature Fragrance
                 </h2>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-md mx-auto lg:mx-0">
-                  {fragrance.description}
-                </p>
+                <div className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-md mx-auto lg:mx-0 prose prose-sm prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: fragrance.description }} />
                 <p className="text-2xl text-primary font-heading mb-8">From {formatPrice(fragrance.price)}</p>
                 <Link
                   to={`/products/${fragrance.slug}`}
