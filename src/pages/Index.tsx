@@ -10,11 +10,6 @@ import SEO from '@/components/SEO';
 import { useProducts, useProduct, useCategories, useNewsletterSubscribe } from '@/integrations/sellqo/hooks';
 import type { Product } from '@/integrations/sellqo/types';
 
-const categoryImages: Record<string, string> = {
-  't-shirts': 'https://mancinimilano.com/cdn/shop/files/rn-image_picker_lib_temp_896ede1b-a149-4125-a1c4-18afec653b26_600x.png?v=1765501528',
-  'jackets': 'https://mancinimilano.com/cdn/shop/files/rn-image_picker_lib_temp_af64f79d-1dc6-4c11-a839-4c9df9c40dc1_600x.png?v=1771805413',
-  'hoodies': 'https://mancinimilano.com/cdn/shop/files/rn-image_picker_lib_temp_af64f79d-1dc6-4c11-a839-4c9df9c40dc1_600x.png?v=1771805413',
-};
 
 const featuredCategorySlugs = ['t-shirts', 'jackets', 'hoodies'];
 
@@ -42,6 +37,7 @@ const Index = () => {
       id: apiCat?.id || slug,
       name: apiCat?.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
       slug,
+      image: apiCat?.image || '',
     };
   });
 
@@ -160,7 +156,7 @@ const Index = () => {
                 className="group relative aspect-[3/4] overflow-hidden block"
               >
                 <img
-                  src={categoryImages[cat.slug] || ''}
+                  src={cat.image}
                   alt={cat.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
