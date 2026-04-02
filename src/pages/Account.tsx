@@ -126,7 +126,7 @@ const AddressTab = () => {
     <form onSubmit={handleSave} className="space-y-5 max-w-md">
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-2 space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Straat</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Street</Label>
           <Input value={street} onChange={e => setStreet(e.target.value)} className={inputClasses} />
         </div>
         <div className="space-y-2">
