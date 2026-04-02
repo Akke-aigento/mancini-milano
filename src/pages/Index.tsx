@@ -27,8 +27,10 @@ function formatPrice(price: number) {
 }
 
 const Index = () => {
-  const { data: products = [] } = useProducts();
   const { data: trendingProducts = [] } = useProducts({ category_slug: 'trending' });
+  const { data: blueStormTee } = useProduct('blue-storm-luxe-tee');
+  const { data: silentAuthority } = useProduct('silent-authority');
+  const { data: fragrance } = useProduct('mancini-milano');
   const { data: categories = [] } = useCategories();
   const newsletterMutation = useNewsletterSubscribe();
   const [email, setEmail] = useState('');
