@@ -1,7 +1,7 @@
 import lookbookBanner from '@/assets/lookbook-banner.jpg';
 
 const LookbookBanner = () => (
-  <div className="relative w-full h-[50vh] md:h-[calc(100vh-100px)] overflow-hidden">
+  <div className="relative w-full hidden md:block md:h-[calc(100vh-100px)] overflow-hidden">
     <img
       src={lookbookBanner}
       alt="Mancini Milano Collection"
