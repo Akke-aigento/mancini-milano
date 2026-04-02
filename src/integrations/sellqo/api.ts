@@ -1,5 +1,5 @@
 import { sellqoFetch } from './client';
-import type { Product, Collection, Category, Cart, CheckoutSession, PaginatedResponse, ProductsParams } from './types';
+import type { Product, Collection, Category, Cart, PaginatedResponse, ProductsParams } from './types';
 
 // === PRODUCTS ===
 export const productsAPI = {
