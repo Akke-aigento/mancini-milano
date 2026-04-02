@@ -286,9 +286,8 @@ const Index = () => {
                 <h2 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-4">
                   The Signature Fragrance
                 </h2>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-md mx-auto lg:mx-0">
-                  {fragrance.description}
-                </p>
+                <div className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-md mx-auto lg:mx-0 prose prose-sm prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: fragrance.description }} />
                 <p className="text-2xl text-primary font-heading mb-8">From {formatPrice(fragrance.price)}</p>
                 <Link
                   to={`/products/${fragrance.slug}`}
