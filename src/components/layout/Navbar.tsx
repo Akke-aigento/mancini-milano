@@ -157,6 +157,9 @@ const Navbar = () => {
             <Link to="/" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Home
             </Link>
+            {allLinks.length > 0 && (
+              <DropdownMenu label="All" links={allLinks} slug="all" scrolled={scrolled} isHome={isHome} />
+            )}
             <DropdownMenu label="For Him" links={himLinks} slug="for-him" scrolled={scrolled} isHome={isHome} />
             <DropdownMenu label="For Her" links={herLinks} slug="for-her" scrolled={scrolled} isHome={isHome} />
             <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
