@@ -1,48 +1,33 @@
 
 
-# Exclusive Sectie: Afbeelding Tussen Tekst en Prijs
+# Navbar: Dynamische "All" Dropdown + For Him/For Her met Niet-Lege Categorieën
 
 ## Wat
-Op mobiel staat de afbeelding nu helemaal onderaan (in de tweede grid-kolom). Door de layout te herstructureren komt de afbeelding tussen de beschrijvingstekst en de prijs — logischer en visueel mooier.
+1. **Nieuw "All" dropdown** in de navbar — toont alle categorieën die `product_count > 0` hebben (geen lege categorieën). Alleen top-level of subcategorieën met producten.
+2. **For Him / For Her dropdowns** — tonen alleen subcategorieën die daadwerkelijk producten bevatten (`product_count > 0`).
+3. Zelfde logica voor het mobiele menu (accordions).
 
-## Wijziging
+## Aanpak
 
-### `src/pages/Index.tsx` (regels 286-309)
+### `src/components/layout/Navbar.tsx`
 
-Op mobiel: alles in één flow (geen 2-kolom grid). Volgorde wordt:
-1. "Exclusive" label + titel + beschrijving
-2. Afbeelding (gecentreerd)
-3. Prijs + CTA knop
+**Filtering logica:**
+- Gebruik `category.product_count` (al beschikbaar in de API response) om lege categorieën uit te filteren
+- `allLinks`: alle categorieën waar `product_count > 0`, exclusief parent-categorieën zoals "for-him" en "for-her" zelf (die zijn al aparte dropdowns)
+- `himLinks`: subcategorieën van "for-him" waar `product_count > 0`
+- `herLinks`: subcategorieën van "for-her" waar `product_count > 0`
 
-Op desktop (`lg:`): behoud de huidige 2-kolom layout met tekst links en afbeelding rechts.
-
-**Aanpak:** Verplaats de afbeelding `<div>` naar binnen de tekstkolom, tussen de beschrijving en de prijs. Op `lg:` wordt de afbeelding via `lg:hidden` verborgen in de tekstkolom en blijft de aparte rechterkolom met `hidden lg:flex` behouden.
-
-```tsx
-<div className="text-center lg:text-left">
-  <span>Exclusive</span>
-  <h2>The Signature Fragrance</h2>
-  <p>A fragrance for men who...</p>
-  
-  {/* Afbeelding — alleen op mobiel hier getoond */}
-  <div className="flex justify-center my-8 lg:hidden">
-    <div className="w-56">
-      <img ... />
-    </div>
-  </div>
-  
-  <p>From €75.95</p>
-  <Link>Discover →</Link>
-</div>
-
-{/* Afbeelding — alleen op desktop */}
-<div className="hidden lg:flex justify-center">
-  <div className="w-80">
-    <img ... />
-  </div>
-</div>
+**Desktop nav (regel 147-158):**
 ```
+Home | All ▼ | For Him ▼ | For Her ▼ | Fragrances | Contact
+```
+- Voeg een nieuwe `<DropdownMenu label="All" links={allLinks} slug="all" ... />` toe tussen Home en For Him
+
+**Mobiel menu (regel 213-222):**
+- Voeg een `<MobileAccordion label="All" slug="all" links={allLinks} ... />` toe
+
+**Fallback defaults** worden ook gefilterd: als de API nog niet geladen is, tonen de hardcoded defaults. Als de API wél geladen is maar alles leeg is, wordt de dropdown niet getoond.
 
 ### Eén file
-- `src/pages/Index.tsx`
+- `src/components/layout/Navbar.tsx`
 
