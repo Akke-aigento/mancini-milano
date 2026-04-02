@@ -28,6 +28,7 @@ function formatPrice(price: number) {
 
 const Index = () => {
   const { data: products = [] } = useProducts();
+  const { data: trendingProducts = [] } = useProducts({ category_slug: 'trending' });
   const { data: categories = [] } = useCategories();
   const newsletterMutation = useNewsletterSubscribe();
   const [email, setEmail] = useState('');
@@ -41,8 +42,6 @@ const Index = () => {
       slug,
     };
   });
-
-  const trendingProducts = products.slice(0, 4);
 
   const blueStormProducts = products.filter(
     (p: Product) => p.slug === 'blue-storm-luxe-tee' || p.slug === 'silent-authority'
