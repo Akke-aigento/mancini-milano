@@ -232,8 +232,12 @@ const Navbar = () => {
             {allLinks.length > 0 && (
               <MobileAccordion label="All" slug="all" links={allLinks} onClose={closeMobile} />
             )}
-            <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} linkPrefix="men" />
-            <MobileAccordion label="For Her" slug="women" links={forHerLinks} onClose={closeMobile} linkPrefix="women" />
+            {forHimLinks.length > 0 && (
+              <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} linkPrefix="men" />
+            )}
+            {forHerLinks.length > 0 && (
+              <MobileAccordion label="For Her" slug="women" links={forHerLinks} onClose={closeMobile} linkPrefix="women" />
+            )}
             <Link to="/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
               Fragrances
             </Link>
