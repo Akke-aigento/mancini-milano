@@ -68,18 +68,15 @@ const Index = () => {
       <SEO />
       {/* SECTION 1: HERO */}
       {/* Mobile Hero */}
-      <section className="relative h-[60vh] min-h-[400px] overflow-hidden md:hidden">
-        <img
-          src={lookbookBanner}
-          alt="Mancini Milano Collection"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        <div className="absolute inset-x-0 bottom-6 z-10 flex flex-col items-center gap-4 px-6">
-          <div className="flex flex-col items-center gap-1 animate-bounce">
-            <span className="text-muted-foreground text-[10px] uppercase tracking-button">Scroll</span>
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          </div>
+      <div className="md:hidden">
+        <div className="relative aspect-[4/5] overflow-hidden">
+          <img
+            src={lookbookBanner}
+            alt="Mancini Milano Collection"
+            className="absolute inset-0 w-full h-full object-cover object-center"
+          />
+        </div>
+        <div className="flex flex-col items-center gap-4 px-6 py-6 bg-background">
           <div className="flex gap-4 w-full max-w-xs">
             <Link
               to="/collections/for-him"
@@ -94,8 +91,12 @@ const Index = () => {
               Shop Women
             </Link>
           </div>
+          <div className="flex flex-col items-center gap-1 animate-bounce">
+            <span className="text-muted-foreground text-[10px] uppercase tracking-button">Scroll</span>
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          </div>
         </div>
-      </section>
+      </div>
 
       {/* Desktop Hero */}
       <section className="relative hidden md:grid md:grid-cols-2 h-[calc(100vh-80px)] min-h-[600px] overflow-hidden">
