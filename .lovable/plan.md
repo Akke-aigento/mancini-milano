@@ -1,33 +1,20 @@
 
 
-# Productbeschrijving: HTML renderen i.p.v. plain text
+# Instagram URL Updaten
 
-## Probleem
-`product.description` bevat HTML tags (`<p>`, `</p>`, etc.) die als plain text worden weergegeven in plaats van gerenderd.
+## Wat
+De Instagram-links op de site verwijzen naar `instagram.com/mancinimilano` maar moeten naar `instagram.com/mancinimilanostore`.
 
-## Oplossing
+## Wijzigingen
 
-### `src/pages/ProductDetail.tsx` (regel 291-292)
-Vervang `{content}` door een conditionele render: als `key === 'description'`, gebruik `dangerouslySetInnerHTML` om de HTML te renderen. Voor de andere accordion items (shipping, care) gewoon plain text behouden.
+### 1. `src/components/layout/Footer.tsx` (regel 63)
+- `https://instagram.com/mancinimilano` → `https://www.instagram.com/mancinimilanostore/`
 
-**Van:**
-```tsx
-<div className="pb-4 text-sm text-muted-foreground leading-relaxed">
-  {content}
-</div>
-```
+### 2. `src/pages/Contact.tsx` (regel 63)
+- `https://instagram.com/mancinimilano` → `https://www.instagram.com/mancinimilanostore/`
+- Label `@mancinimilano` → `@mancinimilanostore`
 
-**Naar:**
-```tsx
-<div className="pb-4 text-sm text-muted-foreground leading-relaxed">
-  {key === 'description' ? (
-    <div dangerouslySetInnerHTML={{ __html: content }} className="prose prose-sm prose-invert max-w-none" />
-  ) : (
-    content
-  )}
-</div>
-```
-
-### Eén file
-- `src/pages/ProductDetail.tsx`
+### 2 files
+- `src/components/layout/Footer.tsx`
+- `src/pages/Contact.tsx`
 
