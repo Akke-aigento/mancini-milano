@@ -6,7 +6,7 @@ import { useCategories } from '@/integrations/sellqo/hooks';
 import SearchOverlay from '@/components/SearchOverlay';
 import logoDoberman from '@/assets/logo-doberman.png';
 
-function DropdownMenu({ label, links, slug, scrolled }: { label: string; links: { label: string; slug: string }[]; slug: string; scrolled: boolean }) {
+function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string; links: { label: string; slug: string }[]; slug: string; scrolled: boolean; isHome: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
