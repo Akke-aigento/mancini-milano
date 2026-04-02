@@ -9,7 +9,7 @@ export interface Customer {
   first_name: string;
   last_name: string;
   phone?: string;
-  newsletter?: boolean;
+  newsletter_opt_in?: boolean;
   addresses?: Address[];
 }
 
