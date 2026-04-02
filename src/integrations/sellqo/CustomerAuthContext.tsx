@@ -96,7 +96,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setCustomer(null);
   };
 
-  const updateProfile = async (data: Partial<Pick<Customer, "first_name" | "last_name" | "phone">>) => {
+  const updateProfile = async (data: Partial<Pick<Customer, "first_name" | "last_name" | "phone" | "newsletter">>) => {
     if (!token) return;
     const updated = await customerApiFetch<Customer>("update_profile", data, token);
     setCustomer(updated);

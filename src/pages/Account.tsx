@@ -1,22 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCustomerAuth } from "@/integrations/sellqo/CustomerAuthContext";
+import { useCustomerAuth, Address } from "@/integrations/sellqo/CustomerAuthContext";
 import { customerApiFetch } from "@/integrations/sellqo/customerClient";
 import Layout from "@/components/layout/Layout";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, User, ShoppingBag, Lock, LogOut } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Loader2, User, ShoppingBag, Lock, LogOut, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 const tabs = [
   { id: "profile" as const, icon: User, label: "Profiel" },
+  { id: "address" as const, icon: MapPin, label: "Adres" },
   { id: "orders" as const, icon: ShoppingBag, label: "Bestellingen" },
   { id: "password" as const, icon: Lock, label: "Wachtwoord" },
 ];
 
 type TabId = typeof tabs[number]["id"];
+
+const inputClasses = "bg-secondary/50 border-border/50 h-12 text-foreground";
 
 /* ─── Profile Tab ─── */
 const ProfileTab = () => {
@@ -24,13 +28,14 @@ const ProfileTab = () => {
   const [firstName, setFirstName] = useState(customer?.first_name || "");
   const [lastName, setLastName] = useState(customer?.last_name || "");
   const [phone, setPhone] = useState(customer?.phone || "");
+  const [newsletter, setNewsletter] = useState(customer?.newsletter || false);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      await updateProfile({ first_name: firstName, last_name: lastName, phone });
+      await updateProfile({ first_name: firstName, last_name: lastName, phone, newsletter });
       toast.success("Profiel bijgewerkt");
     } catch (err: any) {
       toast.error(err.message || "Opslaan mislukt");
@@ -38,8 +43,6 @@ const ProfileTab = () => {
       setSaving(false);
     }
   };
-
-  const inputClasses = "bg-secondary/50 border-border/50 h-12 text-foreground";
 
   return (
     <form onSubmit={handleSave} className="space-y-5 max-w-md">
@@ -60,6 +63,90 @@ const ProfileTab = () => {
       <div className="space-y-2">
         <Label className="text-xs uppercase tracking-wider text-muted-foreground">Telefoon</Label>
         <Input value={phone} onChange={e => setPhone(e.target.value)} className={inputClasses} />
+      </div>
+      <div className="flex items-center justify-between py-2">
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Nieuwsbrief</Label>
+        <Switch checked={newsletter} onCheckedChange={setNewsletter} />
+      </div>
+      <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 h-12" disabled={saving}>
+        {saving ? <Loader2 className="animate-spin mr-2" size={16} /> : null}
+        Opslaan
+      </Button>
+    </form>
+  );
+};
+
+/* ─── Address Tab ─── */
+const AddressTab = () => {
+  const { customer, token, refreshProfile } = useCustomerAuth();
+  const addr = customer?.addresses?.[0];
+  const [street, setStreet] = useState(addr?.street || "");
+  const [houseNumber, setHouseNumber] = useState(addr?.house_number || "");
+  const [postalCode, setPostalCode] = useState(addr?.postal_code || "");
+  const [city, setCity] = useState(addr?.city || "");
+  const [country, setCountry] = useState(addr?.country || "België");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (addr) {
+      setStreet(addr.street || "");
+      setHouseNumber(addr.house_number || "");
+      setPostalCode(addr.postal_code || "");
+      setCity(addr.city || "");
+      setCountry(addr.country || "België");
+    }
+  }, [addr]);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token) return;
+    setSaving(true);
+    try {
+      const action = addr?.id ? "update_address" : "add_address";
+      const payload: Record<string, unknown> = {
+        street,
+        house_number: houseNumber,
+        postal_code: postalCode,
+        city,
+        country,
+        is_default: true,
+      };
+      if (addr?.id) payload.address_id = addr.id;
+      await customerApiFetch(action, payload, token);
+      await refreshProfile();
+      toast.success("Adres opgeslagen");
+    } catch (err: any) {
+      toast.error(err.message || "Opslaan mislukt");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSave} className="space-y-5 max-w-md">
+      <div className="grid grid-cols-3 gap-4">
+        <div className="col-span-2 space-y-2">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Straat</Label>
+          <Input value={street} onChange={e => setStreet(e.target.value)} className={inputClasses} />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Nr.</Label>
+          <Input value={houseNumber} onChange={e => setHouseNumber(e.target.value)} className={inputClasses} />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Postcode</Label>
+          <Input value={postalCode} onChange={e => setPostalCode(e.target.value)} className={inputClasses} />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Stad</Label>
+          <Input value={city} onChange={e => setCity(e.target.value)} className={inputClasses} />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Land</Label>
+        <Input value={country} onChange={e => setCountry(e.target.value)} className={inputClasses} />
       </div>
       <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 h-12" disabled={saving}>
         {saving ? <Loader2 className="animate-spin mr-2" size={16} /> : null}
@@ -134,8 +221,6 @@ const PasswordTab = () => {
     }
   };
 
-  const inputClasses = "bg-secondary/50 border-border/50 h-12 text-foreground";
-
   return (
     <form onSubmit={handleChange} className="space-y-5 max-w-md">
       <div className="space-y-2">
@@ -208,9 +293,7 @@ const Account = () => {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all text-left ${
-                      active
-                        ? "text-foreground bg-secondary"
-                        : "text-muted-foreground hover:text-foreground"
+                      active ? "text-foreground bg-secondary" : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     <Icon size={16} />
@@ -239,9 +322,7 @@ const Account = () => {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 px-4 py-2.5 text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
-                      active
-                        ? "bg-foreground text-background"
-                        : "bg-secondary text-muted-foreground"
+                      active ? "bg-foreground text-background" : "bg-secondary text-muted-foreground"
                     }`}
                   >
                     <Icon size={14} />
@@ -256,6 +337,7 @@ const Account = () => {
           <div className="flex-1 min-w-0">
             <div className="border border-border/30 p-6 lg:p-8">
               {activeTab === "profile" && <ProfileTab />}
+              {activeTab === "address" && <AddressTab />}
               {activeTab === "orders" && <OrdersTab />}
               {activeTab === "password" && <PasswordTab />}
             </div>
