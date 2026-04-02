@@ -12,10 +12,10 @@ import { Loader2, User, ShoppingBag, Lock, LogOut, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 const tabs = [
-  { id: "profile" as const, icon: User, label: "Profiel" },
-  { id: "address" as const, icon: MapPin, label: "Adres" },
-  { id: "orders" as const, icon: ShoppingBag, label: "Bestellingen" },
-  { id: "password" as const, icon: Lock, label: "Wachtwoord" },
+  { id: "profile" as const, icon: User, label: "Profile" },
+  { id: "address" as const, icon: MapPin, label: "Address" },
+  { id: "orders" as const, icon: ShoppingBag, label: "Orders" },
+  { id: "password" as const, icon: Lock, label: "Password" },
 ];
 
 type TabId = typeof tabs[number]["id"];
