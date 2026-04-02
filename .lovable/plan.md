@@ -1,47 +1,25 @@
 
 
-# Dropdown Richting Omkeren Bij Navbar Onderaan
+# Logo Crossfade Alleen op Homepage
 
-## Concept
-Wanneer de navbar onderaan het scherm staat (niet gescrold), openen de dropdown menu's **omhoog**. Zodra de navbar sticky bovenaan zit (gescrold), openen ze normaal **naar beneden**.
+## Wat
+De tekst→doberman crossfade animatie moet alleen op de homepage (`/`) actief zijn. Op alle andere pagina's wordt direct het doberman logo getoond zonder tekst.
 
 ## Hoe
 
 ### `src/components/layout/Navbar.tsx`
+1. Import `useLocation` van `react-router-dom`
+2. Bepaal `isHome = location.pathname === '/'`
+3. Logo logica aanpassen:
+   - **Homepage**: huidige crossfade-gedrag behouden (tekst vervaagt → doberman verschijnt bij scroll)
+   - **Andere pagina's**: tekst altijd `opacity-0`, doberman altijd `opacity-100 scale-100`
 
-1. **Pass `scrolled` state door naar `DropdownMenu`** als prop
-2. **DropdownMenu**: wissel positionering op basis van `scrolled`:
-   - `scrolled = false` (navbar onderaan): `bottom-full mb-2` (menu opent omhoog)
-   - `scrolled = true` (navbar bovenaan): `top-full pt-2` (menu opent omlaag)
-3. **ChevronDown icon**: draai om wanneer niet gescrold (`rotate-180` als `!scrolled`)
+### Wijziging (regels 2, 104, 135-142)
+- Regel 2: voeg `useLocation` toe aan import
+- In de Navbar component: `const location = useLocation(); const isHome = location.pathname === '/';`
+- Regel 135 (tekst span): `${scrolled || !isHome ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`
+- Regel 141 (doberman img): `${scrolled || !isHome ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`
 
-### Wijzigingen
-
-**DropdownMenu component** (~regel 10-42):
-- Voeg `scrolled` prop toe
-- Dropdown container: `className={scrolled ? 'top-full pt-2' : 'bottom-full pb-2'}`
-- Chevron: `className={!scrolled ? 'rotate-180' : ''}`
-
-**Navbar render** (~regel 147-148):
-- Pass `scrolled` prop: `<DropdownMenu ... scrolled={scrolled} />`
-
-### Resultaat
-```
-Niet gescrold (navbar onderaan):
-┌─────────────┐
-│  Submenu     │  ← opent omhoog
-│  items       │
-└─────────────┘
-──── NAVBAR ────
-
-Gescrold (navbar bovenaan):
-──── NAVBAR ────
-┌─────────────┐
-│  Submenu     │  ← opent omlaag
-│  items       │
-└─────────────┘
-```
-
-### Files
-- `src/components/layout/Navbar.tsx` — enige wijziging
+### Eén file
+- `src/components/layout/Navbar.tsx`
 
