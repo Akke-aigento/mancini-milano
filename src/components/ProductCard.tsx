@@ -14,7 +14,7 @@ interface ProductCardProps {
     slug: string;
     title: string;
     price: number;
-    images: { url: string; alt: string }[];
+    images: { url: string; alt?: string }[];
   };
 }
 
