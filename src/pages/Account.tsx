@@ -207,8 +207,8 @@ const PasswordTab = () => {
 
   const handleChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPw !== confirm) { toast.error("Wachtwoorden komen niet overeen"); return; }
-    if (newPw.length < 8) { toast.error("Minimaal 8 tekens"); return; }
+    if (newPw !== confirm) { toast.error("Passwords do not match"); return; }
+    if (newPw.length < 8) { toast.error("Minimum 8 characters"); return; }
     setSaving(true);
     try {
       await customerApiFetch("change_password", { current_password: current, new_password: newPw }, token);
