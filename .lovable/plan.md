@@ -1,12 +1,21 @@
 
 
-# Mobiele Hero Nog Kleiner — Meer Foto Zichtbaar
+# Scroll Indicator Meer Naar Beneden (Mobiel)
 
 ## Wijziging
 
-### `src/pages/Index.tsx`
-- Hoogte van mobiele hero: `h-[75vh]` → `h-[60vh]`
-- `min-h-[600px]` → `min-h-[400px]` (zodat het ook op kleinere schermen past)
+### `src/pages/Index.tsx` (regel 93-97)
+- Voeg `mt-4` toe aan de bounce container zodat er meer ruimte is tussen de CTA knoppen en de scroll indicator
+
+**Van:**
+```tsx
+<div className="flex flex-col items-center gap-1 animate-bounce">
+```
+
+**Naar:**
+```tsx
+<div className="flex flex-col items-center gap-1 animate-bounce mt-4">
+```
 
 ### Eén file
 - `src/pages/Index.tsx`
