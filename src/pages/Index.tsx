@@ -1,17 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import heroDoberman from '@/assets/hero-doberman.png';
 import brandBanner from '@/assets/brand-banner.png';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
-import {
-  getProducts,
-  getCollections,
-  extractProducts,
-  extractCollections,
-  subscribeNewsletter,
-} from '@/lib/sellqo';
+import { useProducts, useCategories, useNewsletterSubscribe } from '@/integrations/sellqo/hooks';
+import type { Product } from '@/integrations/sellqo/types';
 
 const categoryImages: Record<string, string> = {
   't-shirts': 'https://mancinimilano.com/cdn/shop/files/rn-image_picker_lib_temp_896ede1b-a149-4125-a1c4-18afec653b26_600x.png?v=1765501528',
@@ -30,39 +25,29 @@ function formatPrice(price: number) {
 }
 
 const Index = () => {
-  const [products, setProducts] = useState<any[]>([]);
-  const [collections, setCollections] = useState<any[]>([]);
+  const { data: products = [] } = useProducts();
+  const { data: categories = [] } = useCategories();
+  const newsletterMutation = useNewsletterSubscribe();
   const [email, setEmail] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  useEffect(() => {
-    getProducts().then((res) => {
-      const { products: mapped } = extractProducts(res);
-      setProducts(mapped);
-    });
-    getCollections().then((res) => {
-      const mapped = extractCollections(res);
-      setCollections(mapped);
-    });
-  }, []);
-
   const featuredCategories = featuredCategorySlugs
-    .map((slug) => collections.find((c: any) => c.slug === slug))
+    .map((slug) => categories.find((c: any) => c.slug === slug))
     .filter(Boolean);
 
   const trendingProducts = products.slice(0, 4);
 
   const blueStormProducts = products.filter(
-    (p: any) => p.slug === 'blue-storm-luxe-tee' || p.slug === 'silent-authority'
+    (p: Product) => p.slug === 'blue-storm-luxe-tee' || p.slug === 'silent-authority'
   ).slice(0, 2);
 
-  const fragrance = products.find((p: any) => p.slug === 'mancini-milano-fragrance');
+  const fragrance = products.find((p: Product) => p.slug === 'mancini-milano-fragrance');
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     try {
-      await subscribeNewsletter(email);
+      await newsletterMutation.mutateAsync({ email });
       setNewsletterStatus('success');
       setEmail('');
     } catch {
@@ -74,7 +59,7 @@ const Index = () => {
     <Layout>
       <SEO />
       {/* SECTION 1: HERO */}
-      {/* Mobile Hero — full-bleed Doberman image */}
+      {/* Mobile Hero */}
       <section className="relative h-[calc(100vh-60px)] min-h-[600px] overflow-hidden md:hidden">
         <img
           src={heroDoberman}
@@ -104,9 +89,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Desktop Hero — split layout */}
+      {/* Desktop Hero */}
       <section className="relative hidden md:grid md:grid-cols-2 h-[calc(100vh-80px)] min-h-[600px] overflow-hidden">
-        {/* Left: text content */}
         <div className="flex flex-col justify-center px-8 lg:px-16 xl:px-24 bg-background">
           <span className="inline-block text-primary text-xs uppercase tracking-button font-medium mb-4">
             New Collection
@@ -132,7 +116,6 @@ const Index = () => {
             </Link>
           </div>
         </div>
-        {/* Right: Doberman image */}
         <div className="relative">
           <img
             src={heroDoberman}
@@ -141,7 +124,6 @@ const Index = () => {
           />
           <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent" />
         </div>
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce z-10">
           <span className="text-muted-foreground text-[10px] uppercase tracking-button">Scroll</span>
           <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -193,16 +175,9 @@ const Index = () => {
 
       {/* BRAND BANNER */}
       <section className="w-full overflow-hidden">
-        {/* Mobile: regular image */}
         <div className="block md:hidden">
-          <img
-            src={brandBanner}
-            alt="Mancini Milano brand typography"
-            loading="lazy"
-            className="w-full h-auto"
-          />
+          <img src={brandBanner} alt="Mancini Milano brand typography" loading="lazy" className="w-full h-auto" />
         </div>
-        {/* Desktop: parallax */}
         <div
           className="hidden md:block h-[450px] bg-fixed bg-cover bg-center"
           style={{ backgroundImage: `url(${brandBanner})` }}
@@ -220,12 +195,8 @@ const Index = () => {
             </h2>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-            {trendingProducts.map((product: any) => (
-              <Link
-                key={product.id}
-                to={`/products/${product.slug}`}
-                className="group block"
-              >
+            {trendingProducts.map((product: Product) => (
+              <Link key={product.id} to={`/products/${product.slug}`} className="group block">
                 <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
                   {product.images?.[0] && (
                     <img
@@ -240,12 +211,8 @@ const Index = () => {
                     </span>
                   </div>
                 </div>
-                <h3 className="text-sm font-medium text-foreground mb-1 truncate">
-                  {product.title}
-                </h3>
-                <p className="text-sm text-primary font-medium">
-                  {formatPrice(product.price)}
-                </p>
+                <h3 className="text-sm font-medium text-foreground mb-1 truncate">{product.title}</h3>
+                <p className="text-sm text-primary font-medium">{formatPrice(product.price)}</p>
               </Link>
             ))}
           </div>
@@ -257,7 +224,6 @@ const Index = () => {
         <section className="pb-20 lg:pb-28">
           <div className="max-w-site mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
-              {/* Lifestyle image */}
               <div className="aspect-[4/5] overflow-hidden bg-card">
                 <img
                   src="https://mancinimilano.com/cdn/shop/files/rn-image_picker_lib_temp_896ede1b-a149-4125-a1c4-18afec653b26_600x.png?v=1765501528"
@@ -265,22 +231,16 @@ const Index = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-
-              {/* Content */}
               <div className="flex flex-col justify-center">
-                <span className="text-primary text-xs uppercase tracking-button font-medium mb-3">
-                  Shop the Look
-                </span>
+                <span className="text-primary text-xs uppercase tracking-button font-medium mb-3">Shop the Look</span>
                 <h2 className="font-heading text-2xl lg:text-3xl tracking-heading uppercase text-foreground mb-6">
                   Blue Storm Collection
                 </h2>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-8 max-w-sm">
                   Bold tones, premium fabrics. The Blue Storm series is designed for those who move with silent authority.
                 </p>
-
-                {/* Mini product cards */}
                 <div className="space-y-4 mb-8">
-                  {blueStormProducts.map((product: any) => (
+                  {blueStormProducts.map((product: Product) => (
                     <Link
                       key={product.id}
                       to={`/products/${product.slug}`}
@@ -288,11 +248,7 @@ const Index = () => {
                     >
                       <div className="w-16 h-20 overflow-hidden bg-card flex-shrink-0">
                         {product.images?.[0] && (
-                          <img
-                            src={product.images[0].url}
-                            alt={product.title}
-                            className="w-full h-full object-cover"
-                          />
+                          <img src={product.images[0].url} alt={product.title} className="w-full h-full object-cover" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -302,7 +258,6 @@ const Index = () => {
                     </Link>
                   ))}
                 </div>
-
                 <Link
                   to="/collections/t-shirts"
                   className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors self-start"
@@ -321,18 +276,14 @@ const Index = () => {
           <div className="max-w-site mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
               <div className="text-center lg:text-left">
-                <span className="text-primary text-xs uppercase tracking-button font-medium mb-3 block">
-                  Exclusive
-                </span>
+                <span className="text-primary text-xs uppercase tracking-button font-medium mb-3 block">Exclusive</span>
                 <h2 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-4">
                   The Signature Fragrance
                 </h2>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-md mx-auto lg:mx-0">
                   {fragrance.description}
                 </p>
-                <p className="text-2xl text-primary font-heading mb-8">
-                  From {formatPrice(fragrance.price)}
-                </p>
+                <p className="text-2xl text-primary font-heading mb-8">From {formatPrice(fragrance.price)}</p>
                 <Link
                   to={`/products/${fragrance.slug}`}
                   className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
@@ -343,11 +294,7 @@ const Index = () => {
               <div className="flex justify-center">
                 <div className="w-72 lg:w-80">
                   {fragrance.images?.[0] && (
-                    <img
-                      src={fragrance.images[0].url}
-                      alt={fragrance.title}
-                      className="w-full h-auto object-contain"
-                    />
+                    <img src={fragrance.images[0].url} alt={fragrance.title} className="w-full h-auto object-contain" />
                   )}
                 </div>
               </div>

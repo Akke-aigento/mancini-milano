@@ -1,13 +1,19 @@
 import { Link } from 'react-router-dom';
 import { Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
-import { useCart } from '@/contexts/CartContext';
+import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { formatPrice } from '@/components/ProductCard';
 
 const Cart = () => {
-  const { items, subtotal, discount, discountCode, updateItem, removeItem, checkout, loading } = useCart();
-  const discountAmount = subtotal * discount;
-  const total = subtotal - discountAmount;
+  const { items, subtotal, total, updateQuantity, removeItem, checkout, isLoading, cart } = useSellQoCart();
+  const discountAmount = cart?.discount || 0;
+
+  const handleCheckout = async () => {
+    await checkout({
+      success_url: window.location.origin + '/checkout/success',
+      cancel_url: window.location.origin + '/cart',
+    });
+  };
 
   return (
     <Layout>
@@ -30,9 +36,7 @@ const Cart = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 lg:gap-16">
-            {/* Items table */}
             <div>
-              {/* Desktop header */}
               <div className="hidden lg:grid grid-cols-[2fr_1fr_1fr_1fr] gap-4 pb-4 border-b border-border text-xs uppercase tracking-button text-muted-foreground font-medium">
                 <span>Product</span>
                 <span>Price</span>
@@ -43,7 +47,6 @@ const Cart = () => {
               <div className="divide-y divide-border">
                 {items.map((item) => (
                   <div key={item.id} className="py-6 grid grid-cols-1 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-4 items-center">
-                    {/* Product */}
                     <div className="flex gap-4">
                       <div className="w-20 h-[100px] flex-shrink-0 bg-card overflow-hidden">
                         {item.image && (
@@ -52,10 +55,8 @@ const Cart = () => {
                       </div>
                       <div className="min-w-0">
                         <h3 className="text-sm font-medium text-foreground truncate">{item.title}</h3>
-                        {(item.size || item.color) && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {[item.size, item.color].filter(Boolean).join(' / ')}
-                          </p>
+                        {item.variant_title && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{item.variant_title}</p>
                         )}
                         <button
                           onClick={() => removeItem(item.id)}
@@ -65,17 +66,11 @@ const Cart = () => {
                         </button>
                       </div>
                     </div>
-
-                    {/* Price */}
-                    <div className="text-sm text-primary font-medium">
-                      {formatPrice(item.price)}
-                    </div>
-
-                    {/* Quantity */}
+                    <div className="text-sm text-primary font-medium">{formatPrice(item.price)}</div>
                     <div className="flex items-center gap-0">
                       <div className="flex items-center border border-border">
                         <button
-                          onClick={() => updateItem(item.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           className="p-2 text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <Minus className="h-3 w-3" />
@@ -84,7 +79,7 @@ const Cart = () => {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => updateItem(item.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="p-2 text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <Plus className="h-3 w-3" />
@@ -97,8 +92,6 @@ const Cart = () => {
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
-
-                    {/* Total */}
                     <div className="text-sm font-medium text-foreground text-right">
                       {formatPrice(item.price * item.quantity)}
                     </div>
@@ -107,11 +100,9 @@ const Cart = () => {
               </div>
             </div>
 
-            {/* Summary sidebar */}
             <div className="lg:sticky lg:top-32 lg:self-start">
               <div className="bg-card border border-border p-6">
                 <h2 className="text-sm uppercase tracking-button font-medium text-foreground mb-6">Order Summary</h2>
-
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
@@ -119,7 +110,7 @@ const Cart = () => {
                   </div>
                   {discountAmount > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Discount ({discountCode})</span>
+                      <span className="text-muted-foreground">Discount{cart?.discount_code ? ` (${cart.discount_code})` : ''}</span>
                       <span className="text-primary">-{formatPrice(discountAmount)}</span>
                     </div>
                   )}
@@ -134,11 +125,11 @@ const Cart = () => {
                 </div>
 
                 <button
-                  onClick={checkout}
-                  disabled={loading}
+                  onClick={handleCheckout}
+                  disabled={isLoading}
                   className="w-full bg-primary text-primary-foreground py-3.5 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors disabled:opacity-50 mb-3"
                 >
-                  {loading ? 'Processing...' : 'Checkout'}
+                  {isLoading ? 'Processing...' : 'Checkout'}
                 </button>
 
                 <Link

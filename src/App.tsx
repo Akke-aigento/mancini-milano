@@ -4,7 +4,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { CartProvider } from "@/contexts/CartContext";
+import { SellQoCartProvider } from "@/integrations/sellqo/CartContext";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import Collection from "./pages/Collection";
@@ -24,7 +24,7 @@ const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <CartProvider>
+        <SellQoCartProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -43,7 +43,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
-        </CartProvider>
+        </SellQoCartProvider>
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>

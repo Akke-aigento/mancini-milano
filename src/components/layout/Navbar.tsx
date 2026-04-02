@@ -1,23 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
-import { useCart } from '@/contexts/CartContext';
+import { useSellQoCart } from '@/integrations/sellqo/CartContext';
+import { useCategories } from '@/integrations/sellqo/hooks';
 import SearchOverlay from '@/components/SearchOverlay';
-
-const forHimLinks = [
-  { label: 'T-Shirts', slug: 't-shirts' },
-  { label: 'Jackets', slug: 'jackets' },
-  { label: 'Pants', slug: 'pants' },
-  { label: 'Hoodies', slug: 'hoodies' },
-  { label: 'Accessories', slug: 'accessories' },
-];
-
-const forHerLinks = [
-  { label: 'T-Shirts', slug: 't-shirts' },
-  { label: 'Jackets', slug: 'jackets' },
-  { label: 'Pants', slug: 'pants' },
-  { label: 'Hoodies', slug: 'hoodies' },
-];
 
 function DropdownMenu({ label, links, slug }: { label: string; links: { label: string; slug: string }[]; slug: string }) {
   const [open, setOpen] = useState(false);
@@ -93,10 +79,42 @@ function MobileAccordion({ label, slug, links, onClose }: { label: string; slug:
   );
 }
 
+// Fallback hardcoded links in case API categories haven't loaded yet
+const defaultForHimLinks = [
+  { label: 'T-Shirts', slug: 't-shirts' },
+  { label: 'Jackets', slug: 'jackets' },
+  { label: 'Pants', slug: 'pants' },
+  { label: 'Hoodies', slug: 'hoodies' },
+  { label: 'Accessories', slug: 'accessories' },
+];
+
+const defaultForHerLinks = [
+  { label: 'T-Shirts', slug: 't-shirts' },
+  { label: 'Jackets', slug: 'jackets' },
+  { label: 'Pants', slug: 'pants' },
+  { label: 'Hoodies', slug: 'hoodies' },
+];
+
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const { itemCount, openDrawer } = useCart();
+  const { itemCount, openCart } = useSellQoCart();
+  const { data: categories } = useCategories();
+
+  // Try to build nav links from API categories, fall back to defaults
+  const forHimLinks = categories
+    ? categories
+        .filter((c: any) => c.parent_id && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-him'))
+        .map((c: any) => ({ label: c.name, slug: c.slug }))
+    : [];
+  const forHerLinks = categories
+    ? categories
+        .filter((c: any) => c.parent_id && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-her'))
+        .map((c: any) => ({ label: c.name, slug: c.slug }))
+    : [];
+
+  const himLinks = forHimLinks.length > 0 ? forHimLinks : defaultForHimLinks;
+  const herLinks = forHerLinks.length > 0 ? forHerLinks : defaultForHerLinks;
 
   const closeMobile = () => setMobileOpen(false);
 
@@ -104,18 +122,16 @@ const Navbar = () => {
     <>
       <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
-          {/* Logo */}
           <Link to="/" className="font-heading text-lg tracking-logo uppercase text-foreground">
             Mancini Milano
           </Link>
 
-          {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-8">
             <Link to="/" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Home
             </Link>
-            <DropdownMenu label="For Him" links={forHimLinks} slug="for-him" />
-            <DropdownMenu label="For Her" links={forHerLinks} slug="for-her" />
+            <DropdownMenu label="For Him" links={himLinks} slug="for-him" />
+            <DropdownMenu label="For Her" links={herLinks} slug="for-her" />
             <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Fragrances
             </Link>
@@ -124,7 +140,6 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Icons */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSearchOpen(true)}
@@ -140,7 +155,7 @@ const Navbar = () => {
               <User className="h-5 w-5" />
             </button>
             <button
-              onClick={openDrawer}
+              onClick={openCart}
               className="relative min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Cart"
             >
@@ -162,7 +177,6 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Full-screen mobile menu */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 bg-background lg:hidden">
           <div className="flex items-center justify-between h-16 px-4 border-b border-border">
@@ -181,8 +195,8 @@ const Navbar = () => {
             <Link to="/" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
               Home
             </Link>
-            <MobileAccordion label="For Him" slug="for-him" links={forHimLinks} onClose={closeMobile} />
-            <MobileAccordion label="For Her" slug="for-her" links={forHerLinks} onClose={closeMobile} />
+            <MobileAccordion label="For Him" slug="for-him" links={himLinks} onClose={closeMobile} />
+            <MobileAccordion label="For Her" slug="for-her" links={herLinks} onClose={closeMobile} />
             <Link to="/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
               Fragrances
             </Link>

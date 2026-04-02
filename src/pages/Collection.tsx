@@ -1,62 +1,21 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ProductCard from '@/components/ProductCard';
-import {
-  getCollectionProducts,
-  getCollections,
-  extractProducts,
-  extractCollections,
-} from '@/lib/sellqo';
+import { useProducts, useCategories } from '@/integrations/sellqo/hooks';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
-const subcategoryPills: Record<string, { label: string; slug: string }[]> = {
-  'for-him': [
-    { label: 'All', slug: 'for-him' },
-    { label: 'T-Shirts', slug: 't-shirts' },
-    { label: 'Jackets', slug: 'jackets' },
-    { label: 'Pants', slug: 'pants' },
-    { label: 'Accessories', slug: 'accessories' },
-  ],
-  'for-her': [
-    { label: 'All', slug: 'for-her' },
-    { label: 'T-Shirts', slug: 't-shirts' },
-    { label: 'Jackets', slug: 'jackets' },
-    { label: 'Pants', slug: 'pants' },
-  ],
-};
-
 const Collection = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [products, setProducts] = useState<any[]>([]);
-  const [total, setTotal] = useState(0);
-  const [collection, setCollection] = useState<any>(null);
+  const { data: allProducts = [], isLoading: loading } = useProducts(slug ? { category_slug: slug } : undefined);
+  const { data: categories = [] } = useCategories();
   const [sort, setSort] = useState<SortOption>('featured');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!slug) return;
-    setLoading(true);
-
-    getCollectionProducts(slug).then((res) => {
-      const { products: mapped, total: t } = extractProducts(res);
-      setProducts(mapped);
-      setTotal(t);
-      setLoading(false);
-    });
-
-    getCollections().then((res) => {
-      const cols = extractCollections(res);
-      const found = cols.find((c: any) => c.slug === slug);
-      setCollection(found || null);
-    });
-  }, [slug]);
 
   const sortedProducts = useMemo(() => {
-    const sorted = [...products];
+    const sorted = [...allProducts];
     switch (sort) {
       case 'price-asc':
         return sorted.sort((a, b) => a.price - b.price);
@@ -67,29 +26,38 @@ const Collection = () => {
       default:
         return sorted;
     }
-  }, [products, sort]);
+  }, [allProducts, sort]);
 
+  const collection = categories.find((c: any) => c.slug === slug);
   const title = collection?.name || slug?.replace(/-/g, ' ') || '';
-  const pills = slug ? subcategoryPills[slug] : undefined;
+
+  // Build subcategory pills from API categories
+  const parentCategories = ['for-him', 'for-her'];
+  const isParent = slug && parentCategories.includes(slug);
+  const pills = isParent
+    ? [
+        { label: 'All', slug: slug! },
+        ...categories
+          .filter((c: any) => c.parent_id && c.parent_id === collection?.id)
+          .map((c: any) => ({ label: c.name, slug: c.slug })),
+      ]
+    : undefined;
 
   return (
     <Layout>
       <SEO title={title} description={`Shop ${title} at Mancini Milano. Premium Italian luxury streetwear.`} />
-      {/* Header */}
       <section className="max-w-site mx-auto px-4 lg:px-8 pt-12 pb-6 lg:pt-16 lg:pb-8">
         <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-2 text-center">
           {title}
         </h1>
         <p className="text-sm text-muted-foreground text-center">
-          {total} {total === 1 ? 'product' : 'products'}
+          {allProducts.length} {allProducts.length === 1 ? 'product' : 'products'}
         </p>
       </section>
 
-      {/* Filter bar */}
       <section className="max-w-site mx-auto px-4 lg:px-8 pb-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-4">
-          {/* Subcategory pills */}
-          {pills && (
+          {pills && pills.length > 1 ? (
             <div className="flex flex-wrap gap-2">
               {pills.map((pill) => (
                 <Link
@@ -105,10 +73,10 @@ const Collection = () => {
                 </Link>
               ))}
             </div>
+          ) : (
+            <div />
           )}
-          {!pills && <div />}
 
-          {/* Sort */}
           <div className="relative">
             <select
               value={sort}
@@ -125,7 +93,6 @@ const Collection = () => {
         </div>
       </section>
 
-      {/* Product grid */}
       <section className="max-w-site mx-auto px-4 lg:px-8 pb-20 lg:pb-28">
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
@@ -143,7 +110,7 @@ const Collection = () => {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-            {sortedProducts.map((product: any) => (
+            {sortedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

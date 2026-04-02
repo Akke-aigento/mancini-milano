@@ -1,48 +1,33 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Truck, ChevronRight, Plus, Minus } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ProductCard, { formatPrice } from '@/components/ProductCard';
-import { useCart } from '@/contexts/CartContext';
-import {
-  getProduct,
-  getProductRelated,
-  extractProduct,
-  extractProducts,
-} from '@/lib/sellqo';
+import { useSellQoCart } from '@/integrations/sellqo/CartContext';
+import { useProduct, useRelatedProducts } from '@/integrations/sellqo/hooks';
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { addItem } = useCart();
-  const [product, setProduct] = useState<any>(null);
-  const [related, setRelated] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { addItem } = useSellQoCart();
+  const { data: product, isLoading: loading } = useProduct(slug || '');
+  const { data: related = [] } = useRelatedProducts(slug || '');
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [addedToCart, setAddedToCart] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>('description');
 
-  useEffect(() => {
-    if (!slug) return;
-    setLoading(true);
+  // Reset selections when slug changes
+  const currentSlug = slug;
+  const [prevSlug, setPrevSlug] = useState(slug);
+  if (currentSlug !== prevSlug) {
+    setPrevSlug(currentSlug);
     setSelectedSize(null);
     setSelectedColor(null);
     setSelectedImage(0);
     setAddedToCart(false);
-
-    getProduct(slug).then((res) => {
-      const mapped = extractProduct(res);
-      setProduct(mapped);
-      setLoading(false);
-    });
-
-    getProductRelated(slug).then((res) => {
-      const { products: mapped } = extractProducts(res);
-      setRelated(mapped);
-    });
-  }, [slug]);
+  }
 
   const sizes = useMemo(() => {
     if (!product?.variants?.length) return [];
@@ -81,12 +66,11 @@ const ProductDetail = () => {
     await addItem({
       product_id: product.id,
       variant_id: selectedVariant?.id,
-      title: product.title + (selectedVariant ? ` - ${selectedVariant.title}` : ''),
+      title: product.title,
+      variant_title: selectedVariant?.title || '',
       price: displayPrice,
       quantity: 1,
       image: product.images?.[0]?.url,
-      size: selectedSize || undefined,
-      color: selectedColor || undefined,
     });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2500);
@@ -149,7 +133,6 @@ const ProductDetail = () => {
         }}
       />
       <div className="max-w-site mx-auto px-4 lg:px-8 py-8 lg:py-12">
-        {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-8">
           <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
           <ChevronRight className="h-3 w-3" />
@@ -164,11 +147,8 @@ const ProductDetail = () => {
           <span className="text-foreground truncate">{product.title}</span>
         </nav>
 
-        {/* Product layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[55%_45%] gap-8 lg:gap-12">
-          {/* Image gallery */}
           <div>
-            {/* Main image */}
             <div className="aspect-[3/4] overflow-hidden bg-card mb-3">
               {product.images?.[selectedImage] && (
                 <img
@@ -178,8 +158,6 @@ const ProductDetail = () => {
                 />
               )}
             </div>
-
-            {/* Thumbnails */}
             {product.images.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {product.images.map((img: any, i: number) => (
@@ -195,8 +173,6 @@ const ProductDetail = () => {
                 ))}
               </div>
             )}
-
-            {/* Mobile swipe hint */}
             {product.images.length > 1 && (
               <div className="flex lg:hidden justify-center gap-1.5 mt-3">
                 {product.images.map((_: any, i: number) => (
@@ -212,23 +188,18 @@ const ProductDetail = () => {
             )}
           </div>
 
-          {/* Product info (sticky on desktop) */}
           <div className="lg:sticky lg:top-32 lg:self-start">
             <h1 className="font-heading text-2xl lg:text-[32px] tracking-heading uppercase text-foreground mb-3">
               {product.title}
             </h1>
-
             <p className="text-xl lg:text-2xl text-primary font-medium mb-5">
               {formatPrice(displayPrice)}
             </p>
-
-            {/* Free shipping */}
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8 pb-6 border-b border-border">
               <Truck className="h-4 w-4" />
               <span>Free worldwide shipping</span>
             </div>
 
-            {/* Size selector */}
             {needsSize && (
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
@@ -255,7 +226,6 @@ const ProductDetail = () => {
               </div>
             )}
 
-            {/* Color selector */}
             {needsColor && (
               <div className="mb-6">
                 <span className="text-xs uppercase tracking-button font-medium text-foreground mb-3 block">
@@ -279,7 +249,6 @@ const ProductDetail = () => {
               </div>
             )}
 
-            {/* Add to cart */}
             <button
               onClick={handleAddToCart}
               disabled={!canAddToCart}
@@ -300,7 +269,6 @@ const ProductDetail = () => {
                     : 'Select Options'}
             </button>
 
-            {/* Accordions */}
             <div className="border-t border-border">
               {[
                 { key: 'description', label: 'Description', content: product.description },
@@ -331,21 +299,19 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* Related products */}
       {related.length > 0 && (
         <section className="max-w-site mx-auto px-4 lg:px-8 py-16 lg:py-24 border-t border-border mt-12">
           <h2 className="font-heading text-xl lg:text-2xl tracking-heading uppercase text-foreground mb-8 text-center">
             You May Also Like
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 overflow-x-auto">
-            {related.map((p: any) => (
+            {related.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
         </section>
       )}
 
-      {/* Sticky mobile add to cart bar */}
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-card border-t border-border p-4 lg:hidden">
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
@@ -367,7 +333,6 @@ const ProductDetail = () => {
           </button>
         </div>
       </div>
-      {/* Spacer for sticky bar on mobile */}
       <div className="h-20 lg:hidden" />
     </Layout>
   );
