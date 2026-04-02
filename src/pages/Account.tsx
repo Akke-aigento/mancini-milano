@@ -47,7 +47,7 @@ const ProfileTab = () => {
   return (
     <form onSubmit={handleSave} className="space-y-5 max-w-md">
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">E-mail</Label>
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Email</Label>
         <Input value={customer?.email || ""} disabled className={`${inputClasses} opacity-60`} />
       </div>
       <div className="grid grid-cols-2 gap-4">
