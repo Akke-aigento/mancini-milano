@@ -1,35 +1,36 @@
 
 
-# Fix: "For Her" Verschijnt Niet Ondanks Product in Women
+# Homepage Categorie Afbeeldingen: API Images Gebruiken
 
-## Oorzaak
-
-De `forHerLinks` logica (regel 117-128) haalt alle producten op met `category_slug: 'women'`, en bouwt dan een lijst van **subcategorieën** (alles behalve `women`/`for-her`). 
-
-Als het product dat je net hebt toegevoegd alleen de categorie `women` heeft en geen andere subcategorie (zoals `bags`, `pants`, etc.), dan is `forHerLinks` leeg → dropdown wordt niet getoond.
-
-Daarnaast: React Query cached de response. Na het toevoegen van een product in SellQo moet de pagina herladen worden (of de cache verversen).
-
-## Twee fixes
-
-### 1. Cache: kortere staleTime voor navbar-data
-Standaard React Query staleTime is `0` maar de data wordt gecached. Door een expliciete `staleTime` van 2 minuten in te stellen op de product queries in de navbar, en de categories query, wordt de data regelmatig ververst.
-
-### 2. Logica: "For Her" ook tonen als er alleen gender-producten zijn
-Als er producten bestaan onder `women` maar geen subcategorieën gevonden worden, toon "For Her" als een **gewone link** (zonder dropdown) naar `/collections/women` — net zoals "Fragrances" een gewone link is.
+## Probleem
+De 3 categorie-afbeeldingen op de homepage zijn hardcoded in een `categoryImages` object (regels 13-17). De `Category` interface heeft al een `image?` veld — we moeten dit gebruiken.
 
 ## Wijzigingen
 
-### `src/components/layout/Navbar.tsx`
+### `src/pages/Index.tsx`
 
-**Desktop nav (rond regel 160-170):**
-- Als `forHerLinks.length > 0`: toon als DropdownMenu (huidige gedrag)
-- Als `forHerLinks.length === 0` maar `womenProducts && womenProducts.length > 0`: toon als gewone Link naar `/collections/women`
-- Zelfde logica voor "For Him"
+1. **Verwijder** het `categoryImages` object (regels 13-17)
 
-**Mobiel menu:**
-- Zelfde aanpassing: als geen subcategorieën maar wel producten, toon als gewone link i.p.v. accordion
+2. **Update `featuredCategories`** (regels 39-46) om het `image` veld mee te nemen vanuit de API:
+```tsx
+const featuredCategories = featuredCategorySlugs.map((slug) => {
+  const apiCat = categories.find((c: any) => c.slug === slug);
+  return {
+    id: apiCat?.id || slug,
+    name: apiCat?.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    slug,
+    image: apiCat?.image || '',
+  };
+});
+```
+
+3. **Update de `<img>` tag** in de categorie grid (rond regel 145) van `categoryImages[cat.slug]` naar `cat.image`:
+```tsx
+<img src={cat.image} alt={cat.name} ... />
+```
+
+Als een categorie geen afbeelding heeft in SellQo, wordt er simpelweg geen afbeelding getoond (lege string). Zodra je in SellQo een afbeelding toevoegt aan de categorie, verschijnt deze automatisch.
 
 ### Eén file
-- `src/components/layout/Navbar.tsx`
+- `src/pages/Index.tsx`
 
