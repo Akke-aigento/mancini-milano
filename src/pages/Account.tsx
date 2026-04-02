@@ -215,7 +215,7 @@ const PasswordTab = () => {
       toast.success("Password changed");
       setCurrent(""); setNewPw(""); setConfirm("");
     } catch (err: any) {
-      toast.error(err.message || "Wijzigen mislukt");
+      toast.error(err.message || "Change failed");
     } finally {
       setSaving(false);
     }
