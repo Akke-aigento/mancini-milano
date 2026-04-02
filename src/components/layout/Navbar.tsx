@@ -102,6 +102,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
+  const { data: menProducts } = useProducts({ category_slug: 'men' });
+  const { data: womenProducts } = useProducts({ category_slug: 'women' });
   const location = useLocation();
   const isHome = location.pathname === '/';
 
@@ -112,29 +114,42 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Try to build nav links from API categories, fall back to defaults
-  const parentSlugsToExclude = ['for-him', 'for-her'];
+  // Build gender-aware dropdown links from actual product categories
+  const forHimLinks = useMemo(() => {
+    if (!menProducts || menProducts.length === 0) return defaultForHimLinks;
+    const catMap = new Map<string, string>();
+    menProducts.forEach(p => {
+      (p.categories || []).forEach(c => {
+        if (c.slug !== 'men' && c.slug !== 'for-him') {
+          catMap.set(c.slug, c.name);
+        }
+      });
+    });
+    if (catMap.size === 0) return defaultForHimLinks;
+    return Array.from(catMap.entries()).map(([slug, name]) => ({ label: name, slug }));
+  }, [menProducts]);
 
-  const forHimLinks = categories
-    ? categories
-        .filter((c: any) => c.parent_id && (c.product_count ?? 0) > 0 && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-him'))
-        .map((c: any) => ({ label: c.name, slug: c.slug }))
-    : [];
-  const forHerLinks = categories
-    ? categories
-        .filter((c: any) => c.parent_id && (c.product_count ?? 0) > 0 && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-her'))
-        .map((c: any) => ({ label: c.name, slug: c.slug }))
-    : [];
+  const forHerLinks = useMemo(() => {
+    if (!womenProducts || womenProducts.length === 0) return defaultForHerLinks;
+    const catMap = new Map<string, string>();
+    womenProducts.forEach(p => {
+      (p.categories || []).forEach(c => {
+        if (c.slug !== 'women' && c.slug !== 'for-her') {
+          catMap.set(c.slug, c.name);
+        }
+      });
+    });
+    if (catMap.size === 0) return defaultForHerLinks;
+    return Array.from(catMap.entries()).map(([slug, name]) => ({ label: name, slug }));
+  }, [womenProducts]);
 
   // "All" dropdown: all categories with products, excluding parent containers
+  const parentSlugsToExclude = ['for-him', 'for-her', 'men', 'women'];
   const allLinks = categories
     ? categories
         .filter((c: any) => (c.product_count ?? 0) > 0 && !parentSlugsToExclude.includes(c.slug))
         .map((c: any) => ({ label: c.name, slug: c.slug }))
     : [];
-
-  const himLinks = forHimLinks.length > 0 ? forHimLinks : defaultForHimLinks;
-  const herLinks = forHerLinks.length > 0 ? forHerLinks : defaultForHerLinks;
 
   const closeMobile = () => setMobileOpen(false);
 
