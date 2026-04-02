@@ -1,6 +1,5 @@
 import AnnouncementBar from './AnnouncementBar';
 import Navbar from './Navbar';
-import Navbar from './Navbar';
 import Footer from './Footer';
 import CartDrawer from '@/components/CartDrawer';
 import BackToTop from '@/components/BackToTop';
