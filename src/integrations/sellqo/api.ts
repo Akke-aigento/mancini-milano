@@ -47,7 +47,10 @@ export const categoriesAPI = {
 // === CART ===
 export const cartAPI = {
   create: () =>
-    sellqoFetch<Cart>('/cart', { method: 'POST' }),
+    sellqoFetch<Cart>('/cart', {
+      method: 'POST',
+      body: JSON.stringify({ session_id: crypto.randomUUID() }),
+    }),
 
   get: (cartId: string) =>
     sellqoFetch<Cart>(`/cart/${cartId}`),
