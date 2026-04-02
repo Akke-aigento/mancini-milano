@@ -116,7 +116,7 @@ const AddressTab = () => {
       await refreshProfile();
       toast.success("Address saved");
     } catch (err: any) {
-      toast.error(err.message || "Opslaan mislukt");
+      toast.error(err.message || "Save failed");
     } finally {
       setSaving(false);
     }
