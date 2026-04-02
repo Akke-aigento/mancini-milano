@@ -232,7 +232,7 @@ const PasswordTab = () => {
         <Input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Min. 8 characters" className={inputClasses} />
       </div>
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Bevestig nieuw wachtwoord</Label>
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Confirm New Password</Label>
         <Input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} className={inputClasses} />
       </div>
       <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 h-12" disabled={saving}>
