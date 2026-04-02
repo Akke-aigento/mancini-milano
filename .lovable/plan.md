@@ -1,25 +1,16 @@
 
 
-# Fix Mobile Hero CTA Positioning + Sticky Navbar
+# Move Scroll Indicator Above CTA Buttons on Mobile
 
-## Two issues to fix
+## Problem
+The bouncing "Scroll" indicator sits at `bottom-10` which falls below the CTA buttons (`bottom-24`) and gets cut off on smaller screens.
 
-### 1. Mobile scroll CTA positioning
-The "SCROLL" indicator and CTA buttons are too close together at the bottom. The buttons need more breathing room from the bottom edge, and the scroll indicator should sit cleanly below them without overlapping.
+## Fix
+Restructure the mobile hero bottom content so the scroll indicator appears **above** the CTA buttons. Combine them into a single absolutely-positioned container at the bottom, with scroll indicator first (top) and buttons below.
 
-**Fix in `src/pages/Index.tsx`:**
-- Move CTA buttons higher (change `bottom-16` to `bottom-24`)
-- Keep scroll indicator at `bottom-6` so there's clear separation
-
-### 2. Sticky Navbar after Announcement Bar scrolls away
-The user wants: announcement bar scrolls away naturally, then the navbar "sticks" to the top of the viewport. This is a classic sticky-header pattern.
-
-**Fix in `src/components/layout/Layout.tsx` + `src/components/layout/Navbar.tsx`:**
-- Make the navbar `sticky top-0 z-50` so it sticks to the top once the announcement bar (which sits above it in the flow) scrolls out of view
-- The announcement bar stays non-sticky (scrolls away naturally)
-- This gives the exact behavior described: announcement bar disappears on scroll, navbar slides up and locks at the top
-
-### Files changed
-- `src/components/layout/Navbar.tsx` — add `sticky top-0 z-50` to the navbar wrapper
-- `src/pages/Index.tsx` — adjust mobile hero CTA button positioning (more space from bottom)
+### Change in `src/pages/Index.tsx` (lines 85-104)
+Replace the two separate absolute containers with one unified container:
+- Single container at `bottom-6` with `flex-col items-center gap-4`
+- Order: scroll indicator first, then CTA buttons below
+- This ensures the scroll indicator is always visible above the buttons regardless of screen size
 
