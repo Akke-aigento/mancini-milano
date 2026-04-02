@@ -1,37 +1,39 @@
 
 
-# Navbar Terug als "Footer" op Homepage
+# Dropdowns Alleen Omhoog op Homepage
 
 ## Probleem
-Door de LookbookBanner naar `Index.tsx` te verplaatsen, komt deze nu **na** de Navbar (in `<main>`). Voorheen stond de banner **tussen** de AnnouncementBar en Navbar, waardoor de Navbar naar de onderkant van het viewport werd geduwd.
+De dropdowns gaan nu omhoog wanneer `!scrolled`, ook op niet-homepage pagina's. Ze moeten alleen omhoog gaan op de homepage wanneer de navbar onderaan staat.
 
 ## Oplossing
-De LookbookBanner moet terug **vóór** de Navbar in de Layout — maar alleen op de homepage. Dit doen we met `useLocation` in Layout.
 
-### `src/components/layout/Layout.tsx`
-- Import `useLocation` en `LookbookBanner`
-- Check `location.pathname === '/'`
-- Render `<LookbookBanner />` conditioneel tussen `<AnnouncementBar />` en `<Navbar />`
+### `src/components/layout/Navbar.tsx`
 
-### `src/pages/Index.tsx`
-- Verwijder de `LookbookBanner` import en render
+1. **DropdownMenu component**: voeg `isHome` prop toe. Verander de logica:
+   - Dropdown omhoog: alleen als `isHome && !scrolled`
+   - Chevron rotatie: alleen als `isHome && !scrolled`
 
-### Structuur homepage
-```text
-AnnouncementBar
-LookbookBanner  ← vult viewport, duwt navbar naar beneden
-Navbar          ← ziet eruit als footer
-main content
+2. **Navbar render**: pass `isHome` door naar beide `<DropdownMenu>` componenten
+
+### Wijzigingen
+
+**DropdownMenu props** (regel 9):
+```
+{ label, links, slug, scrolled, isHome }
 ```
 
-### Andere pagina's
-```text
-AnnouncementBar
-Navbar          ← direct bovenaan
-main content
+**Chevron** (regel 23):
+```
+${isHome && !scrolled ? 'rotate-180' : ''}
 ```
 
-### Files
-- `src/components/layout/Layout.tsx` (conditionele banner)
-- `src/pages/Index.tsx` (verwijder banner)
+**Dropdown positie** (regel 26):
+```
+${!isHome || scrolled ? 'top-full pt-2' : 'bottom-full pb-2'}
+```
+
+**Navbar render** (~regel 147-148): pass `isHome={isHome}` aan beide DropdownMenu's
+
+### Eén file
+- `src/components/layout/Navbar.tsx`
 
