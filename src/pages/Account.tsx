@@ -28,7 +28,7 @@ const ProfileTab = () => {
   const [firstName, setFirstName] = useState(customer?.first_name || "");
   const [lastName, setLastName] = useState(customer?.last_name || "");
   const [phone, setPhone] = useState(customer?.phone || "");
-  const [newsletter, setNewsletter] = useState(customer?.newsletter || false);
+  const [newsletter, setNewsletter] = useState(customer?.newsletter_opt_in || false);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
