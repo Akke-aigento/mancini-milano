@@ -105,7 +105,7 @@ to="/collections/women"
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
-              to="/collections/for-him"
+              to="/collections/men"
               className="border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Shop Men
