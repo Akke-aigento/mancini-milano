@@ -1,20 +1,23 @@
 
 
-# Fix: "Shop Men" & "Shop Women" Knoppen — Correcte Navigatie
+# Fix: Hele Rij Klikbaar in Mobiel Menu
 
 ## Probleem
-De knoppen linken naar `/collections/for-him` en `/collections/for-her`. Maar de gender-categorieën gebruiken de slugs `men` en `women` (niet `for-him`/`for-her`). De navigatie-dropdowns in de navbar gebruiken al correct `/collections/men` en `/collections/women`.
+In de `MobileAccordion` component zijn het label (Link) en de chevron-pijl (button) twee aparte elementen naast elkaar. Als je in de ruimte ertussen klikt, gebeurt er niets.
 
-## Wijziging
+## Oplossing
 
-### `src/pages/Index.tsx`
+### `src/components/layout/Navbar.tsx` — `MobileAccordion` component (regels 49-65)
 
-Vier Link-componenten updaten (2× mobiel, 2× desktop):
+Vervang de huidige opzet (Link + losse button) door één klikbare `button` die de hele rij beslaat en de accordion opent/sluit. De categorie-naam zelf blijft ook bereikbaar als link in de dropdown-items (of via een tap op de tekst).
 
-- `to="/collections/for-him"` → `to="/collections/men"`
-- `to="/collections/for-her"` → `to="/collections/women"`
+Concreet:
+- Maak de hele rij één `button` met `onClick={() => setOpen(!open)}` en `w-full flex items-center justify-between`
+- Het label en de chevron zitten samen in die button
+- De directe link naar de collectie-pagina wordt het eerste item in de dropdown-lijst (bijv. "View All [label]")
 
-Regels 75, 81, 108, 114.
+Zo is de hele rij klikbaar om de accordion te openen, en de gebruiker kan via "View All" alsnog naar de collectie-pagina navigeren.
 
-### Eén file, vier regels
+### Eén file
+- `src/components/layout/Navbar.tsx`
 
