@@ -16,14 +16,13 @@ const categoryImages: Record<string, string> = {
 
 const featuredCategorySlugs = ['t-shirts', 'jackets', 'hoodies'];
 
-  const featuredCategories = featuredCategorySlugs.map((slug) => {
-    const apiCat = categories.find((c: any) => c.slug === slug);
-    return {
-      id: apiCat?.id || slug,
-      name: apiCat?.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-      slug,
-    };
-  });
+function formatPrice(price: number) {
+  return new Intl.NumberFormat('en-EU', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+  }).format(price);
+}
 
   const trendingProducts = products.slice(0, 4);
 
