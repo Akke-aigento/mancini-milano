@@ -347,7 +347,7 @@ const Account = () => {
         {/* Mobile logout */}
         <div className="lg:hidden mt-8">
           <Button variant="outline" onClick={handleLogout} className="gap-2 text-destructive hover:text-destructive w-full">
-            <LogOut size={16} /> Uitloggen
+            <LogOut size={16} /> Log Out
           </Button>
         </div>
       </div>
