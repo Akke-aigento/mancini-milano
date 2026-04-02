@@ -1,38 +1,52 @@
 
 
-# Account Pagina: Adres + Nieuwsbrief Toggle
+# Fix: Save Buttons on Account Page — Correct API Payload Structure
 
-## Wat wordt toegevoegd
+## Problem
+The save buttons for profile, address, and newsletter don't work because the API payloads are structured incorrectly. Comparing with the working Vanxcel project reveals the differences.
 
-1. **Adres tab** — nieuw tabblad waar de klant een bezorgadres kan invoeren/bewerken (straat, huisnummer, postcode, stad, land). Dit adres wordt opgeslagen via de SellQo Customer API (`update_address` / `add_address`) en automatisch ingevuld bij checkout.
+## Root Causes
 
-2. **Nieuwsbrief toggle** — in de Profiel tab komt een Switch toggle "Inschrijven voor nieuwsbrief". Status wordt opgeslagen via de SellQo API (`update_profile` met `newsletter: true/false`).
+### 1. Address: fields sent flat instead of nested
+**Current (broken):**
+```json
+{ "action": "add_address", "params": { "street": "...", "city": "...", "is_default": true } }
+```
+**Expected (from Vanxcel):**
+```json
+{ "action": "add_address", "params": { "address": { "street": "...", "city": "...", "is_default": true } } }
+```
+Same for `update_address` — needs `{ address_id: "...", address: { ... } }`.
 
-## Wijzigingen
+### 2. `updateProfile` response handling
+The `updateProfile` function assumes the API returns the updated customer directly as `data`. If the API returns it nested (e.g. `data.customer`), it would silently fail to update the local state. We should add `refreshProfile()` as a fallback to ensure state is always correct after save.
 
-### 1. `src/pages/Account.tsx`
+## Changes
 
-**Tabs array uitbreiden:**
-- Nieuw tab: `{ id: "address", icon: MapPin, label: "Adres" }`
-- Tabs worden: Profiel | Adres | Bestellingen | Wachtwoord
+### 1. `src/pages/Account.tsx` — Fix AddressTab payload
 
-**Nieuw: AddressTab component:**
-- Haalt het huidige adres op uit `customer.addresses?.[0]` (eerste/default adres)
-- Formulier met velden: straat, huisnummer, postcode, stad, land (dropdown of input)
-- Opslaan via `customerApiFetch("update_address", { ... }, token)` of `add_address` als er nog geen adres is
-- Zelfde styling als ProfileTab
+Update the `handleSave` in `AddressTab` to wrap address fields in an `address` object:
+```typescript
+const action = addr?.id ? "update_address" : "add_address";
+const addressData = { street, house_number: houseNumber, postal_code: postalCode, city, country, is_default: true };
+const payload: Record<string, unknown> = { address: addressData };
+if (addr?.id) payload.address_id = addr.id;
+```
 
-**ProfileTab uitbreiden met nieuwsbrief toggle:**
-- Onder het telefoonveld een Switch component toevoegen met label "Nieuwsbrief"
-- State initialiseren uit `customer.newsletter` (boolean)
-- Meesturen bij `updateProfile({ ..., newsletter })` 
+### 2. `src/integrations/sellqo/CustomerAuthContext.tsx` — Robust updateProfile
 
-### 2. `src/integrations/sellqo/CustomerAuthContext.tsx`
+After calling `update_profile`, call `refreshProfile()` to ensure the local state matches reality, regardless of what the API returns:
+```typescript
+const updateProfile = async (data) => {
+  if (!token) return;
+  await customerApiFetch("update_profile", data, token);
+  // Always refresh to get the latest state
+  const profile = await customerApiFetch<Customer>("get_profile", {}, token);
+  setCustomer(profile);
+};
+```
 
-- `Customer` interface uitbreiden met `newsletter?: boolean`
-- `updateProfile` type uitbreiden om `newsletter` te accepteren
-
-### Twee files
+### Two files
 - `src/pages/Account.tsx`
 - `src/integrations/sellqo/CustomerAuthContext.tsx`
 
