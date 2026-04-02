@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCategories } from '@/integrations/sellqo/hooks';
@@ -102,6 +102,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
+  const location = useLocation();
+  const isHome = location.pathname === '/';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 36);
@@ -132,13 +134,13 @@ const Navbar = () => {
       <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
           <Link to="/" className="relative h-10 w-[160px] flex items-center">
-            <span className={`absolute font-heading text-lg tracking-logo uppercase text-foreground transition-all duration-700 ease-in-out ${scrolled ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+            <span className={`absolute font-heading text-lg tracking-logo uppercase text-foreground transition-all duration-700 ease-in-out ${scrolled || !isHome ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
               Mancini Milano
             </span>
             <img
               src={logoDoberman}
               alt="Mancini Milano"
-              className={`absolute h-9 w-auto object-contain transition-all duration-700 ease-in-out ${scrolled ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+              className={`absolute h-9 w-auto object-contain transition-all duration-700 ease-in-out ${scrolled || !isHome ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
             />
           </Link>
 
