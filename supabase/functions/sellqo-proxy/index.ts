@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
     }
 
     const storefrontBody = resolveAction(req.method, path, url.searchParams, body, tenantId);
-    console.log(`[proxy-v3] ${req.method} ${path} -> action=${storefrontBody.action}`);
+    console.log(`[proxy-v3] ${req.method} ${path} -> action=${storefrontBody.action} params=${JSON.stringify(storefrontBody.params)}`);
 
     const response = await fetch(SELLQO_API_URL, {
       method: "POST",
