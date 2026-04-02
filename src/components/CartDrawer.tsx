@@ -5,10 +5,11 @@ import { useState } from 'react';
 import { formatPrice } from '@/components/ProductCard';
 
 const CartDrawer = () => {
+  const navigate = useNavigate();
   const {
     items, itemCount, subtotal, total,
     isOpen, closeCart,
-    updateQuantity, removeItem, applyDiscount, checkout, isLoading,
+    updateQuantity, removeItem, applyDiscount, isLoading,
     discountCode, setDiscountCode,
     cart,
   } = useSellQoCart();
@@ -29,11 +30,9 @@ const CartDrawer = () => {
     }
   };
 
-  const handleCheckout = async () => {
-    await checkout({
-      success_url: window.location.origin + '/checkout/success',
-      cancel_url: window.location.origin + '/cart',
-    });
+  const handleCheckout = () => {
+    closeCart();
+    navigate('/checkout');
   };
 
   const discountAmount = cart?.discount || 0;

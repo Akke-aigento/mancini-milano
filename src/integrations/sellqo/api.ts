@@ -79,11 +79,41 @@ export const cartAPI = {
 
 // === CHECKOUT ===
 export const checkoutAPI = {
-  create: (cartId: string, options?: { success_url?: string; cancel_url?: string }) =>
-    sellqoFetch<CheckoutSession>('/checkout', {
+  start: (cartId: string) =>
+    sellqoFetch<{ status: string; items: unknown[]; subtotal: number }>('/checkout', {
       method: 'POST',
-      body: JSON.stringify({ cart_id: cartId, ...options }),
+      body: JSON.stringify({ cart_id: cartId }),
     }),
+
+  getShippingOptions: (cartId: string, country: string, subtotal: number) =>
+    sellqoFetch<{ shipping_methods: Array<{ id: string; name: string; price: number; estimated_days?: string }> }>('/checkout/shipping-options', {
+      method: 'POST',
+      body: JSON.stringify({ cart_id: cartId, country, subtotal }),
+    }),
+
+  getPaymentMethods: (cartId: string) =>
+    sellqoFetch<{ payment_methods: Array<{ id: string; type: string; name: string; description?: string }> }>('/checkout/payment-methods', {
+      method: 'POST',
+      body: JSON.stringify({ cart_id: cartId }),
+    }),
+
+  placeOrder: (data: {
+    cart_id: string;
+    shipping_address: Record<string, string>;
+    billing_address?: Record<string, string>;
+    email: string;
+    phone?: string;
+    shipping_method_id: string;
+    payment_method: string;
+    origin: string;
+  }) =>
+    sellqoFetch<{ order_id: string; status: string; payment_url?: string; bank_details?: Record<string, string> }>('/checkout/place-order', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  getConfirmation: (orderId: string) =>
+    sellqoFetch<{ order_id: string; status: string; total: number; items: unknown[] }>(`/checkout/confirmation/${orderId}`),
 };
 
 // === NEWSLETTER ===

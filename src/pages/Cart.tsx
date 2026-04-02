@@ -119,11 +119,11 @@ const Cart = () => {
                 </div>
 
                 <button
-                  onClick={handleCheckout}
+                  onClick={() => navigate('/checkout')}
                   disabled={isLoading}
                   className="w-full bg-primary text-primary-foreground py-3.5 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors disabled:opacity-50 mb-3"
                 >
-                  {isLoading ? 'Processing...' : 'Checkout'}
+                  Checkout
                 </button>
 
                 <Link
