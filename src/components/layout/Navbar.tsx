@@ -48,23 +48,22 @@ function MobileAccordion({ label, slug, links, onClose, linkPrefix }: { label: s
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <Link
-          to={`/collections/${slug}`}
-          onClick={onClose}
-          className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center"
-        >
-          {label}
-        </Link>
-        <button
-          onClick={() => setOpen(!open)}
-          className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground"
-        >
-          <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
-        </button>
-      </div>
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px]"
+      >
+        {label}
+        <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
       {open && (
         <div className="pl-4 pb-2 space-y-1">
+          <Link
+            to={`/collections/${slug}`}
+            onClick={onClose}
+            className="block py-2.5 text-sm uppercase tracking-button text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center"
+          >
+            View All {label}
+          </Link>
           {links.map(l => (
             <Link
               key={l.slug}
