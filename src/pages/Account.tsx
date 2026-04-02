@@ -307,7 +307,7 @@ const Account = () => {
                   className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-all w-full text-left"
                 >
                   <LogOut size={16} />
-                  Uitloggen
+                  Log Out
                 </button>
               </div>
             </div>
