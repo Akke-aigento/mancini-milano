@@ -17,6 +17,7 @@ import FAQ from "./pages/FAQ";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import SizeGuide from "./pages/SizeGuide";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
@@ -43,6 +44,7 @@ const App = () => (
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/size-guide" element={<SizeGuide />} />
+                <Route path="/checkout" element={<Checkout />} />
                 <Route path="/checkout/success" element={<CheckoutSuccess />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/account" element={<Account />} />

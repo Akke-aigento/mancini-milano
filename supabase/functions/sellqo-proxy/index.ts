@@ -91,8 +91,23 @@ function resolveAction(
     }
   }
 
-  if (segments[0] === 'checkout' && method === 'POST') {
-    return { action: 'checkout_start', tenant_id: tenantId, params: { ...params, ...body } };
+  if (segments[0] === 'checkout') {
+    if (segments.length === 1 && method === 'POST') {
+      return { action: 'checkout_start', tenant_id: tenantId, params: { ...params, ...body } };
+    }
+    if (segments[1] === 'shipping-options' && method === 'POST') {
+      return { action: 'checkout_get_shipping_options', tenant_id: tenantId, params: { ...params, ...body } };
+    }
+    if (segments[1] === 'payment-methods' && method === 'POST') {
+      return { action: 'checkout_get_payment_methods', tenant_id: tenantId, params: { ...params, ...body } };
+    }
+    if (segments[1] === 'place-order' && method === 'POST') {
+      return { action: 'checkout_place_order', tenant_id: tenantId, params: { ...params, ...body } };
+    }
+    if (segments[1] === 'confirmation' && segments[2] && method === 'GET') {
+      params.order_id = segments[2];
+      return { action: 'checkout_get_confirmation', tenant_id: tenantId, params };
+    }
   }
 
   if (segments[0] === 'newsletter' && method === 'POST') {

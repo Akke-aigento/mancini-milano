@@ -1,19 +1,13 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { formatPrice } from '@/components/ProductCard';
 
 const Cart = () => {
-  const { items, subtotal, total, updateQuantity, removeItem, checkout, isLoading, cart } = useSellQoCart();
+  const navigate = useNavigate();
+  const { items, subtotal, total, updateQuantity, removeItem, isLoading, cart } = useSellQoCart();
   const discountAmount = cart?.discount || 0;
-
-  const handleCheckout = async () => {
-    await checkout({
-      success_url: window.location.origin + '/checkout/success',
-      cancel_url: window.location.origin + '/cart',
-    });
-  };
 
   return (
     <Layout>
@@ -125,11 +119,11 @@ const Cart = () => {
                 </div>
 
                 <button
-                  onClick={handleCheckout}
+                  onClick={() => navigate('/checkout')}
                   disabled={isLoading}
                   className="w-full bg-primary text-primary-foreground py-3.5 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors disabled:opacity-50 mb-3"
                 >
-                  {isLoading ? 'Processing...' : 'Checkout'}
+                  Checkout
                 </button>
 
                 <Link
