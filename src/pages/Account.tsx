@@ -229,7 +229,7 @@ const PasswordTab = () => {
       </div>
       <div className="space-y-2">
         <Label className="text-xs uppercase tracking-wider text-muted-foreground">New Password</Label>
-        <Input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Min. 8 tekens" className={inputClasses} />
+        <Input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Min. 8 characters" className={inputClasses} />
       </div>
       <div className="space-y-2">
         <Label className="text-xs uppercase tracking-wider text-muted-foreground">Bevestig nieuw wachtwoord</Label>
