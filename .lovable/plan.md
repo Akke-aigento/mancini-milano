@@ -1,37 +1,47 @@
 
 
-# Navbar at Bottom of Viewport on First Load
+# Dropdown Richting Omkeren Bij Navbar Onderaan
 
 ## Concept
-When landing on the homepage (desktop), the lookbook banner expands to fill the viewport minus the navbar height. This pushes the navbar to the very bottom of the screen — like a footer. As the user scrolls, the banner scrolls away and the navbar becomes sticky at the top as it already does.
+Wanneer de navbar onderaan het scherm staat (niet gescrold), openen de dropdown menu's **omhoog**. Zodra de navbar sticky bovenaan zit (gescrold), openen ze normaal **naar beneden**.
 
-## How
+## Hoe
 
-### 1. `src/components/layout/LookbookBanner.tsx`
-- Set the banner height to `calc(100vh - 36px - 64px)` on desktop (100vh minus announcement bar 36px minus navbar 64px)
-- On mobile keep a reasonable fixed height like `h-[50vh]` since the effect is less impactful on small screens
-- Use `object-cover object-center` to keep the photo looking good at this size
+### `src/components/layout/Navbar.tsx`
 
-### 2. No other files need changes
-The navbar is already `sticky top-0` so once the user scrolls past the banner, it locks to the top naturally. The layout order (AnnouncementBar → LookbookBanner → Navbar) already places it correctly.
+1. **Pass `scrolled` state door naar `DropdownMenu`** als prop
+2. **DropdownMenu**: wissel positionering op basis van `scrolled`:
+   - `scrolled = false` (navbar onderaan): `bottom-full mb-2` (menu opent omhoog)
+   - `scrolled = true` (navbar bovenaan): `top-full pt-2` (menu opent omlaag)
+3. **ChevronDown icon**: draai om wanneer niet gescrold (`rotate-180` als `!scrolled`)
 
-### Result
-```text
-┌─────────────────────────┐
-│   FREE SHIPPING BAR     │  ~36px
-├─────────────────────────┤
-│                         │
-│                         │
-│    LOOKBOOK BANNER      │  fills remaining
-│    (full viewport)      │  viewport height
-│                         │
-│                         │
-├─────────────────────────┤
-│  NAVBAR (at bottom)     │  64px ← looks like footer
-└─────────────────────────┘
+### Wijzigingen
+
+**DropdownMenu component** (~regel 10-42):
+- Voeg `scrolled` prop toe
+- Dropdown container: `className={scrolled ? 'top-full pt-2' : 'bottom-full pb-2'}`
+- Chevron: `className={!scrolled ? 'rotate-180' : ''}`
+
+**Navbar render** (~regel 147-148):
+- Pass `scrolled` prop: `<DropdownMenu ... scrolled={scrolled} />`
+
+### Resultaat
 ```
-After scrolling → navbar sticks to top as usual.
+Niet gescrold (navbar onderaan):
+┌─────────────┐
+│  Submenu     │  ← opent omhoog
+│  items       │
+└─────────────┘
+──── NAVBAR ────
 
-### File changed
-- `src/components/layout/LookbookBanner.tsx` — add `h-[50vh] md:h-[calc(100vh-100px)]`
+Gescrold (navbar bovenaan):
+──── NAVBAR ────
+┌─────────────┐
+│  Submenu     │  ← opent omlaag
+│  items       │
+└─────────────┘
+```
+
+### Files
+- `src/components/layout/Navbar.tsx` — enige wijziging
 
