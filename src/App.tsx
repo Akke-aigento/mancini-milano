@@ -17,6 +17,7 @@ import FAQ from "./pages/FAQ";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import SizeGuide from "./pages/SizeGuide";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
