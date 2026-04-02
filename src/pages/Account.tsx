@@ -145,7 +145,7 @@ const AddressTab = () => {
         </div>
       </div>
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Land</Label>
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Country</Label>
         <Input value={country} onChange={e => setCountry(e.target.value)} className={inputClasses} />
       </div>
       <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 h-12" disabled={saving}>
