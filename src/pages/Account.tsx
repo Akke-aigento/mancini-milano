@@ -93,7 +93,7 @@ const AddressTab = () => {
       setHouseNumber(addr.house_number || "");
       setPostalCode(addr.postal_code || "");
       setCity(addr.city || "");
-      setCountry(addr.country || "België");
+      setCountry(addr.country || "Belgium");
     }
   }, [addr]);
 
