@@ -1,4 +1,4 @@
-import type { Product, ProductImage, ProductVariant, Collection, Cart, CartItem } from './types';
+import type { Product, ProductImage, ProductVariant, Collection, Cart, CartItem, Category } from './types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function normalizeProduct(raw: any): Product {
@@ -84,6 +84,24 @@ export function normalizeProducts(rawProducts: any[]): Product[] {
 
 export function normalizeCollections(rawCollections: any[]): Collection[] {
   return (rawCollections || []).map(normalizeCollection);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function normalizeCategory(raw: any): Category {
+  return {
+    id: raw.id,
+    slug: raw.slug || '',
+    name: raw.name || raw.title || '',
+    description: raw.description || undefined,
+    image: raw.image_url || raw.image || undefined,
+    product_count: raw.product_count ?? undefined,
+    parent_id: raw.parent_id || undefined,
+    position: raw.position ?? 0,
+  };
+}
+
+export function normalizeCategories(rawCategories: any[]): Category[] {
+  return (rawCategories || []).map(normalizeCategory);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
