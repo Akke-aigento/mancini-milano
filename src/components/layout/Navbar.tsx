@@ -194,7 +194,7 @@ const Navbar = () => {
             </button>
             <Link
               to={isAuthenticated ? "/account" : "/login"}
-              className="min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors hidden sm:flex"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Account"
             >
               <User className="h-5 w-5" />
@@ -268,6 +268,9 @@ const Navbar = () => {
               <Link to="/about" onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">About Us</Link>
               <Link to="/faq" onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">FAQ</Link>
               <Link to="/size-guide" onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">Size Guide</Link>
+              <Link to={isAuthenticated ? "/account" : "/login"} onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">
+                {isAuthenticated ? "Mijn Account" : "Inloggen"}
+              </Link>
             </div>
           </div>
         </div>
