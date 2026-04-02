@@ -1,23 +1,47 @@
 
 
-# Fix: Hele Rij Klikbaar in Mobiel Menu
+# Fix: Newsletter Veldnaam + Login Pagina Engels
 
-## Probleem
-In de `MobileAccordion` component zijn het label (Link) en de chevron-pijl (button) twee aparte elementen naast elkaar. Als je in de ruimte ertussen klikt, gebeurt er niets.
+## Bevindingen
+Ik heb de API calls direct getest en alles werkt:
+- Registratie: succesvol, klant wordt aangemaakt in SellQo
+- Profiel update: succesvol, wijzigingen worden opgeslagen
+- Get profile: retourneert de juiste data
 
-## Oplossing
+De klant `aaron-mercken@hotmail.com` (ID: `dd53469e-...`) bestaat in SellQo met de juiste naam en telefoon.
 
-### `src/components/layout/Navbar.tsx` — `MobileAccordion` component (regels 49-65)
+## Wat wel fout is
 
-Vervang de huidige opzet (Link + losse button) door één klikbare `button` die de hele rij beslaat en de accordion opent/sluit. De categorie-naam zelf blijft ook bereikbaar als link in de dropdown-items (of via een tap op de tekst).
+### 1. Newsletter veld: `newsletter` moet `newsletter_opt_in` zijn
+De SellQo API verwacht `newsletter_opt_in`, niet `newsletter`. Vanxcel gebruikt het correcte veld. Hierdoor wordt de nieuwsbrief-toggle genegeerd door de API.
 
-Concreet:
-- Maak de hele rij één `button` met `onClick={() => setOpen(!open)}` en `w-full flex items-center justify-between`
-- Het label en de chevron zitten samen in die button
-- De directe link naar de collectie-pagina wordt het eerste item in de dropdown-lijst (bijv. "View All [label]")
+### 2. Login pagina is nog in het Nederlands
+Alle teksten ("Inloggen", "Registreren", "Vul alle velden in", "Voornaam", etc.) zijn nog steeds Nederlands.
 
-Zo is de hele rij klikbaar om de accordion te openen, en de gebruiker kan via "View All" alsnog naar de collectie-pagina navigeren.
+## Wijzigingen
 
-### Eén file
-- `src/components/layout/Navbar.tsx`
+### `src/integrations/sellqo/CustomerAuthContext.tsx`
+- Verander `newsletter` naar `newsletter_opt_in` in de `Customer` interface en `updateProfile` type
+
+### `src/pages/Account.tsx`
+- Verander de newsletter state/prop van `newsletter` naar `newsletter_opt_in`
+
+### `src/pages/Login.tsx`
+- Alle Nederlandse teksten vertalen naar Engels:
+  - "Inloggen" → "Sign In"
+  - "Registreren" → "Register"
+  - "Vul alle velden in" → "Please fill in all fields"
+  - "Voornaam" / "Achternaam" → "First Name" / "Last Name"
+  - "E-mail" → "Email"
+  - "Wachtwoord" → "Password"
+  - "Bevestig wachtwoord" → "Confirm Password"
+  - "Min. 8 tekens" → "Min. 8 characters"
+  - "Hoofdletter" → "Uppercase"
+  - "Cijfer" → "Number"
+  - Error/success toasts naar Engels
+
+### Drie files
+- `src/integrations/sellqo/CustomerAuthContext.tsx`
+- `src/pages/Account.tsx`
+- `src/pages/Login.tsx`
 
