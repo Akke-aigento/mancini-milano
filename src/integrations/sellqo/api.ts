@@ -3,82 +3,103 @@ import type { Product, Collection, Category, Cart, CheckoutSession, PaginatedRes
 
 // === PRODUCTS ===
 export const productsAPI = {
-  getAll: (params?: ProductsParams) =>
-    sellqoFetch<PaginatedResponse<Product>>('get_products', {
-      ...(params?.category_slug && { category_slug: params.category_slug }),
-      ...(params?.category && { category_id: params.category }),
-      ...(params?.search && { search: params.search }),
-      ...(params?.sort && { sort: params.sort }),
-      ...(params?.page && { page: params.page }),
-      ...(params?.per_page && { per_page: params.per_page }),
-    }),
+  getAll: (params?: ProductsParams) => {
+    const sp = new URLSearchParams();
+    if (params?.category_slug) sp.set('category_slug', params.category_slug);
+    if (params?.category) sp.set('category', params.category);
+    if (params?.search) sp.set('search', params.search);
+    if (params?.sort) sp.set('sort', params.sort);
+    if (params?.page) sp.set('page', String(params.page));
+    if (params?.per_page) sp.set('per_page', String(params.per_page));
+    const qs = sp.toString();
+    return sellqoFetch<PaginatedResponse<Product>>(`/products${qs ? `?${qs}` : ''}`);
+  },
 
   getBySlug: (slug: string) =>
-    sellqoFetch<Product>('get_product', { slug }),
+    sellqoFetch<Product>(`/products/${slug}`),
 
   getRelated: (slug: string, limit = 4) =>
-    sellqoFetch<Product[]>('get_related_products', { slug, limit }),
+    sellqoFetch<Product[]>(`/products/${slug}/related?limit=${limit}`),
 
   search: (query: string, limit = 6) =>
-    sellqoFetch<Product[]>('search_products', { query, limit }),
+    sellqoFetch<Product[]>(`/products/search?q=${encodeURIComponent(query)}&limit=${limit}`),
 };
 
 // === COLLECTIONS & CATEGORIES ===
 export const collectionsAPI = {
   getAll: () =>
-    sellqoFetch<Collection[]>('get_collections'),
+    sellqoFetch<Collection[]>('/collections'),
 
-  getProducts: (slug: string, params?: ProductsParams) =>
-    sellqoFetch<PaginatedResponse<Product>>('get_collection_products', {
-      slug,
-      ...(params?.sort && { sort: params.sort }),
-      ...(params?.page && { page: params.page }),
-    }),
+  getProducts: (slug: string, params?: ProductsParams) => {
+    const sp = new URLSearchParams();
+    if (params?.sort) sp.set('sort', params.sort);
+    if (params?.page) sp.set('page', String(params.page));
+    const qs = sp.toString();
+    return sellqoFetch<PaginatedResponse<Product>>(`/collections/${slug}/products${qs ? `?${qs}` : ''}`);
+  },
 };
 
 export const categoriesAPI = {
   getAll: () =>
-    sellqoFetch<Category[]>('get_categories'),
+    sellqoFetch<Category[]>('/categories'),
 };
 
 // === CART ===
 export const cartAPI = {
   create: () =>
-    sellqoFetch<Cart>('create_cart'),
+    sellqoFetch<Cart>('/cart', { method: 'POST' }),
 
   get: (cartId: string) =>
-    sellqoFetch<Cart>('get_cart', { cart_id: cartId }),
+    sellqoFetch<Cart>(`/cart/${cartId}`),
 
   addItem: (cartId: string, item: { product_id: string; variant_id?: string; quantity: number }) =>
-    sellqoFetch<Cart>('add_to_cart', { cart_id: cartId, ...item }),
+    sellqoFetch<Cart>(`/cart/${cartId}/items`, {
+      method: 'POST',
+      body: JSON.stringify(item),
+    }),
 
   updateItem: (cartId: string, itemId: string, quantity: number) =>
-    sellqoFetch<Cart>('update_cart_item', { cart_id: cartId, item_id: itemId, quantity }),
+    sellqoFetch<Cart>(`/cart/${cartId}/items/${itemId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ quantity }),
+    }),
 
   removeItem: (cartId: string, itemId: string) =>
-    sellqoFetch<Cart>('remove_cart_item', { cart_id: cartId, item_id: itemId }),
+    sellqoFetch<Cart>(`/cart/${cartId}/items/${itemId}`, { method: 'DELETE' }),
 
   applyDiscount: (cartId: string, code: string) =>
-    sellqoFetch<Cart>('apply_discount', { cart_id: cartId, code }),
+    sellqoFetch<Cart>(`/cart/${cartId}/discount`, {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    }),
 
   removeDiscount: (cartId: string) =>
-    sellqoFetch<Cart>('remove_discount', { cart_id: cartId }),
+    sellqoFetch<Cart>(`/cart/${cartId}/discount`, { method: 'DELETE' }),
 };
 
 // === CHECKOUT ===
 export const checkoutAPI = {
   create: (cartId: string, options?: { success_url?: string; cancel_url?: string }) =>
-    sellqoFetch<CheckoutSession>('create_checkout', { cart_id: cartId, ...options }),
+    sellqoFetch<CheckoutSession>('/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ cart_id: cartId, ...options }),
+    }),
 };
 
 // === NEWSLETTER ===
 export const newsletterAPI = {
   subscribe: (email: string) =>
-    sellqoFetch<{ success: boolean; message: string }>('subscribe_newsletter', { email }),
+    sellqoFetch<{ success: boolean; message: string }>('/newsletter/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
 };
 
 // === CONTACT ===
 export const contactAPI = {
   submit: (data: { name: string; email: string; subject: string; message: string }) =>
-    sellqoFetch<{ success: boolean }>('submit_contact', data),
+    sellqoFetch<{ success: boolean }>('/contact', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 };
