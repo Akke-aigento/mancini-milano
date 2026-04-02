@@ -11,29 +11,19 @@ import type { Product } from '@/integrations/sellqo/types';
 const categoryImages: Record<string, string> = {
   't-shirts': 'https://mancinimilano.com/cdn/shop/files/rn-image_picker_lib_temp_896ede1b-a149-4125-a1c4-18afec653b26_600x.png?v=1765501528',
   'jackets': 'https://mancinimilano.com/cdn/shop/files/rn-image_picker_lib_temp_af64f79d-1dc6-4c11-a839-4c9df9c40dc1_600x.png?v=1771805413',
-  'accessories': 'https://mancinimilano.com/cdn/shop/files/background-editor_output_8a9cd8eb-9800-431c-a5a7-f93aa8806404_600x.png?v=1758836425',
+  'hoodies': 'https://mancinimilano.com/cdn/shop/files/rn-image_picker_lib_temp_af64f79d-1dc6-4c11-a839-4c9df9c40dc1_600x.png?v=1771805413',
 };
 
-const featuredCategorySlugs = ['t-shirts', 'jackets', 'accessories'];
+const featuredCategorySlugs = ['t-shirts', 'jackets', 'hoodies'];
 
-function formatPrice(price: number) {
-  return new Intl.NumberFormat('en-EU', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-  }).format(price);
-}
-
-const Index = () => {
-  const { data: products = [] } = useProducts();
-  const { data: categories = [] } = useCategories();
-  const newsletterMutation = useNewsletterSubscribe();
-  const [email, setEmail] = useState('');
-  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'success' | 'error'>('idle');
-
-  const featuredCategories = featuredCategorySlugs
-    .map((slug) => categories.find((c: any) => c.slug === slug))
-    .filter(Boolean);
+  const featuredCategories = featuredCategorySlugs.map((slug) => {
+    const apiCat = categories.find((c: any) => c.slug === slug);
+    return {
+      id: apiCat?.id || slug,
+      name: apiCat?.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+      slug,
+    };
+  });
 
   const trendingProducts = products.slice(0, 4);
 
