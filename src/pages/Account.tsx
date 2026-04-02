@@ -36,7 +36,7 @@ const ProfileTab = () => {
     setSaving(true);
     try {
       await updateProfile({ first_name: firstName, last_name: lastName, phone, newsletter });
-      toast.success("Profiel bijgewerkt");
+      toast.success("Profile updated");
     } catch (err: any) {
       toast.error(err.message || "Opslaan mislukt");
     } finally {
