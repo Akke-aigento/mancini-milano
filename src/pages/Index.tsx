@@ -156,7 +156,7 @@ const Index = () => {
                 className="group relative aspect-[3/4] overflow-hidden block"
               >
                 <img
-                  src={categoryImages[cat.slug] || ''}
+                  src={cat.image}
                   alt={cat.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
