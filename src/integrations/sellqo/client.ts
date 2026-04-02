@@ -1,29 +1,7 @@
-// SellQo Storefront API Client — Direct POST to SellQo API
-const SELLQO_API_URL = 'https://sellqo.app/api/storefront';
+// SellQo Storefront API Client - routes through proxy edge function
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SELLQO_PROXY_BASE = `${SUPABASE_URL}/functions/v1/sellqo-proxy`;
 const SELLQO_TENANT_ID = '2606c5b9-caf8-4a42-94cd-80e3f3f31988';
-
-export async function sellqoFetch<T = unknown>(
-  action: string,
-  params: Record<string, unknown> = {}
-): Promise<T> {
-  const res = await fetch(SELLQO_API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      action,
-      tenant_id: SELLQO_TENANT_ID,
-      ...params,
-    }),
-  });
-
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: `HTTP ${res.status}` }));
-    console.error(`SellQo API error (${res.status}):`, error);
-    throw new Error(error.message || error.error || `SellQo API error: ${res.status}`);
-  }
-
-  return res.json();
-}
 
 /**
  * Safely extract an array from an API response
@@ -59,4 +37,38 @@ export function extractSingle<T>(response: unknown): T | null {
   }
   if (r.id) return r as unknown as T;
   return null;
+}
+
+export async function sellqoFetch<T = unknown>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<T> {
+  const url = `${SELLQO_PROXY_BASE}${endpoint}`;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Tenant-ID': SELLQO_TENANT_ID,
+  };
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...options,
+      headers: {
+        ...headers,
+        ...options?.headers,
+      },
+    });
+  } catch (err) {
+    console.error('SellQo network error:', err);
+    throw new Error('NETWORK_ERROR');
+  }
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: `HTTP ${res.status}` }));
+    console.error(`SellQo API error (${res.status}):`, error);
+    throw new Error(error.message || error.error || `SellQo API error: ${res.status}`);
+  }
+
+  return res.json();
 }
