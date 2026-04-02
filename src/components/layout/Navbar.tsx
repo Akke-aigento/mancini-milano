@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCategories } from '@/integrations/sellqo/hooks';
 import SearchOverlay from '@/components/SearchOverlay';
+import logoDoberman from '@/assets/logo-doberman.png';
 
 function DropdownMenu({ label, links, slug }: { label: string; links: { label: string; slug: string }[]; slug: string }) {
   const [open, setOpen] = useState(false);
@@ -98,8 +99,16 @@ const defaultForHerLinks = [
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 36);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Try to build nav links from API categories, fall back to defaults
   const forHimLinks = categories
@@ -122,8 +131,15 @@ const Navbar = () => {
     <>
       <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
-          <Link to="/" className="font-heading text-lg tracking-logo uppercase text-foreground">
-            Mancini Milano
+          <Link to="/" className="relative h-10 w-[160px] flex items-center">
+            <span className={`absolute font-heading text-lg tracking-logo uppercase text-foreground transition-opacity duration-500 ease-in-out ${scrolled ? 'opacity-0' : 'opacity-100'}`}>
+              Mancini Milano
+            </span>
+            <img
+              src={logoDoberman}
+              alt="Mancini Milano"
+              className={`absolute h-9 w-auto object-contain transition-opacity duration-500 ease-in-out ${scrolled ? 'opacity-100' : 'opacity-0'}`}
+            />
           </Link>
 
           <div className="hidden lg:flex items-center gap-8">
