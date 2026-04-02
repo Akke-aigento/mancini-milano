@@ -175,8 +175,8 @@ const Navbar = () => {
             {allLinks.length > 0 && (
               <DropdownMenu label="All" links={allLinks} slug="all" scrolled={scrolled} isHome={isHome} />
             )}
-            <DropdownMenu label="For Him" links={himLinks} slug="for-him" scrolled={scrolled} isHome={isHome} />
-            <DropdownMenu label="For Her" links={herLinks} slug="for-her" scrolled={scrolled} isHome={isHome} />
+            <DropdownMenu label="For Him" links={forHimLinks} slug="men" scrolled={scrolled} isHome={isHome} linkPrefix="men" />
+            <DropdownMenu label="For Her" links={forHerLinks} slug="women" scrolled={scrolled} isHome={isHome} linkPrefix="women" />
             <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Fragrances
             </Link>
