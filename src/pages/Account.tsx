@@ -136,7 +136,7 @@ const AddressTab = () => {
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Postcode</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Postal Code</Label>
           <Input value={postalCode} onChange={e => setPostalCode(e.target.value)} className={inputClasses} />
         </div>
         <div className="space-y-2">
