@@ -240,12 +240,20 @@ const Navbar = () => {
             {allLinks.length > 0 && (
               <MobileAccordion label="All" slug="all" links={allLinks} onClose={closeMobile} />
             )}
-            {forHimLinks.length > 0 && (
+            {forHimLinks.length > 0 ? (
               <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} linkPrefix="men" />
-            )}
-            {forHerLinks.length > 0 && (
+            ) : menProducts && menProducts.length > 0 ? (
+              <Link to="/collections/men" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+                For Him
+              </Link>
+            ) : null}
+            {forHerLinks.length > 0 ? (
               <MobileAccordion label="For Her" slug="women" links={forHerLinks} onClose={closeMobile} linkPrefix="women" />
-            )}
+            ) : womenProducts && womenProducts.length > 0 ? (
+              <Link to="/collections/women" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+                For Her
+              </Link>
+            ) : null}
             <Link to="/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
               Fragrances
             </Link>
