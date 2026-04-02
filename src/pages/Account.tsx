@@ -150,7 +150,7 @@ const AddressTab = () => {
       </div>
       <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 h-12" disabled={saving}>
         {saving ? <Loader2 className="animate-spin mr-2" size={16} /> : null}
-        Opslaan
+        Save
       </Button>
     </form>
   );
