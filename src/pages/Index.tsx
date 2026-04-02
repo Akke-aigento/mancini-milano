@@ -78,7 +78,7 @@ to="/collections/men"
               Shop Men
             </Link>
             <Link
-              to="/collections/for-her"
+to="/collections/women"
               className="flex-1 text-center bg-primary text-primary-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
             >
               Shop Women
