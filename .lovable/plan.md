@@ -1,29 +1,47 @@
 
 
-# Exclusive Sectie: Beschrijving Opschonen
+# Exclusive Sectie: Afbeelding Tussen Tekst en Prijs
 
-## Probleem
-De volledige productbeschrijving wordt getoond — een lange muur van tekst die er rommelig uitziet, vooral op mobiel. Dit is een homepage highlight, geen productpagina.
+## Wat
+Op mobiel staat de afbeelding nu helemaal onderaan (in de tweede grid-kolom). Door de layout te herstructureren komt de afbeelding tussen de beschrijvingstekst en de prijs — logischer en visueel mooier.
 
-## Oplossing
-Toon **niet** de volledige API-beschrijving. Schrijf in plaats daarvan een korte, krachtige teaser-tekst hardcoded in de homepage. De volledige beschrijving hoort op de productpagina zelf (waar de gebruiker naartoe gaat via "Discover").
+## Wijziging
 
-### `src/pages/Index.tsx` (regels 292-293)
+### `src/pages/Index.tsx` (regels 286-309)
 
-**Van:**
+Op mobiel: alles in één flow (geen 2-kolom grid). Volgorde wordt:
+1. "Exclusive" label + titel + beschrijving
+2. Afbeelding (gecentreerd)
+3. Prijs + CTA knop
+
+Op desktop (`lg:`): behoud de huidige 2-kolom layout met tekst links en afbeelding rechts.
+
+**Aanpak:** Verplaats de afbeelding `<div>` naar binnen de tekstkolom, tussen de beschrijving en de prijs. Op `lg:` wordt de afbeelding via `lg:hidden` verborgen in de tekstkolom en blijft de aparte rechterkolom met `hidden lg:flex` behouden.
+
 ```tsx
-<div className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-md mx-auto lg:mx-0 prose prose-sm prose-invert max-w-none"
-  dangerouslySetInnerHTML={{ __html: fragrance.description }} />
-```
+<div className="text-center lg:text-left">
+  <span>Exclusive</span>
+  <h2>The Signature Fragrance</h2>
+  <p>A fragrance for men who...</p>
+  
+  {/* Afbeelding — alleen op mobiel hier getoond */}
+  <div className="flex justify-center my-8 lg:hidden">
+    <div className="w-56">
+      <img ... />
+    </div>
+  </div>
+  
+  <p>From €75.95</p>
+  <Link>Discover →</Link>
+</div>
 
-**Naar:**
-```tsx
-<p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-md mx-auto lg:mx-0">
-  A fragrance for men who dominate without speaking. Intense. Powerful. Unforgettable. Crafted with bold notes of black pepper, cedarwood, and deep patchouli.
-</p>
+{/* Afbeelding — alleen op desktop */}
+<div className="hidden lg:flex justify-center">
+  <div className="w-80">
+    <img ... />
+  </div>
+</div>
 ```
-
-Korte, impactvolle copy die past bij de luxury branding — de rest leest men op de productpagina.
 
 ### Eén file
 - `src/pages/Index.tsx`
