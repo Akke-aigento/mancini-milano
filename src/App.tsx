@@ -27,26 +27,30 @@ const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <SellQoCartProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/collections/:slug" element={<Collection />} />
-              <Route path="/products/:slug" element={<ProductDetail />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/size-guide" element={<SizeGuide />} />
-              <Route path="/checkout/success" element={<CheckoutSuccess />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </SellQoCartProvider>
+        <CustomerAuthProvider>
+          <SellQoCartProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ScrollToTop />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/collections/:slug" element={<Collection />} />
+                <Route path="/products/:slug" element={<ProductDetail />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/size-guide" element={<SizeGuide />} />
+                <Route path="/checkout/success" element={<CheckoutSuccess />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/account" element={<Account />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </SellQoCartProvider>
+        </CustomerAuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>
