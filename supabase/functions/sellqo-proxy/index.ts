@@ -49,9 +49,22 @@ Deno.serve(async (req) => {
     }
 
     const response = await fetch(targetUrl, fetchOptions);
-    const data = await response.text();
+    const responseText = await response.text();
+    
+    console.log(`Upstream response status: ${response.status}, body length: ${responseText.length}`);
+    if (responseText.length < 500) {
+      console.log(`Upstream response body: ${responseText}`);
+    }
 
-    return new Response(data, {
+    // If response is empty, return an empty success
+    if (!responseText || responseText.trim() === '') {
+      return new Response(
+        JSON.stringify({ success: true, data: [] }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(responseText, {
       status: response.status,
       headers: {
         ...corsHeaders,
