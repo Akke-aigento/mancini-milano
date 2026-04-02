@@ -53,6 +53,7 @@ export function normalizeProduct(raw: any): Product {
     collection: raw.category?.slug || raw.collection || undefined,
     collections: raw.collections || undefined,
     category: raw.category || undefined,
+    categories: raw.categories || (raw.category ? [raw.category] : []),
     tags: raw.tags || [],
     stock_status: stockStatus as Product['stock_status'],
     stock_quantity: raw.stock ?? undefined,

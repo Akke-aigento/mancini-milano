@@ -12,6 +12,7 @@ export interface Product {
   collection?: string;
   collections?: string[];
   category?: Category;
+  categories?: Category[];
   tags?: string[];
   stock_status: 'in_stock' | 'low_stock' | 'out_of_stock';
   stock_quantity?: number;
