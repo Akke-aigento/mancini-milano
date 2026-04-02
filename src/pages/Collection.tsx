@@ -13,17 +13,19 @@ const Collection = () => {
   const [searchParams] = useSearchParams();
   const genderFilter = searchParams.get('gender'); // 'men' or 'women'
   
-  const { data: allProducts = [], isLoading: loading } = useProducts(slug ? { category_slug: slug } : undefined);
+  // When gender filter is active, fetch from gender category and filter by subcategory client-side
+  const fetchSlug = genderFilter || slug;
+  const { data: allProducts = [], isLoading: loading } = useProducts(fetchSlug ? { category_slug: fetchSlug } : undefined);
   const { data: categories = [] } = useCategories();
   const [sort, setSort] = useState<SortOption>('featured');
 
-  // Filter by gender if query param is present
+  // Filter by subcategory when we fetched by gender
   const genderFilteredProducts = useMemo(() => {
-    if (!genderFilter) return allProducts;
+    if (!genderFilter || !slug) return allProducts;
     return allProducts.filter(p =>
-      p.categories?.some(c => c.slug === genderFilter)
+      p.categories?.some(c => c.slug === slug)
     );
-  }, [allProducts, genderFilter]);
+  }, [allProducts, genderFilter, slug]);
 
   const sortedProducts = useMemo(() => {
     const sorted = [...genderFilteredProducts];
