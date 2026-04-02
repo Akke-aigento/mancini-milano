@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SellQoCartProvider } from "@/integrations/sellqo/CartContext";
+import { CustomerAuthProvider } from "@/integrations/sellqo/CustomerAuthContext";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import Collection from "./pages/Collection";
@@ -16,6 +17,8 @@ import FAQ from "./pages/FAQ";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import SizeGuide from "./pages/SizeGuide";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import Login from "./pages/Login";
+import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
