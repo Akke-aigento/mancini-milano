@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Mail, Clock } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
-import { submitContact } from '@/lib/sellqo';
+import { contactAPI } from '@/integrations/sellqo/api';
 
 const Contact = () => {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
@@ -11,7 +11,7 @@ const Contact = () => {
     e.preventDefault();
     setStatus('sending');
     try {
-      await submitContact(form);
+      await contactAPI.submit(form);
       setStatus('success');
       setForm({ name: '', email: '', subject: '', message: '' });
     } catch {
@@ -30,7 +30,6 @@ const Contact = () => {
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12 lg:gap-16 max-w-4xl mx-auto">
-          {/* Form */}
           <div>
             {status === 'success' ? (
               <div className="py-16 text-center">
@@ -47,50 +46,39 @@ const Contact = () => {
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label className="block text-xs uppercase tracking-button font-medium text-foreground mb-2">Name</label>
-                  <input
-                    type="text" required value={form.name} onChange={update('name')}
+                  <input type="text" required value={form.name} onChange={update('name')}
                     className="w-full bg-card border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-                    placeholder="Your name"
-                  />
+                    placeholder="Your name" />
                 </div>
                 <div>
                   <label className="block text-xs uppercase tracking-button font-medium text-foreground mb-2">Email</label>
-                  <input
-                    type="email" required value={form.email} onChange={update('email')}
+                  <input type="email" required value={form.email} onChange={update('email')}
                     className="w-full bg-card border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-                    placeholder="your@email.com"
-                  />
+                    placeholder="your@email.com" />
                 </div>
                 <div>
                   <label className="block text-xs uppercase tracking-button font-medium text-foreground mb-2">Subject</label>
-                  <input
-                    type="text" required value={form.subject} onChange={update('subject')}
+                  <input type="text" required value={form.subject} onChange={update('subject')}
                     className="w-full bg-card border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-                    placeholder="How can we help?"
-                  />
+                    placeholder="How can we help?" />
                 </div>
                 <div>
                   <label className="block text-xs uppercase tracking-button font-medium text-foreground mb-2">Message</label>
-                  <textarea
-                    required value={form.message} onChange={update('message')} rows={5}
+                  <textarea required value={form.message} onChange={update('message')} rows={5}
                     className="w-full bg-card border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors resize-none"
-                    placeholder="Your message..."
-                  />
+                    placeholder="Your message..." />
                 </div>
                 {status === 'error' && (
                   <p className="text-sm text-destructive">Something went wrong. Please try again.</p>
                 )}
-                <button
-                  type="submit" disabled={status === 'sending'}
-                  className="bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors disabled:opacity-50"
-                >
+                <button type="submit" disabled={status === 'sending'}
+                  className="bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors disabled:opacity-50">
                   {status === 'sending' ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             )}
           </div>
 
-          {/* Info */}
           <div className="space-y-8">
             <div>
               <h3 className="text-xs uppercase tracking-button font-medium text-foreground mb-3">Contact</h3>
@@ -105,7 +93,6 @@ const Contact = () => {
                 </a>
               </div>
             </div>
-
             <div>
               <h3 className="text-xs uppercase tracking-button font-medium text-foreground mb-3">Response Time</h3>
               <div className="flex items-start gap-3 text-sm text-muted-foreground">

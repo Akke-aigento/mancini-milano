@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
-import { searchProducts, extractProducts } from '@/lib/sellqo';
+import { productsAPI } from '@/integrations/sellqo/api';
+import { extractArray } from '@/integrations/sellqo/client';
+import { normalizeProducts } from '@/integrations/sellqo/normalizer';
 import { formatPrice } from '@/components/ProductCard';
 
 interface SearchOverlayProps {
@@ -48,8 +50,9 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await searchProducts(value.trim());
-        const { products } = extractProducts(res);
+        const res = await productsAPI.search(value.trim());
+        const raw = extractArray<any>(res);
+        const products = normalizeProducts(raw);
         setResults(products.slice(0, 6));
       } catch {
         setResults([]);
@@ -62,14 +65,12 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
 
   return (
     <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md flex flex-col">
-      {/* Header */}
       <div className="flex items-center justify-end p-4 lg:p-6">
         <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
           <X className="h-6 w-6" />
         </button>
       </div>
 
-      {/* Search input */}
       <div className="max-w-2xl mx-auto w-full px-4 lg:px-8 mt-8 lg:mt-16">
         <div className="border-b-2 border-primary pb-2">
           <input
@@ -83,7 +84,6 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
         </div>
       </div>
 
-      {/* Results */}
       <div className="max-w-2xl mx-auto w-full px-4 lg:px-8 mt-8 flex-1 overflow-y-auto">
         {loading && (
           <div className="space-y-4">

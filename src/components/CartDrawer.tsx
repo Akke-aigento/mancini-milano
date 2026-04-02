@@ -1,15 +1,17 @@
 import { Link } from 'react-router-dom';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
-import { useCart } from '@/contexts/CartContext';
+import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useState } from 'react';
 import { formatPrice } from '@/components/ProductCard';
 
 const CartDrawer = () => {
   const {
-    items, itemCount, subtotal, discount, discountCode,
-    isDrawerOpen, closeDrawer,
-    updateItem, removeItem, applyCode, checkout, loading,
-  } = useCart();
+    items, itemCount, subtotal, total,
+    isOpen, closeCart,
+    updateQuantity, removeItem, applyDiscount, checkout, isLoading,
+    discountCode, setDiscountCode,
+    cart,
+  } = useSellQoCart();
   const [code, setCode] = useState('');
   const [codeError, setCodeError] = useState(false);
   const [codeSuccess, setCodeSuccess] = useState(false);
@@ -18,48 +20,49 @@ const CartDrawer = () => {
     if (!code.trim()) return;
     setCodeError(false);
     setCodeSuccess(false);
-    const ok = await applyCode(code.trim());
-    if (ok) {
+    try {
+      await applyDiscount(code.trim());
       setCodeSuccess(true);
       setCode('');
-    } else {
+    } catch {
       setCodeError(true);
     }
   };
 
-  const discountAmount = subtotal * discount;
-  const total = subtotal - discountAmount;
+  const handleCheckout = async () => {
+    await checkout({
+      success_url: window.location.origin + '/checkout/success',
+      cancel_url: window.location.origin + '/cart',
+    });
+  };
 
-  if (!isDrawerOpen) return null;
+  const discountAmount = cart?.discount || 0;
+
+  if (!isOpen) return null;
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 z-50 bg-background/60 backdrop-blur-sm"
-        onClick={closeDrawer}
+        onClick={closeCart}
       />
-
-      {/* Drawer */}
       <div className="fixed top-0 right-0 z-50 h-full w-full sm:max-w-md bg-card border-l border-border flex flex-col animate-in slide-in-from-right duration-300">
-        {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border">
           <h2 className="text-sm uppercase tracking-button font-medium text-foreground">
             Cart ({itemCount})
           </h2>
-          <button onClick={closeDrawer} className="text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={closeCart} className="text-muted-foreground hover:text-foreground transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {items.length === 0 ? (
-          /* Empty state */
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
             <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-foreground font-medium mb-2">Your cart is empty</p>
             <p className="text-sm text-muted-foreground mb-6">Looks like you haven't added anything yet.</p>
             <button
-              onClick={closeDrawer}
+              onClick={closeCart}
               className="bg-primary text-primary-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
             >
               Continue Shopping
@@ -67,32 +70,24 @@ const CartDrawer = () => {
           </div>
         ) : (
           <>
-            {/* Items */}
             <div className="flex-1 overflow-y-auto p-5 space-y-4">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-4">
-                  {/* Image */}
                   <div className="w-20 h-[100px] flex-shrink-0 bg-background overflow-hidden">
                     {item.image && (
                       <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                     )}
                   </div>
-
-                  {/* Details */}
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-medium text-foreground truncate mb-0.5">{item.title}</h3>
-                    {(item.size || item.color) && (
-                      <p className="text-xs text-muted-foreground mb-1">
-                        {[item.size, item.color].filter(Boolean).join(' / ')}
-                      </p>
+                    {item.variant_title && (
+                      <p className="text-xs text-muted-foreground mb-1">{item.variant_title}</p>
                     )}
                     <p className="text-sm text-primary font-medium mb-2">{formatPrice(item.price)}</p>
-
                     <div className="flex items-center justify-between">
-                      {/* Quantity */}
                       <div className="flex items-center border border-border">
                         <button
-                          onClick={() => updateItem(item.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <Minus className="h-3 w-3" />
@@ -101,14 +96,12 @@ const CartDrawer = () => {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => updateItem(item.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <Plus className="h-3 w-3" />
                         </button>
                       </div>
-
-                      {/* Remove */}
                       <button
                         onClick={() => removeItem(item.id)}
                         className="text-muted-foreground hover:text-destructive transition-colors"
@@ -121,9 +114,7 @@ const CartDrawer = () => {
               ))}
             </div>
 
-            {/* Footer */}
             <div className="border-t border-border p-5 space-y-4">
-              {/* Discount code */}
               <div>
                 <div className="flex gap-2">
                   <input
@@ -142,12 +133,11 @@ const CartDrawer = () => {
                 </div>
                 {codeError && <p className="text-xs text-destructive mt-1">Invalid discount code</p>}
                 {codeSuccess && <p className="text-xs text-primary mt-1">Discount applied!</p>}
-                {discountCode && !codeSuccess && (
-                  <p className="text-xs text-primary mt-1">Code "{discountCode}" applied ({Math.round(discount * 100)}% off)</p>
+                {cart?.discount_code && !codeSuccess && (
+                  <p className="text-xs text-primary mt-1">Code "{cart.discount_code}" applied</p>
                 )}
               </div>
 
-              {/* Totals */}
               <div className="space-y-1.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
@@ -165,18 +155,17 @@ const CartDrawer = () => {
                 </div>
               </div>
 
-              {/* Checkout */}
               <button
-                onClick={checkout}
-                disabled={loading}
+                onClick={handleCheckout}
+                disabled={isLoading}
                 className="w-full bg-primary text-primary-foreground py-3.5 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors disabled:opacity-50"
               >
-                {loading ? 'Processing...' : `Checkout — ${formatPrice(total)}`}
+                {isLoading ? 'Processing...' : `Checkout — ${formatPrice(total)}`}
               </button>
 
               <Link
                 to="/cart"
-                onClick={closeDrawer}
+                onClick={closeCart}
                 className="block text-center text-xs uppercase tracking-button text-muted-foreground hover:text-foreground transition-colors"
               >
                 View Cart

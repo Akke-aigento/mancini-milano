@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
-import { useCart } from '@/contexts/CartContext';
+import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 
 const CheckoutSuccess = () => {
-  const { clearCart } = useCart();
+  const { clearCart } = useSellQoCart();
 
   useEffect(() => {
     clearCart();
