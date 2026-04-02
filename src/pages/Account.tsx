@@ -12,10 +12,10 @@ import { Loader2, User, ShoppingBag, Lock, LogOut, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 const tabs = [
-  { id: "profile" as const, icon: User, label: "Profiel" },
-  { id: "address" as const, icon: MapPin, label: "Adres" },
-  { id: "orders" as const, icon: ShoppingBag, label: "Bestellingen" },
-  { id: "password" as const, icon: Lock, label: "Wachtwoord" },
+  { id: "profile" as const, icon: User, label: "Profile" },
+  { id: "address" as const, icon: MapPin, label: "Address" },
+  { id: "orders" as const, icon: ShoppingBag, label: "Orders" },
+  { id: "password" as const, icon: Lock, label: "Password" },
 ];
 
 type TabId = typeof tabs[number]["id"];
@@ -36,9 +36,9 @@ const ProfileTab = () => {
     setSaving(true);
     try {
       await updateProfile({ first_name: firstName, last_name: lastName, phone, newsletter });
-      toast.success("Profiel bijgewerkt");
+      toast.success("Profile updated");
     } catch (err: any) {
-      toast.error(err.message || "Opslaan mislukt");
+      toast.error(err.message || "Save failed");
     } finally {
       setSaving(false);
     }
@@ -47,30 +47,30 @@ const ProfileTab = () => {
   return (
     <form onSubmit={handleSave} className="space-y-5 max-w-md">
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">E-mail</Label>
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Email</Label>
         <Input value={customer?.email || ""} disabled className={`${inputClasses} opacity-60`} />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Voornaam</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">First Name</Label>
           <Input value={firstName} onChange={e => setFirstName(e.target.value)} className={inputClasses} />
         </div>
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Achternaam</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Last Name</Label>
           <Input value={lastName} onChange={e => setLastName(e.target.value)} className={inputClasses} />
         </div>
       </div>
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Telefoon</Label>
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Phone</Label>
         <Input value={phone} onChange={e => setPhone(e.target.value)} className={inputClasses} />
       </div>
       <div className="flex items-center justify-between py-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Nieuwsbrief</Label>
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Newsletter</Label>
         <Switch checked={newsletter} onCheckedChange={setNewsletter} />
       </div>
       <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 h-12" disabled={saving}>
         {saving ? <Loader2 className="animate-spin mr-2" size={16} /> : null}
-        Opslaan
+        Save
       </Button>
     </form>
   );
@@ -84,7 +84,7 @@ const AddressTab = () => {
   const [houseNumber, setHouseNumber] = useState(addr?.house_number || "");
   const [postalCode, setPostalCode] = useState(addr?.postal_code || "");
   const [city, setCity] = useState(addr?.city || "");
-  const [country, setCountry] = useState(addr?.country || "België");
+  const [country, setCountry] = useState(addr?.country || "Belgium");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -93,7 +93,7 @@ const AddressTab = () => {
       setHouseNumber(addr.house_number || "");
       setPostalCode(addr.postal_code || "");
       setCity(addr.city || "");
-      setCountry(addr.country || "België");
+      setCountry(addr.country || "Belgium");
     }
   }, [addr]);
 
@@ -114,9 +114,9 @@ const AddressTab = () => {
       if (addr?.id) payload.address_id = addr.id;
       await customerApiFetch(action, payload, token);
       await refreshProfile();
-      toast.success("Adres opgeslagen");
+      toast.success("Address saved");
     } catch (err: any) {
-      toast.error(err.message || "Opslaan mislukt");
+      toast.error(err.message || "Save failed");
     } finally {
       setSaving(false);
     }
@@ -126,7 +126,7 @@ const AddressTab = () => {
     <form onSubmit={handleSave} className="space-y-5 max-w-md">
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-2 space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Straat</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Street</Label>
           <Input value={street} onChange={e => setStreet(e.target.value)} className={inputClasses} />
         </div>
         <div className="space-y-2">
@@ -136,21 +136,21 @@ const AddressTab = () => {
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Postcode</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Postal Code</Label>
           <Input value={postalCode} onChange={e => setPostalCode(e.target.value)} className={inputClasses} />
         </div>
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Stad</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">City</Label>
           <Input value={city} onChange={e => setCity(e.target.value)} className={inputClasses} />
         </div>
       </div>
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Land</Label>
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Country</Label>
         <Input value={country} onChange={e => setCountry(e.target.value)} className={inputClasses} />
       </div>
       <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 h-12" disabled={saving}>
         {saving ? <Loader2 className="animate-spin mr-2" size={16} /> : null}
-        Opslaan
+        Save
       </Button>
     </form>
   );
@@ -175,7 +175,7 @@ const OrdersTab = () => {
   if (orders.length === 0) return (
     <div className="text-center py-12">
       <ShoppingBag className="mx-auto mb-4 text-muted-foreground" size={32} />
-      <p className="text-muted-foreground">Nog geen bestellingen</p>
+      <p className="text-muted-foreground">No orders yet</p>
     </div>
   );
 
@@ -207,15 +207,15 @@ const PasswordTab = () => {
 
   const handleChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPw !== confirm) { toast.error("Wachtwoorden komen niet overeen"); return; }
-    if (newPw.length < 8) { toast.error("Minimaal 8 tekens"); return; }
+    if (newPw !== confirm) { toast.error("Passwords do not match"); return; }
+    if (newPw.length < 8) { toast.error("Minimum 8 characters"); return; }
     setSaving(true);
     try {
       await customerApiFetch("change_password", { current_password: current, new_password: newPw }, token);
-      toast.success("Wachtwoord gewijzigd");
+      toast.success("Password changed");
       setCurrent(""); setNewPw(""); setConfirm("");
     } catch (err: any) {
-      toast.error(err.message || "Wijzigen mislukt");
+      toast.error(err.message || "Change failed");
     } finally {
       setSaving(false);
     }
@@ -224,20 +224,20 @@ const PasswordTab = () => {
   return (
     <form onSubmit={handleChange} className="space-y-5 max-w-md">
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Huidig wachtwoord</Label>
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Current Password</Label>
         <Input type="password" value={current} onChange={e => setCurrent(e.target.value)} className={inputClasses} />
       </div>
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Nieuw wachtwoord</Label>
-        <Input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Min. 8 tekens" className={inputClasses} />
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">New Password</Label>
+        <Input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Min. 8 characters" className={inputClasses} />
       </div>
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Bevestig nieuw wachtwoord</Label>
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Confirm New Password</Label>
         <Input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} className={inputClasses} />
       </div>
       <Button type="submit" className="bg-foreground text-background hover:bg-foreground/90 h-12" disabled={saving}>
         {saving ? <Loader2 className="animate-spin mr-2" size={16} /> : null}
-        Wachtwoord wijzigen
+        Change Password
       </Button>
     </form>
   );
@@ -268,7 +268,7 @@ const Account = () => {
 
   return (
     <Layout>
-      <SEO title="Mijn Account — Mancini Milano" description="Beheer je account bij Mancini Milano." />
+      <SEO title="My Account — Mancini Milano" description="Manage your account at Mancini Milano." />
       <div className="max-w-site mx-auto px-4 lg:px-8 py-12 lg:py-16">
         {/* Header */}
         <div className="flex items-center gap-5 mb-10">
@@ -276,8 +276,8 @@ const Account = () => {
             <span className="font-heading text-xl text-foreground">{initials}</span>
           </div>
           <div>
-            <h1 className="font-heading text-2xl lg:text-3xl uppercase tracking-logo text-foreground">Mijn Account</h1>
-            <p className="text-muted-foreground text-sm mt-1">Welkom, {customer?.first_name}</p>
+            <h1 className="font-heading text-2xl lg:text-3xl uppercase tracking-logo text-foreground">My Account</h1>
+            <p className="text-muted-foreground text-sm mt-1">Welcome, {customer?.first_name}</p>
           </div>
         </div>
 
@@ -307,7 +307,7 @@ const Account = () => {
                   className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-all w-full text-left"
                 >
                   <LogOut size={16} />
-                  Uitloggen
+                  Log Out
                 </button>
               </div>
             </div>
@@ -347,7 +347,7 @@ const Account = () => {
         {/* Mobile logout */}
         <div className="lg:hidden mt-8">
           <Button variant="outline" onClick={handleLogout} className="gap-2 text-destructive hover:text-destructive w-full">
-            <LogOut size={16} /> Uitloggen
+            <LogOut size={16} /> Log Out
           </Button>
         </div>
       </div>
