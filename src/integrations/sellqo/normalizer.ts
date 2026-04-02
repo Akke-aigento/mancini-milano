@@ -1,4 +1,4 @@
-import type { Product, ProductImage, ProductVariant, Collection, Cart, CartItem } from './types';
+import type { Product, ProductImage, ProductVariant, Collection, Cart, CartItem, Category } from './types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function normalizeProduct(raw: any): Product {
