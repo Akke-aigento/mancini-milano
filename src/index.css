@@ -13,7 +13,7 @@
     --popover: 0 0% 5%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 38 43% 60%;
+    --primary: 0 0% 100%;
     --primary-foreground: 0 0% 0%;
 
     --secondary: 0 0% 7%;
@@ -30,12 +30,12 @@
 
     --border: 0 0% 100% / 0.08;
     --input: 0 0% 100% / 0.08;
-    --ring: 38 43% 60%;
+    --ring: 0 0% 100%;
 
     --radius: 0.25rem;
 
-    --gold: 38 43% 60%;
-    --gold-hover: 38 48% 65%;
+    --gold: 0 0% 100%;
+    --gold-hover: 0 0% 85%;
     --surface: 0 0% 5%;
     --surface-hover: 0 0% 7%;
   }
