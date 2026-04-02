@@ -289,7 +289,11 @@ const ProductDetail = () => {
                   </button>
                   {openAccordion === key && (
                     <div className="pb-4 text-sm text-muted-foreground leading-relaxed">
-                      {content}
+                      {key === 'description' ? (
+                        <div dangerouslySetInnerHTML={{ __html: content }} className="prose prose-sm prose-invert max-w-none" />
+                      ) : (
+                        content
+                      )}
                     </div>
                   )}
                 </div>
