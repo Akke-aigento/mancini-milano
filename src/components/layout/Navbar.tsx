@@ -113,14 +113,23 @@ const Navbar = () => {
   }, []);
 
   // Try to build nav links from API categories, fall back to defaults
+  const parentSlugsToExclude = ['for-him', 'for-her'];
+
   const forHimLinks = categories
     ? categories
-        .filter((c: any) => c.parent_id && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-him'))
+        .filter((c: any) => c.parent_id && (c.product_count ?? 0) > 0 && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-him'))
         .map((c: any) => ({ label: c.name, slug: c.slug }))
     : [];
   const forHerLinks = categories
     ? categories
-        .filter((c: any) => c.parent_id && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-her'))
+        .filter((c: any) => c.parent_id && (c.product_count ?? 0) > 0 && categories.find((p: any) => p.id === c.parent_id && p.slug === 'for-her'))
+        .map((c: any) => ({ label: c.name, slug: c.slug }))
+    : [];
+
+  // "All" dropdown: all categories with products, excluding parent containers
+  const allLinks = categories
+    ? categories
+        .filter((c: any) => (c.product_count ?? 0) > 0 && !parentSlugsToExclude.includes(c.slug))
         .map((c: any) => ({ label: c.name, slug: c.slug }))
     : [];
 
@@ -148,6 +157,9 @@ const Navbar = () => {
             <Link to="/" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Home
             </Link>
+            {allLinks.length > 0 && (
+              <DropdownMenu label="All" links={allLinks} slug="all" scrolled={scrolled} isHome={isHome} />
+            )}
             <DropdownMenu label="For Him" links={himLinks} slug="for-him" scrolled={scrolled} isHome={isHome} />
             <DropdownMenu label="For Her" links={herLinks} slug="for-her" scrolled={scrolled} isHome={isHome} />
             <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
@@ -213,6 +225,9 @@ const Navbar = () => {
             <Link to="/" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
               Home
             </Link>
+            {allLinks.length > 0 && (
+              <MobileAccordion label="All" slug="all" links={allLinks} onClose={closeMobile} />
+            )}
             <MobileAccordion label="For Him" slug="for-him" links={himLinks} onClose={closeMobile} />
             <MobileAccordion label="For Her" slug="for-her" links={herLinks} onClose={closeMobile} />
             <Link to="/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
