@@ -101,7 +101,8 @@ export function useCategories() {
     queryKey: sellqoKeys.categories.all,
     queryFn: async () => {
       const res = await categoriesAPI.getAll();
-      return extractArray<Category>(res);
+      const raw = extractArray<any>(res);
+      return normalizeCategories(raw);
     },
   });
 }

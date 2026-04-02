@@ -87,6 +87,24 @@ export function normalizeCollections(rawCollections: any[]): Collection[] {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function normalizeCategory(raw: any): Category {
+  return {
+    id: raw.id,
+    slug: raw.slug || '',
+    name: raw.name || raw.title || '',
+    description: raw.description || undefined,
+    image: raw.image_url || raw.image || undefined,
+    product_count: raw.product_count ?? undefined,
+    parent_id: raw.parent_id || undefined,
+    position: raw.position ?? 0,
+  };
+}
+
+export function normalizeCategories(rawCategories: any[]): Category[] {
+  return (rawCategories || []).map(normalizeCategory);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function normalizeCartItem(raw: any): CartItem {
   if (!raw) return raw;
   if (typeof raw.price === 'number' && typeof raw.title === 'string' && !raw.unit_price && !raw.product) {
