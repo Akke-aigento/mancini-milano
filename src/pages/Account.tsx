@@ -268,7 +268,7 @@ const Account = () => {
 
   return (
     <Layout>
-      <SEO title="Mijn Account — Mancini Milano" description="Beheer je account bij Mancini Milano." />
+      <SEO title="My Account — Mancini Milano" description="Manage your account at Mancini Milano." />
       <div className="max-w-site mx-auto px-4 lg:px-8 py-12 lg:py-16">
         {/* Header */}
         <div className="flex items-center gap-5 mb-10">
