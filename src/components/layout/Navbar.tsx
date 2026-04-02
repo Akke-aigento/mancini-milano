@@ -42,7 +42,7 @@ function DropdownMenu({ label, links, slug, scrolled, isHome, linkPrefix }: { la
   );
 }
 
-function MobileAccordion({ label, slug, links, onClose }: { label: string; slug: string; links: { label: string; slug: string }[]; onClose: () => void }) {
+function MobileAccordion({ label, slug, links, onClose, linkPrefix }: { label: string; slug: string; links: { label: string; slug: string }[]; onClose: () => void; linkPrefix?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -67,7 +67,7 @@ function MobileAccordion({ label, slug, links, onClose }: { label: string; slug:
           {links.map(l => (
             <Link
               key={l.slug}
-              to={`/collections/${l.slug}`}
+              to={linkPrefix ? `/collections/${l.slug}?gender=${linkPrefix}` : `/collections/${l.slug}`}
               onClick={onClose}
               className="block py-2.5 text-sm uppercase tracking-button text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center"
             >
