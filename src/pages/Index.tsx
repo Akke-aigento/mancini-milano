@@ -7,7 +7,7 @@ import lookbookBanner from '@/assets/lookbook-banner.jpg';
 import Layout from '@/components/layout/Layout';
 
 import SEO from '@/components/SEO';
-import { useProducts, useCategories, useNewsletterSubscribe } from '@/integrations/sellqo/hooks';
+import { useProducts, useProduct, useCategories, useNewsletterSubscribe } from '@/integrations/sellqo/hooks';
 import type { Product } from '@/integrations/sellqo/types';
 
 const categoryImages: Record<string, string> = {
