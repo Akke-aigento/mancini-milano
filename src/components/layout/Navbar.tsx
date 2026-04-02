@@ -131,8 +131,15 @@ const Navbar = () => {
     <>
       <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
-          <Link to="/" className="font-heading text-lg tracking-logo uppercase text-foreground">
-            Mancini Milano
+          <Link to="/" className="relative h-10 w-[160px] flex items-center">
+            <span className={`absolute font-heading text-lg tracking-logo uppercase text-foreground transition-opacity duration-500 ease-in-out ${scrolled ? 'opacity-0' : 'opacity-100'}`}>
+              Mancini Milano
+            </span>
+            <img
+              src={logoDoberman}
+              alt="Mancini Milano"
+              className={`absolute h-9 w-auto object-contain transition-opacity duration-500 ease-in-out ${scrolled ? 'opacity-100' : 'opacity-0'}`}
+            />
           </Link>
 
           <div className="hidden lg:flex items-center gap-8">
