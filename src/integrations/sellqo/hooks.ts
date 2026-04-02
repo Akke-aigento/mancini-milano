@@ -131,11 +131,19 @@ export function useCartQuery() {
   return useQuery({
     queryKey: sellqoKeys.cart(cartId || ''),
     queryFn: async () => {
-      const result = await cartAPI.get(cartId!);
-      const raw = extractSingle<Cart>(result) || result;
-      return normalizeCart(raw);
+      try {
+        const result = await cartAPI.get(cartId!);
+        const raw = extractSingle<Cart>(result) || result;
+        return normalizeCart(raw);
+      } catch (err) {
+        // Cart doesn't exist anymore — clear stale ID
+        console.warn('Cart not found, clearing stored cart ID');
+        try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
+        return undefined;
+      }
     },
     enabled: !!cartId,
+    retry: false,
   });
 }
 
