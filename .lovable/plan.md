@@ -1,84 +1,98 @@
 
+## What I found
 
-# Complete Checkout Flow — Multi-Step met Stripe & Bankoverschrijving
+I checked Mancini against Vanxcel and Loveke.
 
-## Probleem
+Do I know what the issue is? Partly, yes.
 
-De huidige "Checkout" knop in de cart roept `checkout_start` aan, maar die retourneert alleen een cart-samenvatting — geen `checkout_url`. De SellQo API vereist een multi-step flow:
+- The current Mancini code already sends `session_id` on `cart_create`, so the earlier theory “it simply wasn’t being sent” is no longer enough.
+- Vanxcel’s working version does **not** rely on a special persistent session system everywhere; it mainly:
+  - sends a `session_id` when creating the cart,
+  - keeps cart payloads minimal,
+  - stores/reuses the cart ID consistently.
+- The clearest bug I can confirm in Mancini right now is a **cart storage key mismatch**:
+  - cart hooks store/read `mancini_cart_id`
+  - checkout page reads `sellqo_cart_id`
+  - so checkout can lose the active cart even when add-to-cart worked.
+- I do **not** see proof that the whole proxy must be rewritten like Loveke. Mancini’s proxy style is closer to Vanxcel and should be kept, just hardened.
 
-1. `checkout_start` → cart summary
-2. `checkout_get_shipping_options` → verzendmethoden + prijzen
-3. `checkout_get_payment_methods` → Stripe / bankoverschrijving
-4. `checkout_place_order` → maakt order aan, decrement stock, retourneert `payment_url` (Stripe) of order-bevestiging (bank)
+## Plan
 
-## Wat wordt gebouwd
+### 1. Align cart/session handling with the working pattern
+Update the cart client to follow Vanxcel’s safer approach:
+- keep `session_id` on cart creation,
+- add the same UUID fallback logic as Vanxcel (in case `crypto.randomUUID()` is unavailable),
+- keep the request body minimal and predictable.
 
-### Nieuwe Checkout pagina (`src/pages/Checkout.tsx`)
+File:
+- `src/integrations/sellqo/api.ts`
 
-Een multi-step formulier:
+### 2. Use one single cart ID source everywhere
+Remove the hardcoded checkout lookup for `sellqo_cart_id` and reuse the shared cart storage utility/key from the SellQo hooks.
 
-**Stap 1 — Adres & Contact:** Voornaam, achternaam, email, telefoon, straat, huisnummer, postcode, stad, land. Pre-filled vanuit account als ingelogd (via `customer.addresses[0]`).
+This is likely why the flow breaks after cart actions.
 
-**Stap 2 — Verzendmethode:** Opgehaald via `checkout_get_shipping_options`. Radio buttons met naam + prijs (of "Free" boven drempel).
+Files:
+- `src/pages/Checkout.tsx`
+- `src/integrations/sellqo/hooks.ts` (reuse exported helpers instead of duplicating storage access)
 
-**Stap 3 — Betaalmethode:** Opgehaald via `checkout_get_payment_methods`. Toont beschikbare opties (Stripe online, bankoverschrijving).
+### 3. Keep cart item payloads as strict as Vanxcel
+Make sure add-to-cart only sends:
+- `product_id`
+- `quantity`
+- `variant_id` only when present
 
-**Stap 4 — Overzicht & Plaatsen:** Samenvatting van items, adres, verzending, totaal. "Place Order" knop roept `checkout_place_order` aan. Bij Stripe → redirect naar `payment_url`. Bij bank → toon bevestiging met bankgegevens.
+This avoids noisy payloads and keeps the SellQo request identical to the working projects.
 
-### Proxy updates (`supabase/functions/sellqo-proxy/index.ts`)
+Files:
+- `src/integrations/sellqo/api.ts`
+- `src/pages/ProductDetail.tsx` (only if needed for guarding empty variant values)
 
-Nieuwe route-mappings toevoegen in `resolveAction`:
+### 4. Harden proxy error visibility instead of changing the architecture
+Keep the current action-based proxy, but improve debugging output for cart actions so the next failing request clearly shows whether the problem is:
+- `cart_create`
+- `cart_add_item`
+- malformed params returned by upstream
 
-- `POST /checkout/shipping-options` → `checkout_get_shipping_options`
-- `POST /checkout/payment-methods` → `checkout_get_payment_methods`
-- `POST /checkout/place-order` → `checkout_place_order`
-- `GET /checkout/confirmation/:id` → `checkout_get_confirmation`
+Files:
+- `supabase/functions/sellqo-proxy/index.ts`
 
-Plus `origin` meesturen zodat Stripe redirect URLs naar Mancini's domein wijzen.
+### 5. Recheck the checkout flow after cart fix
+Once cart creation/reuse is stable:
+- confirm checkout reads the same cart ID,
+- confirm shipping/payment/order placement use that active cart correctly,
+- keep the new multi-step checkout flow intact.
 
-### API client updates (`src/integrations/sellqo/api.ts`)
+Files:
+- `src/pages/Checkout.tsx`
+- `src/pages/Cart.tsx`
+- `src/components/CartDrawer.tsx` (only if any cart navigation assumptions need cleanup)
 
-Nieuwe functies:
-```typescript
-checkoutAPI.getShippingOptions(cartId, country, subtotal)
-checkoutAPI.getPaymentMethods()
-checkoutAPI.placeOrder({ cart_id, shipping_address, email, phone, shipping_method_id, payment_method, origin })
-checkoutAPI.getConfirmation(orderId)
-```
+## Technical details
 
-### Cart pagina update (`src/pages/Cart.tsx`)
+### Confirmed mismatch
+- `src/integrations/sellqo/hooks.ts` uses `mancini_cart_id`
+- `src/pages/Checkout.tsx` reads `sellqo_cart_id`
 
-"Checkout" knop navigeert naar `/checkout` in plaats van de gebroken `checkout()` functie aan te roepen.
+That alone is a guaranteed bug.
 
-### CartDrawer update (`src/components/CartDrawer.tsx`)
+### Files to update
+- `src/integrations/sellqo/api.ts`
+- `src/integrations/sellqo/hooks.ts`
+- `src/pages/Checkout.tsx`
+- `supabase/functions/sellqo-proxy/index.ts`
+- possibly `src/pages/ProductDetail.tsx`
 
-Zelfde fix: checkout knop linkt naar `/checkout`.
+### What I would not change
+- No database changes
+- No auth changes
+- No full proxy rewrite
+- No “inject session_id into every request” unless logs prove SellQo actually requires that
 
-### CheckoutSuccess update (`src/pages/CheckoutSuccess.tsx`)
+## Expected outcome
 
-Accepteert `order_id` query param, haalt orderbevestiging op via `checkout_get_confirmation`, toont ordernummer.
-
-### Route registratie (`src/App.tsx`)
-
-Voeg `/checkout` en `/order-confirmation` routes toe.
-
-## Technische details
-
-- `checkout_place_order` verwacht `origin` param voor Stripe success/cancel URLs
-- Stripe maakt een Connect checkout session met de tenant's connected account
-- Bij succesvolle Stripe betaling redirect naar `/order-confirmation?order_id=xxx`
-- Bij bankoverschrijving wordt direct de bevestigingspagina getoond
-- Na order: localStorage cart ID wordt gewist
-
-## Files
-
-| File | Wijziging |
-|------|-----------|
-| `supabase/functions/sellqo-proxy/index.ts` | Checkout sub-routes toevoegen |
-| `src/integrations/sellqo/api.ts` | Checkout API functies |
-| `src/pages/Checkout.tsx` | Nieuw — multi-step checkout |
-| `src/pages/Cart.tsx` | Navigate naar `/checkout` |
-| `src/components/CartDrawer.tsx` | Navigate naar `/checkout` |
-| `src/pages/CheckoutSuccess.tsx` | Order confirmatie ophalen |
-| `src/App.tsx` | Routes toevoegen |
-
+After this implementation:
+- cart creation should follow the same safe pattern as Vanxcel,
+- the active cart ID will be reused consistently,
+- checkout will no longer lose the cart because of the wrong localStorage key,
+- if a SellQo cart error still remains, the proxy logs will point to the exact failing action instead of guessing.
