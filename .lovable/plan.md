@@ -1,26 +1,36 @@
 
 
-# Fix Featured Categories: Replace Accessories with Hoodies + Fix Rendering
+# Navbar Logo Transition on Scroll
 
-## Problem
-1. The homepage featured categories list includes 'accessories' but should show 'hoodies' instead
-2. Categories may not be rendering because the API category slugs don't match the hardcoded `featuredCategorySlugs`, causing `categories.find()` to return `undefined` for all entries
+## What happens
+When the user scrolls past the announcement bar (~36px), the "MANCINI MILANO" text logo in the navbar crossfades into the Doberman illustration logo. Scrolling back up reverses the effect.
 
-## Fix in `src/pages/Index.tsx`
+## How
 
-### 1. Update `featuredCategorySlugs`
-Change from `['t-shirts', 'jackets', 'accessories']` to `['t-shirts', 'jackets', 'hoodies']`
+### 1. Copy uploaded Doberman logo to project
+Copy `user-uploads://file_00000000d4e461f49140f97d4f6cfa1c_2-2.png` to `src/assets/logo-doberman.png`
 
-### 2. Update `categoryImages`
-- Remove the 'accessories' entry
-- Add 'hoodies' with an appropriate image URL from mancinimilano.com (the puffer jacket/hoodie image)
+### 2. Modify `src/components/layout/Navbar.tsx`
+- Add a `useEffect` + `useState` scroll listener that sets `scrolled = true` when `window.scrollY > 36` (height of announcement bar)
+- Replace the static `<Link>` logo with a container holding both elements stacked (using `relative` + `absolute` positioning):
+  - The text "MANCINI MILANO" with `opacity` and `transition` — visible when not scrolled, fades out when scrolled
+  - The Doberman logo `<img>` (roughly 36-40px height to fit the navbar) — hidden when not scrolled, fades in when scrolled
+- CSS transition: `transition-opacity duration-500 ease-in-out` for a smooth crossfade
+- Both remain clickable `<Link to="/">`
 
-### 3. Fix category rendering to be resilient
-The current code tries to match API categories by slug. If the API returns no categories or different slugs, nothing renders. Add a fallback: if a category isn't found in API data, create a simple object with `{ id: slug, slug, name: slug-formatted-as-title }` so the cards always render with the hardcoded images and link correctly to `/collections/{slug}`.
+### Technical detail
+```text
+<Link to="/" className="relative h-10 w-[140px] flex items-center">
+  {/* Text logo - fades out */}
+  <span className={`absolute transition-opacity duration-500 ${scrolled ? 'opacity-0' : 'opacity-100'}`}>
+    MANCINI MILANO
+  </span>
+  {/* Doberman logo - fades in */}
+  <img src={logoImg} className={`absolute h-9 transition-opacity duration-500 ${scrolled ? 'opacity-100' : 'opacity-0'}`} />
+</Link>
+```
 
-### Changes (single file)
-**`src/pages/Index.tsx`** (lines 11-17):
-- `categoryImages`: remove 'accessories', add 'hoodies' with image URL
-- `featuredCategorySlugs`: replace 'accessories' with 'hoodies'
-- `featuredCategories` mapping: add fallback objects when API category not found
+### Files changed
+- `src/assets/logo-doberman.png` (new — copied from upload)
+- `src/components/layout/Navbar.tsx` — scroll listener + dual logo with crossfade
 
