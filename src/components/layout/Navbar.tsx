@@ -134,13 +134,13 @@ const Navbar = () => {
       <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
           <Link to="/" className="relative h-10 w-[160px] flex items-center">
-            <span className={`absolute font-heading text-lg tracking-logo uppercase text-foreground transition-all duration-700 ease-in-out ${scrolled ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+            <span className={`absolute font-heading text-lg tracking-logo uppercase text-foreground transition-all duration-700 ease-in-out ${scrolled || !isHome ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
               Mancini Milano
             </span>
             <img
               src={logoDoberman}
               alt="Mancini Milano"
-              className={`absolute h-9 w-auto object-contain transition-all duration-700 ease-in-out ${scrolled ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+              className={`absolute h-9 w-auto object-contain transition-all duration-700 ease-in-out ${scrolled || !isHome ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
             />
           </Link>
 
