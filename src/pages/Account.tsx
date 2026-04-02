@@ -224,7 +224,7 @@ const PasswordTab = () => {
   return (
     <form onSubmit={handleChange} className="space-y-5 max-w-md">
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Huidig wachtwoord</Label>
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Current Password</Label>
         <Input type="password" value={current} onChange={e => setCurrent(e.target.value)} className={inputClasses} />
       </div>
       <div className="space-y-2">
