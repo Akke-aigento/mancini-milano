@@ -114,7 +114,7 @@ const AddressTab = () => {
       if (addr?.id) payload.address_id = addr.id;
       await customerApiFetch(action, payload, token);
       await refreshProfile();
-      toast.success("Adres opgeslagen");
+      toast.success("Address saved");
     } catch (err: any) {
       toast.error(err.message || "Opslaan mislukt");
     } finally {
