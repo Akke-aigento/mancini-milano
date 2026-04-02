@@ -84,7 +84,7 @@ const AddressTab = () => {
   const [houseNumber, setHouseNumber] = useState(addr?.house_number || "");
   const [postalCode, setPostalCode] = useState(addr?.postal_code || "");
   const [city, setCity] = useState(addr?.city || "");
-  const [country, setCountry] = useState(addr?.country || "België");
+  const [country, setCountry] = useState(addr?.country || "Belgium");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
