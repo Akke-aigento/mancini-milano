@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productsAPI, collectionsAPI, categoriesAPI, cartAPI, checkoutAPI, newsletterAPI } from './api';
 import { extractArray, extractSingle } from './client';
-import { normalizeProducts, normalizeProduct, normalizeCollections, normalizeCart } from './normalizer';
+import { normalizeProducts, normalizeProduct, normalizeCollections, normalizeCart, normalizeCategories } from './normalizer';
 import type { Cart, Product, Collection, Category, ProductsParams } from './types';
 
 // === QUERY KEYS ===
