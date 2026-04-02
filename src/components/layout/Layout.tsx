@@ -1,4 +1,5 @@
 import AnnouncementBar from './AnnouncementBar';
+import LookbookBanner from './LookbookBanner';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import CartDrawer from '@/components/CartDrawer';
