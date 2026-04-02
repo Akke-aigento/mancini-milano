@@ -277,7 +277,7 @@ const Account = () => {
           </div>
           <div>
             <h1 className="font-heading text-2xl lg:text-3xl uppercase tracking-logo text-foreground">My Account</h1>
-            <p className="text-muted-foreground text-sm mt-1">Welkom, {customer?.first_name}</p>
+            <p className="text-muted-foreground text-sm mt-1">Welcome, {customer?.first_name}</p>
           </div>
         </div>
 
