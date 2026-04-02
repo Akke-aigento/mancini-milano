@@ -132,6 +132,7 @@ const Navbar = () => {
   const allLinks = categories
     ? categories
         .filter((c: any) => (c.product_count ?? 0) > 0 && !parentSlugsToExclude.includes(c.slug))
+        .sort((a: any, b: any) => (a.position ?? 999) - (b.position ?? 999))
         .map((c: any) => ({ label: c.name, slug: c.slug }))
     : [];
 
