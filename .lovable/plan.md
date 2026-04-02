@@ -1,36 +1,47 @@
 
 
-# Homepage Categorie Afbeeldingen: API Images Gebruiken
+# Fix: Categorie Afbeeldingen Laden Niet
 
 ## Probleem
-De 3 categorie-afbeeldingen op de homepage zijn hardcoded in een `categoryImages` object (regels 13-17). De `Category` interface heeft al een `image?` veld — we moeten dit gebruiken.
+De screenshot toont dat de categorie-afbeeldingen broken zijn — alleen alt-text ("T-shirts", "Jackets", "Hoodies") is zichtbaar. 
+
+De `useCategories()` hook haalt categorieën op maar past **geen normalisatie** toe. De data wordt raw als `Category` getypt. Het `image` veld op de `Category` interface verwacht een string, maar de SellQo API stuurt het waarschijnlijk als `image_url` (net zoals bij collections, waar de normalizer `raw.image_url || raw.image` doet).
+
+## Oplossing
+Voeg een `normalizeCategory` functie toe in de normalizer die `image_url` correct mapt, en gebruik deze in de `useCategories` hook.
 
 ## Wijzigingen
 
-### `src/pages/Index.tsx`
-
-1. **Verwijder** het `categoryImages` object (regels 13-17)
-
-2. **Update `featuredCategories`** (regels 39-46) om het `image` veld mee te nemen vanuit de API:
+### 1. `src/integrations/sellqo/normalizer.ts`
+Nieuwe functie toevoegen:
 ```tsx
-const featuredCategories = featuredCategorySlugs.map((slug) => {
-  const apiCat = categories.find((c: any) => c.slug === slug);
+export function normalizeCategory(raw: any): Category {
   return {
-    id: apiCat?.id || slug,
-    name: apiCat?.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    slug,
-    image: apiCat?.image || '',
+    id: raw.id,
+    slug: raw.slug || '',
+    name: raw.name || raw.title || '',
+    description: raw.description || undefined,
+    image: raw.image_url || raw.image || undefined,
+    product_count: raw.product_count ?? undefined,
+    parent_id: raw.parent_id || undefined,
+    position: raw.position ?? 0,
   };
-});
+}
+
+export function normalizeCategories(rawCategories: any[]): Category[] {
+  return (rawCategories || []).map(normalizeCategory);
+}
 ```
 
-3. **Update de `<img>` tag** in de categorie grid (rond regel 145) van `categoryImages[cat.slug]` naar `cat.image`:
+### 2. `src/integrations/sellqo/hooks.ts`
+- Import `normalizeCategories`
+- In `useCategories()`, na `extractArray` de data normaliseren:
 ```tsx
-<img src={cat.image} alt={cat.name} ... />
+const raw = extractArray<any>(res);
+return normalizeCategories(raw);
 ```
 
-Als een categorie geen afbeelding heeft in SellQo, wordt er simpelweg geen afbeelding getoond (lege string). Zodra je in SellQo een afbeelding toevoegt aan de categorie, verschijnt deze automatisch.
-
-### Eén file
-- `src/pages/Index.tsx`
+### Twee files
+- `src/integrations/sellqo/normalizer.ts`
+- `src/integrations/sellqo/hooks.ts`
 
