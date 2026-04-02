@@ -278,7 +278,7 @@ const Index = () => {
 
       {/* SECTION 6: FRAGRANCE HIGHLIGHT */}
       {fragrance && (
-        <section className="py-20 lg:py-28" style={{ background: 'linear-gradient(135deg, hsl(0 0% 4%) 0%, hsl(30 10% 8%) 50%, hsl(0 0% 4%) 100%)' }}>
+        <section className="py-20 lg:py-28 bg-black">
           <div className="max-w-site mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
               <div className="text-center lg:text-left">
