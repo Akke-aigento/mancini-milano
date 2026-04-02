@@ -87,6 +87,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { isAuthenticated } = useCustomerAuth();
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
   const { data: menProducts } = useProducts({ category_slug: 'men' });
