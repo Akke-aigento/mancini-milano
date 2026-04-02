@@ -45,11 +45,7 @@ const Index = () => {
     };
   });
 
-  const blueStormProducts = products.filter(
-    (p: Product) => p.slug === 'blue-storm-luxe-tee' || p.slug === 'silent-authority'
-  ).slice(0, 2);
-
-  const fragrance = products.find((p: Product) => p.slug === 'mancini-milano');
+  const blueStormProducts = [blueStormTee, silentAuthority].filter(Boolean) as Product[];
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
