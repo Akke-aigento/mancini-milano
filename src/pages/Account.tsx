@@ -212,7 +212,7 @@ const PasswordTab = () => {
     setSaving(true);
     try {
       await customerApiFetch("change_password", { current_password: current, new_password: newPw }, token);
-      toast.success("Wachtwoord gewijzigd");
+      toast.success("Password changed");
       setCurrent(""); setNewPw(""); setConfirm("");
     } catch (err: any) {
       toast.error(err.message || "Wijzigen mislukt");
