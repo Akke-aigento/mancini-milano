@@ -56,7 +56,7 @@ const ProfileTab = () => {
           <Input value={firstName} onChange={e => setFirstName(e.target.value)} className={inputClasses} />
         </div>
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Achternaam</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Last Name</Label>
           <Input value={lastName} onChange={e => setLastName(e.target.value)} className={inputClasses} />
         </div>
       </div>
