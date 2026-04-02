@@ -16,6 +16,7 @@ export function extractArray<T>(response: unknown): T[] {
       if (Array.isArray(inner.items)) return inner.items as T[];
       if (Array.isArray(inner.data)) return inner.data as T[];
       if (Array.isArray(inner.categories)) return inner.categories as T[];
+      if (Array.isArray(inner.results)) return inner.results as T[];
     }
     if (Array.isArray(r.data)) return r.data as T[];
     if (Array.isArray(r.products)) return r.products as T[];
