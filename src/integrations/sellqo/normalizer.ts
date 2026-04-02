@@ -130,7 +130,7 @@ export function normalizeCart(raw: any): Cart {
   const itemCount = raw.item_count ?? items.reduce((sum: number, i: CartItem) => sum + i.quantity, 0);
   const subtotal = raw.subtotal ?? items.reduce((sum: number, i: CartItem) => sum + i.price * i.quantity, 0);
   return {
-    id: raw.id || '',
+    id: raw.id || raw.cart_id || '',
     items,
     item_count: itemCount,
     subtotal,

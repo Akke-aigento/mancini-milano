@@ -55,11 +55,14 @@ export const cartAPI = {
   get: (cartId: string) =>
     sellqoFetch<Cart>(`/cart/${cartId}`),
 
-  addItem: (cartId: string, item: { product_id: string; variant_id?: string; quantity: number }) =>
-    sellqoFetch<Cart>(`/cart/${cartId}/items`, {
+  addItem: (cartId: string, item: { product_id: string; variant_id?: string; quantity: number }) => {
+    const payload: Record<string, unknown> = { product_id: item.product_id, quantity: item.quantity };
+    if (item.variant_id) payload.variant_id = item.variant_id;
+    return sellqoFetch<Cart>(`/cart/${cartId}/items`, {
       method: 'POST',
-      body: JSON.stringify(item),
-    }),
+      body: JSON.stringify(payload),
+    });
+  },
 
   updateItem: (cartId: string, itemId: string, quantity: number) =>
     sellqoFetch<Cart>(`/cart/${cartId}/items/${itemId}`, {

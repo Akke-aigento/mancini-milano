@@ -88,7 +88,7 @@ const Checkout = () => {
   }, [items.length, navigate]);
 
   const cartId = (() => {
-    try { return localStorage.getItem('sellqo_cart_id'); } catch { return null; }
+    try { return localStorage.getItem('mancini_cart_id'); } catch { return null; }
   })();
 
   const handleAddressSubmit = async () => {
