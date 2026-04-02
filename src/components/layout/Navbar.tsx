@@ -160,12 +160,20 @@ const Navbar = () => {
             {allLinks.length > 0 && (
               <DropdownMenu label="All" links={allLinks} slug="all" scrolled={scrolled} isHome={isHome} />
             )}
-            {forHimLinks.length > 0 && (
+            {forHimLinks.length > 0 ? (
               <DropdownMenu label="For Him" links={forHimLinks} slug="men" scrolled={scrolled} isHome={isHome} linkPrefix="men" />
-            )}
-            {forHerLinks.length > 0 && (
+            ) : menProducts && menProducts.length > 0 ? (
+              <Link to="/collections/men" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
+                For Him
+              </Link>
+            ) : null}
+            {forHerLinks.length > 0 ? (
               <DropdownMenu label="For Her" links={forHerLinks} slug="women" scrolled={scrolled} isHome={isHome} linkPrefix="women" />
-            )}
+            ) : womenProducts && womenProducts.length > 0 ? (
+              <Link to="/collections/women" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
+                For Her
+              </Link>
+            ) : null}
             <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Fragrances
             </Link>
