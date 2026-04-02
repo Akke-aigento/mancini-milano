@@ -225,6 +225,9 @@ const Navbar = () => {
             <Link to="/" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
               Home
             </Link>
+            {allLinks.length > 0 && (
+              <MobileAccordion label="All" slug="all" links={allLinks} onClose={closeMobile} />
+            )}
             <MobileAccordion label="For Him" slug="for-him" links={himLinks} onClose={closeMobile} />
             <MobileAccordion label="For Her" slug="for-her" links={herLinks} onClose={closeMobile} />
             <Link to="/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
