@@ -33,7 +33,7 @@ interface CustomerAuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (data: { email: string; password: string; first_name: string; last_name: string; phone?: string }) => Promise<void>;
   logout: () => void;
-  updateProfile: (data: Partial<Pick<Customer, "first_name" | "last_name" | "phone">>) => Promise<void>;
+  updateProfile: (data: Partial<Pick<Customer, "first_name" | "last_name" | "phone" | "newsletter">>) => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
