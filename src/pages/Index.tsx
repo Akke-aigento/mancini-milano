@@ -308,7 +308,7 @@ const Index = () => {
                   Discover →
                 </Link>
               </div>
-              <div className="flex justify-center">
+              <div className="hidden lg:flex justify-center">
                 <div className="w-72 lg:w-80">
                   {fragrance.images?.[0] && (
                     <img src={fragrance.images[0].url} alt={fragrance.title} className="w-full h-auto object-contain" />
