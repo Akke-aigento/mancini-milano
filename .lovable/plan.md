@@ -1,48 +1,35 @@
 
 
-# Fix: Producten Renderen Niet Onder Gender Categorieën
+# Fix: For Her Fallback + Sorteer Alle Dropdowns op Positie
 
-## Probleem
-Wanneer je via "For Him" → "Bags" navigeert (URL: `/collections/bags?gender=men`), worden producten gefetcht met `category_slug=bags`. Vervolgens filtert de client op producten die ook `men` in hun `categories` array hebben. Maar de API geeft waarschijnlijk niet alle categorieën per product terug bij een gefilterde query — dus de client-side filter verwijdert alles.
+## Twee problemen
 
-## Oplossing
-Draai de logica om wanneer een `gender` param aanwezig is:
-- **Fetch** producten met `category_slug={gender}` (bijv. `men`)
-- **Filter client-side** op producten die ook de subcategorie (bijv. `bags`) in hun `categories` array hebben
+### 1. "For Her" toont fallback categorieën
+Als er geen producten met categorie `women` bestaan, valt de code terug op `defaultForHerLinks` (hardcoded). Dit moet weg — als er geen women-producten zijn, moet de dropdown leeg zijn (en dus niet getoond worden).
 
-Dit werkt omdat de `men`-query al bewezen werkt (de navbar bouwt er de dropdown mee op).
+### 2. Volgorde komt niet overeen met SellQo
+De categorieën in de dropdowns worden nu in willekeurige volgorde getoond (Map insertion order). De `Category` interface heeft al een `position` veld — we moeten hier op sorteren.
 
-## Wijziging
+## Wijzigingen
 
-### `src/pages/Collection.tsx` (regel 16-26)
+### `src/components/layout/Navbar.tsx`
 
-**Van:**
-```tsx
-const { data: allProducts = [], isLoading: loading } = useProducts(slug ? { category_slug: slug } : undefined);
+**forHimLinks (regel 118-130):**
+- Verwijder fallback naar `defaultForHimLinks` — return `[]` als er geen men-producten zijn
+- Bewaar `position` uit de categorie naast slug/name
+- Sorteer op `position` voor return
 
-const genderFilteredProducts = useMemo(() => {
-  if (!genderFilter) return allProducts;
-  return allProducts.filter(p =>
-    p.categories?.some(c => c.slug === genderFilter)
-  );
-}, [allProducts, genderFilter]);
-```
+**forHerLinks (regel 132-144):**
+- Zelfde aanpak — geen fallback, return `[]`
+- Sorteer op `position`
 
-**Naar:**
-```tsx
-// When gender filter is active, fetch from gender category and filter by subcategory client-side
-const fetchSlug = genderFilter || slug;
-const { data: allProducts = [], isLoading: loading } = useProducts(fetchSlug ? { category_slug: fetchSlug } : undefined);
+**allLinks (regel 146-152):**
+- Sorteer op `position` (categories uit de API hebben dit veld al)
 
-const genderFilteredProducts = useMemo(() => {
-  if (!genderFilter || !slug) return allProducts;
-  // We fetched by gender (men/women), now filter for the subcategory
-  return allProducts.filter(p =>
-    p.categories?.some(c => c.slug === slug)
-  );
-}, [allProducts, genderFilter, slug]);
-```
+**Desktop nav + mobiel menu:**
+- Toon "For Her" dropdown alleen als `forHerLinks.length > 0` (zelfde als "All" al doet)
+- Zelfde check voor "For Him"
 
 ### Eén file
-- `src/pages/Collection.tsx`
+- `src/components/layout/Navbar.tsx`
 
