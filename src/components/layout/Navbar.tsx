@@ -192,12 +192,13 @@ const Navbar = () => {
             >
               <Search className="h-5 w-5" />
             </button>
-            <button
+            <Link
+              to={isAuthenticated ? "/account" : "/login"}
               className="min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors hidden sm:flex"
               aria-label="Account"
             >
               <User className="h-5 w-5" />
-            </button>
+            </Link>
             <button
               onClick={openCart}
               className="relative min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
