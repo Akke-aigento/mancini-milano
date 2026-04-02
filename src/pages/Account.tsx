@@ -52,7 +52,7 @@ const ProfileTab = () => {
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Voornaam</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">First Name</Label>
           <Input value={firstName} onChange={e => setFirstName(e.target.value)} className={inputClasses} />
         </div>
         <div className="space-y-2">
