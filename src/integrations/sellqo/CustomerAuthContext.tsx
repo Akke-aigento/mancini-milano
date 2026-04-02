@@ -9,7 +9,7 @@ export interface Customer {
   first_name: string;
   last_name: string;
   phone?: string;
-  newsletter?: boolean;
+  newsletter_opt_in?: boolean;
   addresses?: Address[];
 }
 
@@ -33,7 +33,7 @@ interface CustomerAuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (data: { email: string; password: string; first_name: string; last_name: string; phone?: string }) => Promise<void>;
   logout: () => void;
-  updateProfile: (data: Partial<Pick<Customer, "first_name" | "last_name" | "phone" | "newsletter">>) => Promise<void>;
+  updateProfile: (data: Partial<Pick<Customer, "first_name" | "last_name" | "phone" | "newsletter_opt_in">>) => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -96,7 +96,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setCustomer(null);
   };
 
-  const updateProfile = async (data: Partial<Pick<Customer, "first_name" | "last_name" | "phone" | "newsletter">>) => {
+  const updateProfile = async (data: Partial<Pick<Customer, "first_name" | "last_name" | "phone" | "newsletter_opt_in">>) => {
     if (!token) return;
     await customerApiFetch("update_profile", data, token);
     const profile = await customerApiFetch<Customer>("get_profile", {}, token);

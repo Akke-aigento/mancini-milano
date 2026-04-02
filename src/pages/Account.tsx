@@ -28,14 +28,14 @@ const ProfileTab = () => {
   const [firstName, setFirstName] = useState(customer?.first_name || "");
   const [lastName, setLastName] = useState(customer?.last_name || "");
   const [phone, setPhone] = useState(customer?.phone || "");
-  const [newsletter, setNewsletter] = useState(customer?.newsletter || false);
+  const [newsletter, setNewsletter] = useState(customer?.newsletter_opt_in || false);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      await updateProfile({ first_name: firstName, last_name: lastName, phone, newsletter });
+      await updateProfile({ first_name: firstName, last_name: lastName, phone, newsletter_opt_in: newsletter });
       toast.success("Profile updated");
     } catch (err: any) {
       toast.error(err.message || "Save failed");
