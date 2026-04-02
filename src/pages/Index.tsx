@@ -68,7 +68,7 @@ const Index = () => {
       <SEO />
       {/* SECTION 1: HERO */}
       {/* Mobile Hero */}
-      <section className="relative h-[75vh] min-h-[600px] overflow-hidden md:hidden">
+      <section className="relative h-[60vh] min-h-[400px] overflow-hidden md:hidden">
         <img
           src={lookbookBanner}
           alt="Mancini Milano Collection"
