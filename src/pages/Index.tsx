@@ -7,7 +7,7 @@ import lookbookBanner from '@/assets/lookbook-banner.jpg';
 import Layout from '@/components/layout/Layout';
 
 import SEO from '@/components/SEO';
-import { useProducts, useCategories, useNewsletterSubscribe } from '@/integrations/sellqo/hooks';
+import { useProducts, useProduct, useCategories, useNewsletterSubscribe } from '@/integrations/sellqo/hooks';
 import type { Product } from '@/integrations/sellqo/types';
 
 const categoryImages: Record<string, string> = {
@@ -27,8 +27,10 @@ function formatPrice(price: number) {
 }
 
 const Index = () => {
-  const { data: products = [] } = useProducts();
   const { data: trendingProducts = [] } = useProducts({ category_slug: 'trending' });
+  const { data: blueStormTee } = useProduct('blue-storm-luxe-tee');
+  const { data: silentAuthority } = useProduct('silent-authority');
+  const { data: fragrance } = useProduct('mancini-milano');
   const { data: categories = [] } = useCategories();
   const newsletterMutation = useNewsletterSubscribe();
   const [email, setEmail] = useState('');
@@ -43,11 +45,7 @@ const Index = () => {
     };
   });
 
-  const blueStormProducts = products.filter(
-    (p: Product) => p.slug === 'blue-storm-luxe-tee' || p.slug === 'silent-authority'
-  ).slice(0, 2);
-
-  const fragrance = products.find((p: Product) => p.slug === 'mancini-milano');
+  const blueStormProducts = [blueStormTee, silentAuthority].filter(Boolean) as Product[];
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
