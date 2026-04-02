@@ -6,7 +6,7 @@ import { useCategories } from '@/integrations/sellqo/hooks';
 import SearchOverlay from '@/components/SearchOverlay';
 import logoDoberman from '@/assets/logo-doberman.png';
 
-function DropdownMenu({ label, links, slug }: { label: string; links: { label: string; slug: string }[]; slug: string }) {
+function DropdownMenu({ label, links, slug, scrolled }: { label: string; links: { label: string; slug: string }[]; slug: string; scrolled: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -20,10 +20,10 @@ function DropdownMenu({ label, links, slug }: { label: string; links: { label: s
         className="flex items-center gap-1 text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors"
       >
         {label}
-        <ChevronDown className="h-3 w-3" />
+        <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${!scrolled ? 'rotate-180' : ''}`} />
       </Link>
       {open && (
-        <div className="absolute top-full left-0 pt-2 z-50">
+        <div className={`absolute left-0 z-50 ${scrolled ? 'top-full pt-2' : 'bottom-full pb-2'}`}>
           <div className="bg-card border border-border min-w-[180px] py-2">
             {links.map(link => (
               <Link
@@ -146,8 +146,8 @@ const Navbar = () => {
             <Link to="/" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Home
             </Link>
-            <DropdownMenu label="For Him" links={himLinks} slug="for-him" />
-            <DropdownMenu label="For Her" links={herLinks} slug="for-her" />
+            <DropdownMenu label="For Him" links={himLinks} slug="for-him" scrolled={scrolled} />
+            <DropdownMenu label="For Her" links={herLinks} slug="for-her" scrolled={scrolled} />
             <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Fragrances
             </Link>
