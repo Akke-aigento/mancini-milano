@@ -1,23 +1,38 @@
 
 
-# Fix: Login/Account Icoon Ontbreekt op Mobiel
+# Account Pagina: Adres + Nieuwsbrief Toggle
 
-## Probleem
-1. **Desktop**: Het User-icoon heeft `hidden sm:flex` (regel 197) — het is dus verborgen op schermen kleiner dan `sm` (640px)
-2. **Mobiel hamburger menu**: Er staat geen link naar Login/Account in het mobiele menu
+## Wat wordt toegevoegd
+
+1. **Adres tab** — nieuw tabblad waar de klant een bezorgadres kan invoeren/bewerken (straat, huisnummer, postcode, stad, land). Dit adres wordt opgeslagen via de SellQo Customer API (`update_address` / `add_address`) en automatisch ingevuld bij checkout.
+
+2. **Nieuwsbrief toggle** — in de Profiel tab komt een Switch toggle "Inschrijven voor nieuwsbrief". Status wordt opgeslagen via de SellQo API (`update_profile` met `newsletter: true/false`).
 
 ## Wijzigingen
 
-### `src/components/layout/Navbar.tsx`
+### 1. `src/pages/Account.tsx`
 
-**1. User icoon altijd tonen in top bar (regel 197):**
-- Verander `hidden sm:flex` naar `flex` zodat het icoon ook op mobiel zichtbaar is naast search en cart
+**Tabs array uitbreiden:**
+- Nieuw tab: `{ id: "address", icon: MapPin, label: "Adres" }`
+- Tabs worden: Profiel | Adres | Bestellingen | Wachtwoord
 
-**2. Account link toevoegen in mobiel menu (na regel 270):**
-- Voeg een Login/Account link toe in de onderste sectie van het mobiele menu
-- Conditioneel: "Mijn Account" als ingelogd, "Inloggen" als niet ingelogd
-- Linkt naar `/account` of `/login`
+**Nieuw: AddressTab component:**
+- Haalt het huidige adres op uit `customer.addresses?.[0]` (eerste/default adres)
+- Formulier met velden: straat, huisnummer, postcode, stad, land (dropdown of input)
+- Opslaan via `customerApiFetch("update_address", { ... }, token)` of `add_address` als er nog geen adres is
+- Zelfde styling als ProfileTab
 
-### Eén file
-- `src/components/layout/Navbar.tsx`
+**ProfileTab uitbreiden met nieuwsbrief toggle:**
+- Onder het telefoonveld een Switch component toevoegen met label "Nieuwsbrief"
+- State initialiseren uit `customer.newsletter` (boolean)
+- Meesturen bij `updateProfile({ ..., newsletter })` 
+
+### 2. `src/integrations/sellqo/CustomerAuthContext.tsx`
+
+- `Customer` interface uitbreiden met `newsletter?: boolean`
+- `updateProfile` type uitbreiden om `newsletter` te accepteren
+
+### Twee files
+- `src/pages/Account.tsx`
+- `src/integrations/sellqo/CustomerAuthContext.tsx`
 
