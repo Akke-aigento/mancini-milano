@@ -147,6 +147,20 @@ Deno.serve(async (req) => {
     const responseBody = await response.text();
     console.log(`[proxy-v3] upstream ${response.status} len=${responseBody.length}`);
 
+    // Fix upstream responses that contain "[object Object]" as error
+    if (!response.ok) {
+      try {
+        const parsed = JSON.parse(responseBody);
+        if (parsed.error && typeof parsed.error === 'object') {
+          parsed.error = parsed.error.message || JSON.stringify(parsed.error);
+          return new Response(JSON.stringify(parsed), {
+            status: response.status,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      } catch { /* not JSON, pass through */ }
+    }
+
     return new Response(responseBody, {
       status: response.status,
       headers: {
