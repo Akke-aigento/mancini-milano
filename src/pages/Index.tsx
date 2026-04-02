@@ -24,6 +24,22 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
+const Index = () => {
+  const { data: products = [] } = useProducts();
+  const { data: categories = [] } = useCategories();
+  const newsletterMutation = useNewsletterSubscribe();
+  const [email, setEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const featuredCategories = featuredCategorySlugs.map((slug) => {
+    const apiCat = categories.find((c: any) => c.slug === slug);
+    return {
+      id: apiCat?.id || slug,
+      name: apiCat?.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+      slug,
+    };
+  });
+
   const trendingProducts = products.slice(0, 4);
 
   const blueStormProducts = products.filter(
