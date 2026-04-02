@@ -20,7 +20,7 @@ function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string;
         className="flex items-center gap-1 text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors"
       >
         {label}
-        <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${!scrolled ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${isHome && !scrolled ? 'rotate-180' : ''}`} />
       </Link>
       {open && (
         <div className={`absolute left-0 z-50 ${scrolled ? 'top-full pt-2' : 'bottom-full pb-2'}`}>
