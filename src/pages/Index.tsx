@@ -72,13 +72,13 @@ const Index = () => {
         <div className="flex flex-col items-center gap-4 px-6 py-6 bg-background">
           <div className="flex gap-4 w-full max-w-xs">
             <Link
-              to="/collections/for-him"
+to="/collections/men"
               className="flex-1 text-center border border-foreground text-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Shop Men
             </Link>
             <Link
-              to="/collections/for-her"
+to="/collections/women"
               className="flex-1 text-center bg-primary text-primary-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
             >
               Shop Women
@@ -105,13 +105,13 @@ const Index = () => {
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
-              to="/collections/for-him"
+              to="/collections/men"
               className="border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Shop Men
             </Link>
             <Link
-              to="/collections/for-her"
+              to="/collections/women"
               className="bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
             >
               Shop Women
