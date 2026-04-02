@@ -99,8 +99,16 @@ const defaultForHerLinks = [
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 36);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Try to build nav links from API categories, fall back to defaults
   const forHimLinks = categories
