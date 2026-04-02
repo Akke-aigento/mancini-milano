@@ -175,7 +175,7 @@ const OrdersTab = () => {
   if (orders.length === 0) return (
     <div className="text-center py-12">
       <ShoppingBag className="mx-auto mb-4 text-muted-foreground" size={32} />
-      <p className="text-muted-foreground">Nog geen bestellingen</p>
+      <p className="text-muted-foreground">No orders yet</p>
     </div>
   );
 
