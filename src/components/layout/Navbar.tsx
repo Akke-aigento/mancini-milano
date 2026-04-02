@@ -194,7 +194,7 @@ const Navbar = () => {
             </button>
             <Link
               to={isAuthenticated ? "/account" : "/login"}
-              className="min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors hidden sm:flex"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Account"
             >
               <User className="h-5 w-5" />
