@@ -1,25 +1,19 @@
 
 
-# Logo Crossfade Alleen op Homepage
+# Lookbook Banner Alleen op Homepage
 
 ## Wat
-De tekst→doberman crossfade animatie moet alleen op de homepage (`/`) actief zijn. Op alle andere pagina's wordt direct het doberman logo getoond zonder tekst.
+De LookbookBanner uit Layout halen (wordt nu op elke pagina getoond) en alleen op de homepage renderen.
 
 ## Hoe
 
-### `src/components/layout/Navbar.tsx`
-1. Import `useLocation` van `react-router-dom`
-2. Bepaal `isHome = location.pathname === '/'`
-3. Logo logica aanpassen:
-   - **Homepage**: huidige crossfade-gedrag behouden (tekst vervaagt → doberman verschijnt bij scroll)
-   - **Andere pagina's**: tekst altijd `opacity-0`, doberman altijd `opacity-100 scale-100`
+### `src/components/layout/Layout.tsx`
+- Verwijder de `LookbookBanner` import en `<LookbookBanner />` uit de render
 
-### Wijziging (regels 2, 104, 135-142)
-- Regel 2: voeg `useLocation` toe aan import
-- In de Navbar component: `const location = useLocation(); const isHome = location.pathname === '/';`
-- Regel 135 (tekst span): `${scrolled || !isHome ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`
-- Regel 141 (doberman img): `${scrolled || !isHome ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`
+### `src/pages/Index.tsx`
+- Import `LookbookBanner` en render het direct boven de hero sectie, binnen `<Layout>`
 
-### Eén file
-- `src/components/layout/Navbar.tsx`
+### Resultaat
+- Homepage: AnnouncementBar → LookbookBanner → Navbar → content
+- Andere pagina's: AnnouncementBar → Navbar → content
 
