@@ -184,8 +184,11 @@ const Index = () => {
         <div className="block md:hidden">
           <img src={brandBanner} alt="Mancini Milano brand typography" loading="lazy" className="w-full h-auto" />
         </div>
+        <div className="hidden md:block lg:hidden h-[300px] overflow-hidden">
+          <img src={brandBanner} alt="Mancini Milano brand typography" loading="lazy" className="w-full h-full object-cover object-center" />
+        </div>
         <div
-          className="hidden md:block h-[450px] bg-fixed bg-cover bg-center"
+          className="hidden lg:block h-[450px] bg-fixed bg-cover bg-center"
           style={{ backgroundImage: `url(${brandBanner})` }}
           role="img"
           aria-label="Mancini Milano brand typography"
