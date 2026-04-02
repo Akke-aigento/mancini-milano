@@ -63,7 +63,7 @@ const Index = () => {
 
   return (
     <Layout>
-      <LookbookBanner />
+      
       <SEO />
       {/* SECTION 1: HERO */}
       {/* Mobile Hero */}
