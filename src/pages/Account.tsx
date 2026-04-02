@@ -103,7 +103,7 @@ const AddressTab = () => {
     setSaving(true);
     try {
       const action = addr?.id ? "update_address" : "add_address";
-      const payload: Record<string, unknown> = {
+      const addressData = {
         street,
         house_number: houseNumber,
         postal_code: postalCode,
@@ -111,6 +111,7 @@ const AddressTab = () => {
         country,
         is_default: true,
       };
+      const payload: Record<string, unknown> = { address: addressData };
       if (addr?.id) payload.address_id = addr.id;
       await customerApiFetch(action, payload, token);
       await refreshProfile();
