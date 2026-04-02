@@ -102,31 +102,29 @@ const Navbar = () => {
 
   // Build gender-aware dropdown links from actual product categories
   const forHimLinks = useMemo(() => {
-    if (!menProducts || menProducts.length === 0) return defaultForHimLinks;
-    const catMap = new Map<string, string>();
+    if (!menProducts || menProducts.length === 0) return [];
+    const catMap = new Map<string, { label: string; slug: string; position: number }>();
     menProducts.forEach(p => {
       (p.categories || []).forEach(c => {
         if (c.slug !== 'men' && c.slug !== 'for-him') {
-          catMap.set(c.slug, c.name);
+          catMap.set(c.slug, { label: c.name, slug: c.slug, position: c.position ?? 999 });
         }
       });
     });
-    if (catMap.size === 0) return defaultForHimLinks;
-    return Array.from(catMap.entries()).map(([slug, name]) => ({ label: name, slug }));
+    return Array.from(catMap.values()).sort((a, b) => a.position - b.position);
   }, [menProducts]);
 
   const forHerLinks = useMemo(() => {
-    if (!womenProducts || womenProducts.length === 0) return defaultForHerLinks;
-    const catMap = new Map<string, string>();
+    if (!womenProducts || womenProducts.length === 0) return [];
+    const catMap = new Map<string, { label: string; slug: string; position: number }>();
     womenProducts.forEach(p => {
       (p.categories || []).forEach(c => {
         if (c.slug !== 'women' && c.slug !== 'for-her') {
-          catMap.set(c.slug, c.name);
+          catMap.set(c.slug, { label: c.name, slug: c.slug, position: c.position ?? 999 });
         }
       });
     });
-    if (catMap.size === 0) return defaultForHerLinks;
-    return Array.from(catMap.entries()).map(([slug, name]) => ({ label: name, slug }));
+    return Array.from(catMap.values()).sort((a, b) => a.position - b.position);
   }, [womenProducts]);
 
   // "All" dropdown: all categories with products, excluding parent containers
