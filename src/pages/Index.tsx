@@ -47,7 +47,7 @@ const Index = () => {
     (p: Product) => p.slug === 'blue-storm-luxe-tee' || p.slug === 'silent-authority'
   ).slice(0, 2);
 
-  const fragrance = products.find((p: Product) => p.slug === 'mancini-milano-fragrance');
+  const fragrance = products.find((p: Product) => p.slug === 'mancini-milano');
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
