@@ -752,7 +752,7 @@ const Checkout = () => {
                 <div className="space-y-3">
                   {visiblePaymentMethods.map(method => {
                     const methodId = method.id || method.type;
-                    const isQr = methodId === 'qr_transfer';
+                    const isQr = methodId === 'qr_transfer' || methodId === 'bank_transfer';
                     const isStripe = methodId === 'stripe';
 
                     return (
