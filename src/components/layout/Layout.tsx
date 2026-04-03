@@ -12,7 +12,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const isHome = location.pathname === '/';
 
   return (
-    <div className="min-h-screen flex flex-col animate-in fade-in duration-300">
+    <div className="min-h-screen flex flex-col animate-in fade-in duration-300 overflow-x-hidden">
       <SplashScreen />
       <AnnouncementBar />
       {isHome && <LookbookBanner />}
