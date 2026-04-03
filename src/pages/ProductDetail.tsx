@@ -18,6 +18,11 @@ const ProductDetail = () => {
   const [addedToCart, setAddedToCart] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>('description');
 
+  // Debug: log variant data
+  if (product) {
+    console.log('[ProductDetail] variants:', product.variants?.map((v: any) => ({ id: v.id, options: v.options })));
+  }
+
   // Reset selections when slug changes
   const currentSlug = slug;
   const [prevSlug, setPrevSlug] = useState(slug);
