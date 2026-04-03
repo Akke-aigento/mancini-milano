@@ -62,11 +62,11 @@ const Index = () => {
       {/* SECTION 1: HERO */}
       {/* Mobile Hero */}
       <div className="md:hidden">
-        <div className="relative aspect-[4/5] overflow-hidden">
+        <div className="w-full overflow-hidden">
           <img
             src={lookbookBanner}
             alt="Mancini Milano Collection"
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            className="w-full h-auto"
           />
         </div>
         <div className="flex flex-col items-center gap-4 px-6 py-6 bg-background">
