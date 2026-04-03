@@ -103,7 +103,7 @@ const ProductDetail = () => {
         <section className="max-w-site mx-auto px-4 lg:px-8 py-20 text-center">
           <h1 className="font-heading text-3xl tracking-heading uppercase text-foreground mb-4">Product Not Found</h1>
           <p className="text-muted-foreground mb-8">The product you're looking for doesn't exist.</p>
-          <Link to="/" className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors">
+          <Link to="/" className="inline-block border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors">
             Back to Home
           </Link>
         </section>
@@ -256,7 +256,7 @@ const ProductDetail = () => {
                 addedToCart
                   ? 'bg-green-700 text-foreground'
                   : canAddToCart
-                    ? 'bg-primary text-primary-foreground hover:bg-gold-hover'
+                    ? 'border border-foreground text-foreground hover:bg-foreground hover:text-background'
                     : 'bg-card text-muted-foreground cursor-not-allowed'
               }`}
             >
@@ -329,7 +329,7 @@ const ProductDetail = () => {
               addedToCart
                 ? 'bg-green-700 text-foreground'
                 : canAddToCart
-                  ? 'bg-primary text-primary-foreground hover:bg-gold-hover'
+                  ? 'border border-foreground text-foreground hover:bg-foreground hover:text-background'
                   : 'bg-muted text-muted-foreground cursor-not-allowed'
             }`}
           >

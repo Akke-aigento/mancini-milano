@@ -79,7 +79,7 @@ to="/collections/men"
             </Link>
             <Link
 to="/collections/women"
-              className="flex-1 text-center bg-primary text-primary-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
+              className="flex-1 text-center border border-foreground text-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Shop Women
             </Link>
@@ -112,7 +112,7 @@ to="/collections/women"
             </Link>
             <Link
               to="/collections/women"
-              className="bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
+              className="border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Shop Women
             </Link>
