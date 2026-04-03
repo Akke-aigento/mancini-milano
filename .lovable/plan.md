@@ -1,40 +1,46 @@
 
 
-# Checkout Fix: order_id → cart_id + Stripe Success URL + Discount UI
+# Checkout Bugfix: 8 Fixes in 2 Bestanden
 
-## Wat verandert
+## Overzicht wijzigingen
 
-De API wordt aangepast zodat alle checkout-stappen `cart_id` gebruiken in plaats van `order_id`. Daarnaast: Stripe success URL met `{CHECKOUT_SESSION_ID}`, cart cleanup timing fix, en order polling op de bedankt-pagina.
+### `src/pages/Checkout.tsx` — Volledige herschrijving checkout flow
 
-## Wijzigingen
+**Bug 1: Combineer Gegevens + Adres tot 1 stap**
+- Verwijder aparte `customer` en `address` stappen
+- Nieuwe stappen: `details` (gegevens + adres gecombineerd) en `payment`
+- Stepper toont 2 stappen: "Details & Address" en "Payment"
+- Bij "Verder": stuur customer + address API calls sequentieel, dan auto-select shipping als 1 methode, ga naar payment
+- Shipping stap blijft als aparte stap alleen als er >1 shipping methode is
 
-### 1. `src/integrations/sellqo/api.ts` — checkoutAPI
+**Bug 2: QR betaling — volgorde, naam, device filtering**
+- Sorteer betaalmethodes: `qr_transfer` eerst, dan `bank_transfer`, dan `stripe`
+- Hernoem QR naar "Scan QR code met je bankapp" met beschrijving "Gratis — direct betalen via je bankapp"
+- Verberg QR op touch devices of schermen <1024px via `useEffect` check
+- Toon "Geen transactiekosten" badge bij QR
 
-Alle functies die `order_id` als parameter nemen worden omgezet naar `cart_id`:
+**Bug 4: Totaal op €0.00**
+- Bereken `computedTotal` als fallback: `Math.max(0, subtotal + shippingCost - discountAmount)`
+- Gebruik API total als beschikbaar, anders fallback
 
-- `saveCustomer(cart_id, customer)` → body: `{ cart_id, customer }`
-- `saveAddress(cart_id, data)` → body: `{ cart_id, ...data }`
-- `selectShipping(cart_id, shipping_method_id)` → body: `{ cart_id, shipping_method_id }`
-- `complete(cart_id, payment_method_id, success_url, cancel_url)` → body: `{ cart_id, ... }`
-- `applyDiscount(cart_id, discount_code)` → body: `{ cart_id, discount_code }`
-- `removeDiscount(cart_id)` → body: `{ cart_id }`
+**Bug 5: NaN in besteloverzicht**
+- Fallback bij item prijs: `Number(item.price) || 0`
 
-Voeg toe: `getOrderBySession(stripe_session_id)` → GET `/checkout/order?stripe_session_id=...`
+**Bug 6: Betaling mislukt maar toont success**
+- Voeg expliciete `!result.success` check toe in `handleCompleteOrder` VOOR de switch
+- Navigeer ALLEEN bij succesvolle response
 
-### 2. `src/pages/Checkout.tsx`
+**Bug 7: Stripe betaalopties badges**
+- Toon onder Stripe optie: iDEAL, Bancontact, Creditcard, Apple Pay badges
 
-- Verwijder `orderId` uit CheckoutData interface (niet meer nodig)
-- Gebruik `cartId` (uit localStorage) direct in alle API calls in plaats van `checkoutData.orderId`
-- `handleCompleteOrder`: verwijder `clearCart()` voor Stripe redirect (cart wordt pas op bedankt-pagina geleegd)
-- Success URL wijzigen: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}` (Stripe vervangt de placeholder)
-- Behoud `clearCart()` voor manual/qr flows
+**Bug 8: Kortingscode UI**
+- Al aanwezig in OrderSummary — behouden en werkend
 
-### 3. `src/pages/CheckoutSuccess.tsx`
+### `src/pages/CheckoutSuccess.tsx` — QR weergave fix
 
-- Bij Stripe redirect (session_id in URL): poll `/checkout/order?stripe_session_id=...` met max 5 pogingen (2s interval)
-- Na succesvolle poll: toon ordernummer + clearCart
-- Na 5 mislukte pogingen: toon generiek bedankt-bericht + clearCart
-- Bestaande manual/qr/fallback logica blijft ongewijzigd
+**Bug 3: QR code niet getoond**
+- QR sectie is al correct geïmplementeerd, maar vergroot QR image naar `w-64 h-64`
+- Voeg extra instructietekst toe
 
-## Drie bestanden
+## Twee bestanden, geen API wijzigingen nodig
 
