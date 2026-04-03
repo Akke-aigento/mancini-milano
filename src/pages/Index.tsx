@@ -40,7 +40,7 @@ const Index = () => {
     };
   });
 
-  const blueStormProducts = [blueStormTee, silentAuthority].filter(Boolean) as Product[];
+  
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
