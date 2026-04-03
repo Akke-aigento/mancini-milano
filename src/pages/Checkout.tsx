@@ -382,8 +382,10 @@ const Checkout = () => {
 
   const handleRemoveDiscount = async () => {
     if (!checkoutData) return;
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
-      const res = await checkoutAPI.removeDiscount(checkoutData.orderId);
+      const res = await checkoutAPI.removeDiscount(cartId);
       const data = res as any;
       const result = data?.data || data;
       setCheckoutData(prev => prev ? {
