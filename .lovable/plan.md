@@ -1,21 +1,29 @@
 
 
-# Knoppen "Discover" & "Subscribe" → Outlined Style
+# For Him / For Her: Alleen Specifieke Categorieën Tonen
 
 ## Wat verandert
 
-Drie knoppen gebruiken nog `bg-primary text-primary-foreground` (solid wit/zwart). Deze worden omgezet naar de outlined stijl: `border border-foreground text-foreground bg-transparent hover:bg-foreground hover:text-background`.
+De dropdowns tonen nu alle categorieën die op producten staan. We filteren dit zodat alleen deze 6 categorieën getoond worden:
+- T-shirts, Pants, Tracksuits, Hoodies, Jackets, Accessories
 
-## Wijzigingen
+## Wijziging in `src/components/layout/Navbar.tsx`
 
-### 1. `src/pages/Index.tsx` — Discover knop (regel 300)
-Vervang `bg-primary text-primary-foreground ... hover:bg-gold-hover` door `border border-foreground text-foreground bg-transparent hover:bg-foreground hover:text-background`
+### Regels 104-129 — `forHimLinks` en `forHerLinks` useMemo's
 
-### 2. `src/pages/Index.tsx` — Subscribe knop (regel 337)
-Zelfde wijziging als hierboven
+Voeg een whitelist toe en filter de catMap resultaten:
 
-### 3. `src/components/layout/Footer.tsx` — Subscribe knop (regel 79)
-Zelfde wijziging als hierboven
+```typescript
+const ALLOWED_GENDER_SLUGS = ['t-shirts', 'pants', 'tracksuits', 'hoodies', 'jackets', 'accessories'];
+```
 
-## Drie locaties, twee files
+In beide useMemo's, na het opbouwen van de catMap, filter op deze slugs:
+
+```typescript
+return Array.from(catMap.values())
+  .filter(c => ALLOWED_GENDER_SLUGS.includes(c.slug))
+  .sort((a, b) => a.position - b.position);
+```
+
+### Eén file, twee locaties (forHimLinks + forHerLinks)
 
