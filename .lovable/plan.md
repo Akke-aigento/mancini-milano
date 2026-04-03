@@ -1,27 +1,33 @@
 
 
-# Shop the Look — Dynamisch via Categorie `shop-the-look`
+# Navbar Mobiel: Iconen Herschikken
 
-## Wat verandert
+## Gewenste volgorde op mobiel (links → rechts)
+```text
+[☰] [🔍]          [🐕]          [👤] [🛒]
+ ↑    ↑             ↑             ↑    ↑
+ham  zoek          logo         account cart
+```
 
-De hardcoded product slugs (`blue-storm-luxe-tee`, `silent-authority`) worden vervangen door een dynamische query op de categorie `shop-the-look`. Zo kan de klant via SellQo zelf bepalen welke producten in deze sectie verschijnen.
+## Huidige situatie
+Alle iconen (zoek, account, cart, hamburger) zitten in één `div` rechts. Logo is gecentreerd via `absolute left-1/2`. Hamburger staat helemaal rechts.
 
-## Wijzigingen in `src/pages/Index.tsx`
+## Wijzigingen in `src/components/layout/Navbar.tsx`
 
-### 1. Data fetching (regels 26-27)
-- Verwijder `useProduct('blue-storm-luxe-tee')` en `useProduct('silent-authority')`
-- Voeg toe: `const { data: shopTheLookProducts = [] } = useProducts({ category_slug: 'shop-the-look' });`
+### Mobiele layout (regels 145-217)
+Splits de navbar in drie secties, alleen zichtbaar op mobiel (`lg:hidden` / `hidden lg:flex`):
 
-### 2. Verwijder `blueStormProducts` array (regel 44)
-- Niet meer nodig — gebruik direct `shopTheLookProducts`
+**Links (mobiel):** Hamburger + Zoek
+**Midden:** Logo (al gecentreerd)
+**Rechts (mobiel):** Account + Cart
 
-### 3. Sectie "Shop the Look" (regels 228-275)
-- Vervang `blueStormProducts.length > 0` door `shopTheLookProducts.length > 0`
-- Vervang `blueStormProducts.map(...)` door `shopTheLookProducts.map(...)`
-- Gebruik het eerste product's image als de grote lifestyle-foto (links), in plaats van de hardcoded URL
-- Toon de overige producten als lijst (rechts)
-- Vervang de hardcoded titel "Blue Storm Collection" door de categorie-naam (uit `categories` data) of een generieke "Shop the Look"
-- Update de "Shop Collection →" link van `/collections/t-shirts` naar `/collections/shop-the-look`
+Op desktop blijft alles zoals het is — de huidige `div` met zoek/account/cart blijft behouden met `hidden lg:flex`, en een aparte mobiele layout wordt toegevoegd met `lg:hidden`.
 
-### Eén file
+Concreet:
+1. Voeg vóór het logo een mobiele linker-groep toe: `<div className="flex items-center gap-1 lg:hidden">` met hamburger-button en zoek-button
+2. Voeg na het logo een mobiele rechter-groep toe: `<div className="flex items-center gap-1 lg:hidden">` met account-link en cart-button
+3. De bestaande iconen-div krijgt `hidden lg:flex` zodat die alleen op desktop zichtbaar is
+4. Verwijder de hamburger uit de bestaande iconen-div (die is nu in de mobiele linker-groep)
+
+### Eén file: `src/components/layout/Navbar.tsx`
 
