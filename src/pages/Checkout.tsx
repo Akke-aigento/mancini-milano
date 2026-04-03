@@ -459,7 +459,7 @@ const Checkout = () => {
               <button
                 onClick={handlePlaceOrder}
                 disabled={isProcessing}
-                className="flex-1 bg-primary text-primary-foreground py-3.5 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 border border-foreground text-foreground py-3.5 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Place Order
