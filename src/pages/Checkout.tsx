@@ -368,7 +368,7 @@ const Checkout = () => {
               </button>
               <button
                 onClick={() => setStep('review')}
-                className="flex-1 bg-primary text-primary-foreground py-3.5 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
+                className="flex-1 border border-foreground text-foreground py-3.5 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
               >
                 Review Order
               </button>
