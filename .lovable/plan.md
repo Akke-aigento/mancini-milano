@@ -1,37 +1,17 @@
 
 
-# Mobile Hero: Volledige Foto Zichtbaar
+# Logo: Altijd Dobermann, Gecentreerd op Mobiel
 
-## Probleem
-De mobiele hero gebruikt `aspect-[4/5]` met `object-cover`, waardoor de foto wordt bijgesneden. De klant wil de volledige afbeelding zien.
+## Wijzigingen in `src/components/layout/Navbar.tsx`
 
-## Oplossing
+### 1. Navbar — Logo altijd Dobermann (regel 146-155)
+- Verwijder de tekst-`<span>` ("Mancini Milano") en de crossfade-logica
+- Toon altijd alleen de Dobermann-afbeelding
+- **Desktop (lg+)**: logo blijft links (huidige positie)
+- **Mobiel**: logo gecentreerd — verplaats de Link naar het midden van de navbar met `lg:relative absolute left-1/2 -translate-x-1/2 lg:left-auto lg:translate-x-0`
 
-### `src/pages/Index.tsx` — regel 65-71
+### 2. Mobiel menu header (regel 226-229)
+- Vervang de tekst "Mancini Milano" door het Dobermann-logo (`<img>`) in de open-menu header
 
-Vervang de fixed-aspect container met `object-cover` door een simpele `w-full` image die zijn natuurlijke verhoudingen behoudt:
-
-```tsx
-// Van:
-<div className="relative aspect-[4/5] overflow-hidden">
-  <img
-    src={lookbookBanner}
-    alt="Mancini Milano Collection"
-    className="absolute inset-0 w-full h-full object-cover object-center"
-  />
-</div>
-
-// Naar:
-<div className="w-full overflow-hidden">
-  <img
-    src={lookbookBanner}
-    alt="Mancini Milano Collection"
-    className="w-full h-auto"
-  />
-</div>
-```
-
-De afbeelding schaalt nu mee op volledige breedte zonder cropping — de volledige foto is zichtbaar.
-
-### Eén file, één wijziging
+### Eén file, twee locaties
 
