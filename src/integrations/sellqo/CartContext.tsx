@@ -27,6 +27,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | null>(null);
 
 export function SellQoCartProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const { data: cart, isLoading } = useCartQuery();
   const addToCartMutation = useAddToCart();
   const updateItem = useUpdateCartItem();
