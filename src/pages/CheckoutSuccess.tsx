@@ -16,7 +16,8 @@ const CheckoutSuccess = () => {
     total?: number;
     currency?: string;
     bankDetails?: Record<string, string>;
-    qrData?: { image_url?: string; payload?: string };
+    qrData?: { image_url?: string; qr_image_url?: string; payload?: string };
+    qr_data?: { image_url?: string; qr_image_url?: string; payload?: string };
     paymentType?: 'redirect' | 'manual' | 'qr';
   } | null;
 
