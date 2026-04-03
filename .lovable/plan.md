@@ -1,26 +1,24 @@
 
 
-# Splash Screen: Zachtere Fade-out
+# Fix: Pagina's Vallen Uit Viewport op Desktop
 
 ## Probleem
-De fade-out duurt 500ms (`duration-500`) maar het component wordt na exact 500ms uit de DOM verwijderd. Door timing-mismatch "springt" het weg voordat de transitie klaar is.
+Sommige pagina-elementen (bijv. product detail) steken uit aan de rechterkant van het scherm. Er ontbreekt een globale `overflow-x: hidden` waardoor content horizontaal buiten de viewport kan vallen.
 
-## Oplossing in `src/components/SplashScreen.tsx`
+## Oplossing
 
-### 1. Langere fade-out duur
-- Wijzig `duration-500` naar `duration-1000` (1 seconde fade)
-- Voeg ook de opacity-transitie toe aan het logo zelf zodat het mee-fadet
+### `src/components/layout/Layout.tsx` — regel 15
+Voeg `overflow-x-hidden` toe aan de root `div`:
 
-### 2. Gebruik `onTransitionEnd` i.p.v. harde timer
-- Verwijder de `doneTimer` (regel 18) en de `setTimeout` in `handleClose` (regel 29)
-- Voeg `onTransitionEnd` toe aan de overlay-div die `setPhase('done')` aanroept wanneer de fade-out klaar is
-- Pas de auto-timer aan: `outTimer` op 2500ms, geen `doneTimer` meer
+```tsx
+// Van:
+<div className="min-h-screen flex flex-col animate-in fade-in duration-300">
 
-### 3. Subtiele scale-down bij fade-out
-- Logo schaalt licht terug (`scale(0.97)`) tijdens de out-fase voor een vloeiender gevoel
+// Naar:
+<div className="min-h-screen flex flex-col animate-in fade-in duration-300 overflow-x-hidden">
+```
 
-### Resultaat
-De overlay fadet geleidelijk uit over 1 seconde en verdwijnt pas uit de DOM wanneer de CSS-transitie daadwerkelijk afgelopen is — geen "sprong" meer.
+Dit knipt alle horizontale overflow af voor de gehele site — één simpele fix die overal werkt.
 
-### Eén file
+### Eén file, één regel
 
