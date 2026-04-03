@@ -358,8 +358,10 @@ const Checkout = () => {
 
   const handleApplyDiscount = async () => {
     if (!checkoutData || !discountInput.trim()) return;
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
-      const res = await checkoutAPI.applyDiscount(checkoutData.orderId, discountInput.trim());
+      const res = await checkoutAPI.applyDiscount(cartId, discountInput.trim());
       const data = res as any;
       const result = data?.data || data;
       if (data?.error) {
