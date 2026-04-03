@@ -95,14 +95,23 @@ function resolveAction(
     if (segments.length === 1 && method === 'POST') {
       return { action: 'checkout_start', tenant_id: tenantId, params: { ...params, ...body } };
     }
-    if (segments[1] === 'shipping-options' && method === 'POST') {
-      return { action: 'checkout_get_shipping_options', tenant_id: tenantId, params: { ...params, ...body } };
+    if (segments[1] === 'customer' && method === 'POST') {
+      return { action: 'checkout_customer', tenant_id: tenantId, params: { ...params, ...body } };
     }
-    if (segments[1] === 'payment-methods' && method === 'POST') {
-      return { action: 'checkout_get_payment_methods', tenant_id: tenantId, params: { ...params, ...body } };
+    if (segments[1] === 'address' && method === 'POST') {
+      return { action: 'checkout_address', tenant_id: tenantId, params: { ...params, ...body } };
     }
-    if (segments[1] === 'place-order' && method === 'POST') {
-      return { action: 'checkout_place_order', tenant_id: tenantId, params: { ...params, ...body } };
+    if (segments[1] === 'shipping' && method === 'POST') {
+      return { action: 'checkout_shipping', tenant_id: tenantId, params: { ...params, ...body } };
+    }
+    if (segments[1] === 'complete' && method === 'POST') {
+      return { action: 'checkout_complete', tenant_id: tenantId, params: { ...params, ...body } };
+    }
+    if (segments[1] === 'discount' && method === 'POST') {
+      return { action: 'checkout_apply_discount', tenant_id: tenantId, params: { ...params, ...body } };
+    }
+    if (segments[1] === 'discount' && method === 'DELETE') {
+      return { action: 'checkout_remove_discount', tenant_id: tenantId, params: { ...params, ...body } };
     }
     if (segments[1] === 'confirmation' && segments[2] && method === 'GET') {
       params.order_id = segments[2];

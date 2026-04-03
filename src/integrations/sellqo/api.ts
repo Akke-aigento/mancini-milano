@@ -83,39 +83,68 @@ export const cartAPI = {
     sellqoFetch<Cart>(`/cart/${cartId}/discount`, { method: 'DELETE' }),
 };
 
-// === CHECKOUT ===
+// === CHECKOUT (v2 step-by-step flow) ===
 export const checkoutAPI = {
-  start: (cartId: string) =>
-    sellqoFetch<{ status: string; items: unknown[]; subtotal: number }>('/checkout', {
+  start: (cart_id: string) =>
+    sellqoFetch<{
+      order_id: string;
+      items: Array<{ id: string; title: string; variant_title?: string; quantity: number; price: number; image?: string }>;
+      available_payment_methods: Array<{ id: string; type: string; name: string; description?: string }>;
+      available_shipping_methods: Array<{ id: string; name: string; price: number; estimated_days?: string }>;
+      subtotal: number;
+      total: number;
+      currency: string;
+    }>('/checkout', {
       method: 'POST',
-      body: JSON.stringify({ cart_id: cartId }),
+      body: JSON.stringify({ cart_id }),
     }),
 
-  getShippingOptions: (cartId: string, country: string, subtotal: number) =>
-    sellqoFetch<{ shipping_methods: Array<{ id: string; name: string; price: number; estimated_days?: string }> }>('/checkout/shipping-options', {
+  saveCustomer: (order_id: string, customer: { email: string; first_name: string; last_name: string; phone?: string }) =>
+    sellqoFetch<{ success: boolean }>('/checkout/customer', {
       method: 'POST',
-      body: JSON.stringify({ cart_id: cartId, country, subtotal }),
+      body: JSON.stringify({ order_id, customer }),
     }),
 
-  getPaymentMethods: (cartId: string) =>
-    sellqoFetch<{ payment_methods: Array<{ id: string; type: string; name: string; description?: string }> }>('/checkout/payment-methods', {
-      method: 'POST',
-      body: JSON.stringify({ cart_id: cartId }),
-    }),
-
-  placeOrder: (data: {
-    cart_id: string;
+  saveAddress: (order_id: string, data: {
     shipping_address: Record<string, string>;
-    billing_address?: Record<string, string>;
-    email: string;
-    phone?: string;
-    shipping_method_id: string;
-    payment_method: string;
-    origin: string;
+    billing_same_as_shipping: boolean;
+    billing_address?: Record<string, string> | null;
   }) =>
-    sellqoFetch<{ order_id: string; status: string; payment_url?: string; bank_details?: Record<string, string> }>('/checkout/place-order', {
+    sellqoFetch<{ success: boolean }>('/checkout/address', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ order_id, ...data }),
+    }),
+
+  selectShipping: (order_id: string, shipping_method_id: string) =>
+    sellqoFetch<{ shipping_cost: number; total: number }>('/checkout/shipping', {
+      method: 'POST',
+      body: JSON.stringify({ order_id, shipping_method_id }),
+    }),
+
+  complete: (order_id: string, payment_method_id: string, success_url: string, cancel_url: string) =>
+    sellqoFetch<{
+      payment_type: 'redirect' | 'manual' | 'qr';
+      checkout_url?: string;
+      order_number?: string;
+      total?: number;
+      currency?: string;
+      bank_details?: Record<string, string>;
+      qr_data?: { image_url?: string; payload?: string };
+    }>('/checkout/complete', {
+      method: 'POST',
+      body: JSON.stringify({ order_id, payment_method_id, success_url, cancel_url }),
+    }),
+
+  applyDiscount: (order_id: string, discount_code: string) =>
+    sellqoFetch<{ discount_code: string; discount_amount: number; total: number }>('/checkout/discount', {
+      method: 'POST',
+      body: JSON.stringify({ order_id, discount_code }),
+    }),
+
+  removeDiscount: (order_id: string) =>
+    sellqoFetch<{ total: number }>('/checkout/discount', {
+      method: 'DELETE',
+      body: JSON.stringify({ order_id }),
     }),
 
   getConfirmation: (orderId: string) =>
