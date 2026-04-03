@@ -114,8 +114,8 @@ const Checkout = () => {
         const data = res as any;
         const result = data?.data || data;
         
+        
         setCheckoutData({
-          orderId: result.order_id,
           items: result.items || cartItems.map(i => ({ id: i.id, title: i.title, variant_title: i.variant_title, quantity: i.quantity, price: i.price, image: i.image })),
           availablePaymentMethods: result.available_payment_methods || [],
           availableShippingMethods: result.available_shipping_methods || [],
