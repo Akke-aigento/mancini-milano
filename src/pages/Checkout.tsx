@@ -247,7 +247,7 @@ const Checkout = () => {
       // Auto-select shipping if only 1 method
       if (hasShipping && checkoutData.availableShippingMethods.length === 1) {
         const shipRes = await checkoutAPI.selectShipping(
-          checkoutData.orderId,
+          cartId,
           checkoutData.availableShippingMethods[0].id
         );
         const shipData = shipRes as any;
