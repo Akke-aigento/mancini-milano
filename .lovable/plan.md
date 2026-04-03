@@ -1,24 +1,30 @@
 
 
-# Fix: Pagina's Vallen Uit Viewport op Desktop
+# Fix: Variant Opties (Maat & Kleur) Weer Tonen
 
 ## Probleem
-Sommige pagina-elementen (bijv. product detail) steken uit aan de rechterkant van het scherm. Er ontbreekt een globale `overflow-x: hidden` waardoor content horizontaal buiten de viewport kan vallen.
+De ProductDetail pagina zoekt naar `v.options.size` en `v.options.color` (lowercase), maar de SellQo API retourneert waarschijnlijk keys met hoofdletters ("Size", "Color") of andere namen. Hierdoor worden de opties niet gevonden en niet getoond.
 
-## Oplossing
+## Oplossing — Twee aanpassingen
 
-### `src/components/layout/Layout.tsx` — regel 15
-Voeg `overflow-x-hidden` toe aan de root `div`:
+### 1. `src/integrations/sellqo/normalizer.ts` — Variant options keys normaliseren (regel 26-36)
+Bij het normaliseren van variants, zet alle option-keys om naar lowercase:
 
-```tsx
-// Van:
-<div className="min-h-screen flex flex-col animate-in fade-in duration-300">
-
-// Naar:
-<div className="min-h-screen flex flex-col animate-in fade-in duration-300 overflow-x-hidden">
+```typescript
+const rawOptions = v.attribute_values || v.options || {};
+const options: Record<string, string> = {};
+for (const [key, val] of Object.entries(rawOptions)) {
+  options[key.toLowerCase()] = String(val);
+}
 ```
 
-Dit knipt alle horizontale overflow af voor de gehele site — één simpele fix die overal werkt.
+Dit zorgt ervoor dat ongeacht of de API "Size", "SIZE", of "size" retourneert, het altijd als `size` beschikbaar is in de frontend.
 
-### Eén file, één regel
+### 2. `src/pages/ProductDetail.tsx` — Debug logging toevoegen (tijdelijk)
+Voeg een `console.log` toe om de variant data te inspecteren wanneer het product geladen is, zodat we kunnen bevestigen dat de opties correct doorkomt. Dit kan later verwijderd worden.
+
+## Resultaat
+Maat- en kleuropties verschijnen weer op de productpagina, ongeacht de key-casing van de API.
+
+## Twee files
 
