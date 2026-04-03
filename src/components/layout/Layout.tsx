@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router-dom';
+import SplashScreen from '@/components/SplashScreen';
 import AnnouncementBar from './AnnouncementBar';
 import LookbookBanner from './LookbookBanner';
 import Navbar from './Navbar';
@@ -12,6 +13,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen flex flex-col animate-in fade-in duration-300">
+      <SplashScreen />
       <AnnouncementBar />
       {isHome && <LookbookBanner />}
       <Navbar />
