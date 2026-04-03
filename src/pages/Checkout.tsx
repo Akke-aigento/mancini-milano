@@ -211,6 +211,8 @@ const Checkout = () => {
     if (!checkoutData) return;
 
     setIsProcessing(true);
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
       const shippingAddr: Record<string, string> = {
         street: `${addressForm.street} ${addressForm.house_number}`.trim(),
