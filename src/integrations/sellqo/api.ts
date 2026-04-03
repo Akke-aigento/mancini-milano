@@ -99,29 +99,29 @@ export const checkoutAPI = {
       body: JSON.stringify({ cart_id }),
     }),
 
-  saveCustomer: (order_id: string, customer: { email: string; first_name: string; last_name: string; phone?: string }) =>
+  saveCustomer: (cart_id: string, customer: { email: string; first_name: string; last_name: string; phone?: string }) =>
     sellqoFetch<{ success: boolean }>('/checkout/customer', {
       method: 'POST',
-      body: JSON.stringify({ order_id, customer }),
+      body: JSON.stringify({ cart_id, customer }),
     }),
 
-  saveAddress: (order_id: string, data: {
+  saveAddress: (cart_id: string, data: {
     shipping_address: Record<string, string>;
     billing_same_as_shipping: boolean;
     billing_address?: Record<string, string> | null;
   }) =>
     sellqoFetch<{ success: boolean }>('/checkout/address', {
       method: 'POST',
-      body: JSON.stringify({ order_id, ...data }),
+      body: JSON.stringify({ cart_id, ...data }),
     }),
 
-  selectShipping: (order_id: string, shipping_method_id: string) =>
+  selectShipping: (cart_id: string, shipping_method_id: string) =>
     sellqoFetch<{ shipping_cost: number; total: number }>('/checkout/shipping', {
       method: 'POST',
-      body: JSON.stringify({ order_id, shipping_method_id }),
+      body: JSON.stringify({ cart_id, shipping_method_id }),
     }),
 
-  complete: (order_id: string, payment_method_id: string, success_url: string, cancel_url: string) =>
+  complete: (cart_id: string, payment_method_id: string, success_url: string, cancel_url: string) =>
     sellqoFetch<{
       payment_type: 'redirect' | 'manual' | 'qr';
       checkout_url?: string;
@@ -132,23 +132,23 @@ export const checkoutAPI = {
       qr_data?: { image_url?: string; payload?: string };
     }>('/checkout/complete', {
       method: 'POST',
-      body: JSON.stringify({ order_id, payment_method_id, success_url, cancel_url }),
+      body: JSON.stringify({ cart_id, payment_method_id, success_url, cancel_url }),
     }),
 
-  applyDiscount: (order_id: string, discount_code: string) =>
+  applyDiscount: (cart_id: string, discount_code: string) =>
     sellqoFetch<{ discount_code: string; discount_amount: number; total: number }>('/checkout/discount', {
       method: 'POST',
-      body: JSON.stringify({ order_id, discount_code }),
+      body: JSON.stringify({ cart_id, discount_code }),
     }),
 
-  removeDiscount: (order_id: string) =>
+  removeDiscount: (cart_id: string) =>
     sellqoFetch<{ total: number }>('/checkout/discount', {
       method: 'DELETE',
-      body: JSON.stringify({ order_id }),
+      body: JSON.stringify({ cart_id }),
     }),
 
-  getConfirmation: (orderId: string) =>
-    sellqoFetch<{ order_id: string; status: string; total: number; items: unknown[] }>(`/checkout/confirmation/${orderId}`),
+  getOrderBySession: (stripe_session_id: string) =>
+    sellqoFetch<{ order_id: string; order_number: string; status: string; total: number; currency: string }>(`/checkout/order?stripe_session_id=${encodeURIComponent(stripe_session_id)}`),
 };
 
 // === NEWSLETTER ===
