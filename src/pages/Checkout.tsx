@@ -275,8 +275,10 @@ const Checkout = () => {
     if (!checkoutData || !selectedShipping) return;
 
     setIsProcessing(true);
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
-      const res = await checkoutAPI.selectShipping(checkoutData.orderId, selectedShipping);
+      const res = await checkoutAPI.selectShipping(cartId, selectedShipping);
       const data = res as any;
       const result = data?.data || data;
       setCheckoutData(prev => prev ? {
