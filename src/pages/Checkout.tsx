@@ -26,7 +26,6 @@ interface PaymentMethod {
 }
 
 interface CheckoutData {
-  orderId: string;
   items: Array<{ id: string; title: string; variant_title?: string; quantity: number; price: number; image?: string }>;
   availablePaymentMethods: PaymentMethod[];
   availableShippingMethods: ShippingMethod[];
