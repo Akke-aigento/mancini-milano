@@ -1,46 +1,37 @@
 
 
-# Checkout Bugfix: 8 Fixes in 2 Bestanden
+# Fix: 3 Checkout Bugs
 
-## Overzicht wijzigingen
+## Bug 1: "Bankoverschrijving" hernoemen naar "QR code met je bankapp"
 
-### `src/pages/Checkout.tsx` — Volledige herschrijving checkout flow
+In `src/pages/Checkout.tsx` wordt `bank_transfer` momenteel niet apart gelabeld — alleen `qr_transfer` krijgt een custom label (regel 775). Ik voeg ook `bank_transfer` toe aan de custom label logica zodat **beide** worden getoond als "QR code met je bankapp" (of als er apart een bank_transfer is, krijgt die ook het juiste label).
 
-**Bug 1: Combineer Gegevens + Adres tot 1 stap**
-- Verwijder aparte `customer` en `address` stappen
-- Nieuwe stappen: `details` (gegevens + adres gecombineerd) en `payment`
-- Stepper toont 2 stappen: "Details & Address" en "Payment"
-- Bij "Verder": stuur customer + address API calls sequentieel, dan auto-select shipping als 1 methode, ga naar payment
-- Shipping stap blijft als aparte stap alleen als er >1 shipping methode is
+**Locatie**: regels 753-793 — in de payment method rendering, voeg `bank_transfer` toe aan de `isQr` check:
+```
+const isQr = methodId === 'qr_transfer' || methodId === 'bank_transfer';
+```
 
-**Bug 2: QR betaling — volgorde, naam, device filtering**
-- Sorteer betaalmethodes: `qr_transfer` eerst, dan `bank_transfer`, dan `stripe`
-- Hernoem QR naar "Scan QR code met je bankapp" met beschrijving "Gratis — direct betalen via je bankapp"
-- Verberg QR op touch devices of schermen <1024px via `useEffect` check
-- Toon "Geen transactiekosten" badge bij QR
+## Bug 2: Winkelmandje badge niet leeg na bestelling
 
-**Bug 4: Totaal op €0.00**
-- Bereken `computedTotal` als fallback: `Math.max(0, subtotal + shippingCost - discountAmount)`
-- Gebruik API total als beschikbaar, anders fallback
+**Oorzaak**: `clearCart()` in CartContext (regel 88-90) verwijdert alleen `mancini_cart_id` uit localStorage, maar reset NIET de React Query cache. De `useCartQuery` hook blijft de oude data tonen in de badge.
 
-**Bug 5: NaN in besteloverzicht**
-- Fallback bij item prijs: `Number(item.price) || 0`
+**Fix in `src/integrations/sellqo/CartContext.tsx`**:
+- Import `useQueryClient` van `@tanstack/react-query`
+- In `clearCart()`: naast `localStorage.removeItem`, ook `queryClient.setQueryData` voor de cart key op `undefined` en `queryClient.invalidateQueries` aanroepen
 
-**Bug 6: Betaling mislukt maar toont success**
-- Voeg expliciete `!result.success` check toe in `handleCompleteOrder` VOOR de switch
-- Navigeer ALLEEN bij succesvolle response
+## Bug 3: QR code niet getoond op bedankt-pagina
 
-**Bug 7: Stripe betaalopties badges**
-- Toon onder Stripe optie: iDEAL, Bancontact, Creditcard, Apple Pay badges
+**Analyse**: De CheckoutSuccess pagina (regel 146) controleert `paymentType === 'qr' && state?.qrData`. De checkout navigate (regel 369-379) stuurt correct `paymentType: 'qr'` en `qrData: result.qr_data`.
 
-**Bug 8: Kortingscode UI**
-- Al aanwezig in OrderSummary — behouden en werkend
+Mogelijke oorzaak: regel 24 bepaalt `paymentType` fallback: als `state` null is (bijv. na page refresh), valt het terug naar `'manual'` als er geen `session_id` is. Dit is correct. De QR flow zou moeten werken als de state correct wordt doorgegeven.
 
-### `src/pages/CheckoutSuccess.tsx` — QR weergave fix
+**Extra safeguard**: voeg `console.log` toe voor debugging en zorg dat de QR sectie ook werkt als `qr_data` onder `state.qrData` OF als genest object beschikbaar is. Voeg fallback toe voor `state?.qrData?.image_url || state?.qrData?.qr_image_url`.
 
-**Bug 3: QR code niet getoond**
-- QR sectie is al correct geïmplementeerd, maar vergroot QR image naar `w-64 h-64`
-- Voeg extra instructietekst toe
+## Bestanden
 
-## Twee bestanden, geen API wijzigingen nodig
+| Bestand | Wijziging |
+|---|---|
+| `src/pages/Checkout.tsx` | `bank_transfer` toevoegen aan QR label check (1 regel) |
+| `src/integrations/sellqo/CartContext.tsx` | `clearCart()` uitbreiden met React Query cache reset |
+| `src/pages/CheckoutSuccess.tsx` | QR data fallbacks toevoegen |
 
