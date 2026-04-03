@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useCallback, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCartQuery, useAddToCart, useUpdateCartItem, useRemoveCartItem, useApplyDiscount, useCreateCheckout, CART_STORAGE_KEY } from './hooks';
 import type { Cart, CartItem } from './types';
 
