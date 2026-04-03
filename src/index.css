@@ -46,6 +46,10 @@
     @apply border-border;
   }
 
+  html, body {
+    @apply overflow-x-hidden w-full;
+  }
+
   body {
     @apply bg-background text-foreground font-body antialiased;
   }
