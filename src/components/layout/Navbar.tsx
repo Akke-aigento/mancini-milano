@@ -101,6 +101,8 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const ALLOWED_GENDER_SLUGS = ['t-shirts', 'pants', 'tracksuits', 'hoodies', 'jackets', 'accessories'];
+
   // Build gender-aware dropdown links from actual product categories
   const forHimLinks = useMemo(() => {
     if (!menProducts || menProducts.length === 0) return [];
@@ -112,7 +114,9 @@ const Navbar = () => {
         }
       });
     });
-    return Array.from(catMap.values()).sort((a, b) => a.position - b.position);
+    return Array.from(catMap.values())
+      .filter(c => ALLOWED_GENDER_SLUGS.includes(c.slug))
+      .sort((a, b) => a.position - b.position);
   }, [menProducts]);
 
   const forHerLinks = useMemo(() => {
@@ -125,7 +129,9 @@ const Navbar = () => {
         }
       });
     });
-    return Array.from(catMap.values()).sort((a, b) => a.position - b.position);
+    return Array.from(catMap.values())
+      .filter(c => ALLOWED_GENDER_SLUGS.includes(c.slug))
+      .sort((a, b) => a.position - b.position);
   }, [womenProducts]);
 
   // "All" dropdown: all categories with products, excluding parent containers
