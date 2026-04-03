@@ -147,18 +147,21 @@ const CheckoutSuccess = () => {
           <div className="max-w-md mx-auto mb-10">
             <div className="flex items-center justify-center gap-2 mb-4">
               <QrCode className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-foreground">Scan to Pay</span>
+              <span className="text-sm font-medium text-foreground">Scan de QR code om te betalen</span>
             </div>
             <p className="text-muted-foreground text-sm mb-4">
-              Scan the QR code below with your banking app to complete the payment.
+              Open je bankapp, scan de QR code, en bevestig de betaling.
             </p>
             {state.qrData.image_url && (
               <div className="flex justify-center mb-4">
-                <img src={state.qrData.image_url} alt="Payment QR Code" className="w-48 h-48" />
+                <img src={state.qrData.image_url} alt="Betaal QR code" className="w-64 h-64 border border-border rounded" />
               </div>
             )}
             {displayTotal && (
               <p className="text-lg font-medium text-foreground mb-2">{formatPrice(displayTotal)}</p>
+            )}
+            {displayOrderNumber && (
+              <p className="text-sm text-muted-foreground">Bestelnummer: {displayOrderNumber}</p>
             )}
           </div>
         )}
