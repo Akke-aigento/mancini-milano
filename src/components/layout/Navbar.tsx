@@ -143,14 +143,11 @@ const Navbar = () => {
     <>
       <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
-          <Link to="/" className="relative h-10 w-[160px] flex items-center">
-            <span className={`absolute font-heading text-lg tracking-logo uppercase text-foreground transition-all duration-700 ease-in-out ${scrolled || !isHome ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
-              Mancini Milano
-            </span>
+          <Link to="/" className="absolute left-1/2 -translate-x-1/2 lg:relative lg:left-auto lg:translate-x-0 h-10 flex items-center">
             <img
               src={logoDoberman}
               alt="Mancini Milano"
-              className={`absolute h-9 w-auto object-contain transition-all duration-700 ease-in-out ${scrolled || !isHome ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+              className="h-9 w-auto object-contain"
             />
           </Link>
 
@@ -224,8 +221,8 @@ const Navbar = () => {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 bg-background lg:hidden">
           <div className="flex items-center justify-between h-16 px-4 border-b border-border">
-            <Link to="/" onClick={closeMobile} className="font-heading text-lg tracking-logo uppercase text-foreground">
-              Mancini Milano
+            <Link to="/" onClick={closeMobile} className="h-10 flex items-center">
+              <img src={logoDoberman} alt="Mancini Milano" className="h-8 w-auto object-contain" />
             </Link>
             <button
               onClick={closeMobile}
