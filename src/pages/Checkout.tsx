@@ -327,6 +327,7 @@ const Checkout = () => {
           });
           break;
         case 'qr':
+          clearCart();
           navigate('/checkout/success', {
             state: {
               orderNumber: result.order_number,
