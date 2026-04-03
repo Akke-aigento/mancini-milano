@@ -1,33 +1,21 @@
 
 
-# Navbar Mobiel: Iconen Herschikken
+# Knoppen "Discover" & "Subscribe" → Outlined Style
 
-## Gewenste volgorde op mobiel (links → rechts)
-```text
-[☰] [🔍]          [🐕]          [👤] [🛒]
- ↑    ↑             ↑             ↑    ↑
-ham  zoek          logo         account cart
-```
+## Wat verandert
 
-## Huidige situatie
-Alle iconen (zoek, account, cart, hamburger) zitten in één `div` rechts. Logo is gecentreerd via `absolute left-1/2`. Hamburger staat helemaal rechts.
+Drie knoppen gebruiken nog `bg-primary text-primary-foreground` (solid wit/zwart). Deze worden omgezet naar de outlined stijl: `border border-foreground text-foreground bg-transparent hover:bg-foreground hover:text-background`.
 
-## Wijzigingen in `src/components/layout/Navbar.tsx`
+## Wijzigingen
 
-### Mobiele layout (regels 145-217)
-Splits de navbar in drie secties, alleen zichtbaar op mobiel (`lg:hidden` / `hidden lg:flex`):
+### 1. `src/pages/Index.tsx` — Discover knop (regel 300)
+Vervang `bg-primary text-primary-foreground ... hover:bg-gold-hover` door `border border-foreground text-foreground bg-transparent hover:bg-foreground hover:text-background`
 
-**Links (mobiel):** Hamburger + Zoek
-**Midden:** Logo (al gecentreerd)
-**Rechts (mobiel):** Account + Cart
+### 2. `src/pages/Index.tsx` — Subscribe knop (regel 337)
+Zelfde wijziging als hierboven
 
-Op desktop blijft alles zoals het is — de huidige `div` met zoek/account/cart blijft behouden met `hidden lg:flex`, en een aparte mobiele layout wordt toegevoegd met `lg:hidden`.
+### 3. `src/components/layout/Footer.tsx` — Subscribe knop (regel 79)
+Zelfde wijziging als hierboven
 
-Concreet:
-1. Voeg vóór het logo een mobiele linker-groep toe: `<div className="flex items-center gap-1 lg:hidden">` met hamburger-button en zoek-button
-2. Voeg na het logo een mobiele rechter-groep toe: `<div className="flex items-center gap-1 lg:hidden">` met account-link en cart-button
-3. De bestaande iconen-div krijgt `hidden lg:flex` zodat die alleen op desktop zichtbaar is
-4. Verwijder de hamburger uit de bestaande iconen-div (die is nu in de mobiele linker-groep)
-
-### Eén file: `src/components/layout/Navbar.tsx`
+## Drie locaties, twee files
 
