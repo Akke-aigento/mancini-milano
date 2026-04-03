@@ -311,9 +311,11 @@ const Checkout = () => {
 
       switch (result.payment_type) {
         case 'redirect':
+          // Don't clear cart — success page will handle it after polling
           window.location.href = result.checkout_url;
           break;
         case 'manual':
+          clearCart();
           navigate('/checkout/success', {
             state: {
               orderNumber: result.order_number,
