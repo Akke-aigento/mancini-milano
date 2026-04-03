@@ -31,7 +31,14 @@ export function normalizeProduct(raw: any): Product {
     compare_at_price: v.compare_at_price || undefined,
     stock_status: (v.in_stock === false || (v.stock != null && v.stock <= 0)) ? 'out_of_stock' : (v.stock != null && v.stock > 0 && v.stock <= 3 ? 'low_stock' : 'in_stock'),
     stock_quantity: v.stock ?? v.stock_quantity ?? undefined,
-    options: v.attribute_values || v.options || {},
+    options: (() => {
+      const rawOpts = v.attribute_values || v.options || {};
+      const opts: Record<string, string> = {};
+      for (const [key, val] of Object.entries(rawOpts)) {
+        opts[key.toLowerCase()] = String(val);
+      }
+      return opts;
+    })(),
     image: v.image_url ? { id: v.id, url: v.image_url, alt: v.title, position: 0 } : undefined,
   }));
 
