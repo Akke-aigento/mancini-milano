@@ -297,7 +297,7 @@ to="/collections/women"
                 <p className="text-2xl text-primary font-heading mb-8">From {formatPrice(fragrance.price)}</p>
                 <Link
                   to={`/products/${fragrance.slug}`}
-                  className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
+                  className="inline-block border border-foreground text-foreground bg-transparent px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
                 >
                   Discover →
                 </Link>
