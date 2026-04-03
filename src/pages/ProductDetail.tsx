@@ -256,7 +256,7 @@ const ProductDetail = () => {
                 addedToCart
                   ? 'bg-green-700 text-foreground'
                   : canAddToCart
-                    ? 'bg-primary text-primary-foreground hover:bg-gold-hover'
+                    ? 'border border-foreground text-foreground hover:bg-foreground hover:text-background'
                     : 'bg-card text-muted-foreground cursor-not-allowed'
               }`}
             >
