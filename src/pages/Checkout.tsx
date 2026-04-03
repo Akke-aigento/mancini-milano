@@ -299,15 +299,15 @@ const Checkout = () => {
     if (!checkoutData || !selectedPayment) return;
 
     setIsProcessing(true);
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
-      const successUrl = `${window.location.origin}/checkout/success`;
+      const successUrl = `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${window.location.origin}/cart`;
 
-      const res = await checkoutAPI.complete(checkoutData.orderId, selectedPayment, successUrl, cancelUrl);
+      const res = await checkoutAPI.complete(cartId, selectedPayment, successUrl, cancelUrl);
       const data = res as any;
       const result = data?.data || data;
-
-      clearCart();
 
       switch (result.payment_type) {
         case 'redirect':
