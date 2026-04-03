@@ -143,6 +143,25 @@ const Navbar = () => {
     <>
       <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
+          {/* Mobile left: hamburger + search */}
+          <div className="flex items-center gap-1 lg:hidden">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            >
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Search"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Logo — centered on mobile, left on desktop */}
           <Link to="/" className="absolute left-1/2 -translate-x-1/2 lg:relative lg:left-auto lg:translate-x-0 h-10 flex items-center">
             <img
               src={logoDoberman}
@@ -151,6 +170,7 @@ const Navbar = () => {
             />
           </Link>
 
+          {/* Desktop nav links */}
           <div className="hidden lg:flex items-center gap-8">
             <Link to="/" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Home
@@ -180,7 +200,31 @@ const Navbar = () => {
             </Link>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Mobile right: account + cart */}
+          <div className="flex items-center gap-1 lg:hidden">
+            <Link
+              to={isAuthenticated ? "/account" : "/login"}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Account"
+            >
+              <User className="h-5 w-5" />
+            </Link>
+            <button
+              onClick={openCart}
+              className="relative min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Cart"
+            >
+              <ShoppingBag className="h-5 w-5" />
+              {itemCount > 0 && (
+                <span className="absolute top-1 right-1 bg-primary text-primary-foreground text-[10px] font-medium rounded-full h-4 w-4 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Desktop right: search + account + cart */}
+          <div className="hidden lg:flex items-center gap-3">
             <button
               onClick={() => setSearchOpen(true)}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
@@ -206,13 +250,6 @@ const Navbar = () => {
                   {itemCount}
                 </span>
               )}
-            </button>
-            <button
-              className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-              onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
