@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { CheckCircle, CreditCard, Building2, QrCode } from 'lucide-react';
+import { CheckCircle, CreditCard, Building2, QrCode, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
+import { checkoutAPI } from '@/integrations/sellqo/api';
 import { formatPrice } from '@/components/ProductCard';
 
 const CheckoutSuccess = () => {
@@ -22,9 +23,53 @@ const CheckoutSuccess = () => {
   const sessionId = searchParams.get('session_id');
   const paymentType = state?.paymentType || (sessionId ? 'redirect' : 'manual');
 
+  const [isPolling, setIsPolling] = useState(!!sessionId);
+  const [orderData, setOrderData] = useState<{ order_number: string; total: number; currency: string } | null>(null);
+  const [showGenericThankYou, setShowGenericThankYou] = useState(false);
+
+  const pollForOrder = useCallback(async (sid: string, attempts = 0) => {
+    try {
+      const res = await checkoutAPI.getOrderBySession(sid);
+      const data = res as any;
+      const result = data?.data || data;
+      if (result?.order_number) {
+        setOrderData({ order_number: result.order_number, total: result.total, currency: result.currency });
+        clearCart();
+        setIsPolling(false);
+        return;
+      }
+    } catch { /* webhook may not have fired yet */ }
+
+    if (attempts < 5) {
+      setTimeout(() => pollForOrder(sid, attempts + 1), 2000);
+    } else {
+      setShowGenericThankYou(true);
+      clearCart();
+      setIsPolling(false);
+    }
+  }, [clearCart]);
+
   useEffect(() => {
-    clearCart();
-  }, []);
+    if (sessionId) {
+      pollForOrder(sessionId);
+    } else {
+      // Non-Stripe: cart already cleared before navigating here
+    }
+  }, [sessionId, pollForOrder]);
+
+  if (isPolling) {
+    return (
+      <Layout>
+        <section className="max-w-site mx-auto px-4 lg:px-8 py-20 lg:py-32 text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-muted-foreground mx-auto mb-6" />
+          <p className="text-muted-foreground">Verifying your payment...</p>
+        </section>
+      </Layout>
+    );
+  }
+
+  const displayOrderNumber = state?.orderNumber || orderData?.order_number;
+  const displayTotal = state?.total || orderData?.total;
 
   return (
     <Layout>
@@ -34,9 +79,9 @@ const CheckoutSuccess = () => {
           Thank You for Your Order
         </h1>
 
-        {state?.orderNumber && (
+        {displayOrderNumber && (
           <p className="text-sm text-muted-foreground mb-2">
-            Order number: <span className="font-medium text-foreground">{state.orderNumber}</span>
+            Order number: <span className="font-medium text-foreground">{displayOrderNumber}</span>
           </p>
         )}
 
@@ -48,7 +93,9 @@ const CheckoutSuccess = () => {
               <span className="text-sm font-medium text-foreground">Payment Received</span>
             </div>
             <p className="text-muted-foreground text-base">
-              Your payment has been processed successfully. We'll send you a confirmation email with tracking details shortly.
+              {showGenericThankYou
+                ? 'Your order has been placed. You will receive a confirmation email shortly.'
+                : 'Your payment has been processed successfully. We\'ll send you a confirmation email with tracking details shortly.'}
             </p>
           </div>
         )}
@@ -64,10 +111,10 @@ const CheckoutSuccess = () => {
               Please transfer the amount to the following account. Your order will be processed once payment is received.
             </p>
             <div className="border border-border p-5 text-left space-y-2 bg-card">
-              {state.total && (
+              {displayTotal && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Amount</span>
-                  <span className="font-medium text-foreground">{formatPrice(state.total)}</span>
+                  <span className="font-medium text-foreground">{formatPrice(displayTotal)}</span>
                 </div>
               )}
               {Object.entries(state.bankDetails).map(([key, value]) => (
@@ -76,10 +123,10 @@ const CheckoutSuccess = () => {
                   <span className="font-medium text-foreground font-mono text-xs">{value}</span>
                 </div>
               ))}
-              {state.orderNumber && (
+              {displayOrderNumber && (
                 <div className="flex justify-between text-sm border-t border-border pt-2 mt-2">
                   <span className="text-muted-foreground">Reference</span>
-                  <span className="font-medium text-foreground">{state.orderNumber}</span>
+                  <span className="font-medium text-foreground">{displayOrderNumber}</span>
                 </div>
               )}
             </div>
@@ -110,8 +157,8 @@ const CheckoutSuccess = () => {
                 <img src={state.qrData.image_url} alt="Payment QR Code" className="w-48 h-48" />
               </div>
             )}
-            {state.total && (
-              <p className="text-lg font-medium text-foreground mb-2">{formatPrice(state.total)}</p>
+            {displayTotal && (
+              <p className="text-lg font-medium text-foreground mb-2">{formatPrice(displayTotal)}</p>
             )}
           </div>
         )}
