@@ -26,7 +26,6 @@ interface PaymentMethod {
 }
 
 interface CheckoutData {
-  orderId: string;
   items: Array<{ id: string; title: string; variant_title?: string; quantity: number; price: number; image?: string }>;
   availablePaymentMethods: PaymentMethod[];
   availableShippingMethods: ShippingMethod[];
@@ -115,8 +114,8 @@ const Checkout = () => {
         const data = res as any;
         const result = data?.data || data;
         
+        
         setCheckoutData({
-          orderId: result.order_id,
           items: result.items || cartItems.map(i => ({ id: i.id, title: i.title, variant_title: i.variant_title, quantity: i.quantity, price: i.price, image: i.image })),
           availablePaymentMethods: result.available_payment_methods || [],
           availableShippingMethods: result.available_shipping_methods || [],
@@ -180,8 +179,10 @@ const Checkout = () => {
     if (!checkoutData) return;
 
     setIsProcessing(true);
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
-      const res = await checkoutAPI.saveCustomer(checkoutData.orderId, {
+      const res = await checkoutAPI.saveCustomer(cartId, {
         email: customerForm.email,
         first_name: customerForm.first_name,
         last_name: customerForm.last_name,
@@ -210,6 +211,8 @@ const Checkout = () => {
     if (!checkoutData) return;
 
     setIsProcessing(true);
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
       const shippingAddr: Record<string, string> = {
         street: `${addressForm.street} ${addressForm.house_number}`.trim(),
@@ -230,7 +233,7 @@ const Checkout = () => {
         if (billingForm.company) billingAddr.company = billingForm.company;
       }
 
-      const res = await checkoutAPI.saveAddress(checkoutData.orderId, {
+      const res = await checkoutAPI.saveAddress(cartId, {
         shipping_address: shippingAddr,
         billing_same_as_shipping: billingSame,
         billing_address: billingAddr,
@@ -244,7 +247,7 @@ const Checkout = () => {
       // Auto-select shipping if only 1 method
       if (hasShipping && checkoutData.availableShippingMethods.length === 1) {
         const shipRes = await checkoutAPI.selectShipping(
-          checkoutData.orderId,
+          cartId,
           checkoutData.availableShippingMethods[0].id
         );
         const shipData = shipRes as any;
@@ -272,8 +275,10 @@ const Checkout = () => {
     if (!checkoutData || !selectedShipping) return;
 
     setIsProcessing(true);
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
-      const res = await checkoutAPI.selectShipping(checkoutData.orderId, selectedShipping);
+      const res = await checkoutAPI.selectShipping(cartId, selectedShipping);
       const data = res as any;
       const result = data?.data || data;
       setCheckoutData(prev => prev ? {
@@ -294,21 +299,23 @@ const Checkout = () => {
     if (!checkoutData || !selectedPayment) return;
 
     setIsProcessing(true);
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
-      const successUrl = `${window.location.origin}/checkout/success`;
+      const successUrl = `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${window.location.origin}/cart`;
 
-      const res = await checkoutAPI.complete(checkoutData.orderId, selectedPayment, successUrl, cancelUrl);
+      const res = await checkoutAPI.complete(cartId, selectedPayment, successUrl, cancelUrl);
       const data = res as any;
       const result = data?.data || data;
 
-      clearCart();
-
       switch (result.payment_type) {
         case 'redirect':
+          // Don't clear cart — success page will handle it after polling
           window.location.href = result.checkout_url;
           break;
         case 'manual':
+          clearCart();
           navigate('/checkout/success', {
             state: {
               orderNumber: result.order_number,
@@ -320,6 +327,7 @@ const Checkout = () => {
           });
           break;
         case 'qr':
+          clearCart();
           navigate('/checkout/success', {
             state: {
               orderNumber: result.order_number,
@@ -350,8 +358,10 @@ const Checkout = () => {
 
   const handleApplyDiscount = async () => {
     if (!checkoutData || !discountInput.trim()) return;
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
-      const res = await checkoutAPI.applyDiscount(checkoutData.orderId, discountInput.trim());
+      const res = await checkoutAPI.applyDiscount(cartId, discountInput.trim());
       const data = res as any;
       const result = data?.data || data;
       if (data?.error) {
@@ -372,8 +382,10 @@ const Checkout = () => {
 
   const handleRemoveDiscount = async () => {
     if (!checkoutData) return;
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
-      const res = await checkoutAPI.removeDiscount(checkoutData.orderId);
+      const res = await checkoutAPI.removeDiscount(cartId);
       const data = res as any;
       const result = data?.data || data;
       setCheckoutData(prev => prev ? {

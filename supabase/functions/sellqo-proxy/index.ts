@@ -113,6 +113,10 @@ function resolveAction(
     if (segments[1] === 'discount' && method === 'DELETE') {
       return { action: 'checkout_remove_discount', tenant_id: tenantId, params: { ...params, ...body } };
     }
+    if (segments[1] === 'order' && method === 'GET') {
+      // Pass stripe_session_id from query params
+      return { action: 'checkout_get_order', tenant_id: tenantId, params };
+    }
     if (segments[1] === 'confirmation' && segments[2] && method === 'GET') {
       params.order_id = segments[2];
       return { action: 'checkout_get_confirmation', tenant_id: tenantId, params };
