@@ -179,8 +179,10 @@ const Checkout = () => {
     if (!checkoutData) return;
 
     setIsProcessing(true);
+    const cartId = localStorage.getItem('mancini_cart_id');
+    if (!cartId) return;
     try {
-      const res = await checkoutAPI.saveCustomer(checkoutData.orderId, {
+      const res = await checkoutAPI.saveCustomer(cartId, {
         email: customerForm.email,
         first_name: customerForm.first_name,
         last_name: customerForm.last_name,
