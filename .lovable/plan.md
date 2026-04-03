@@ -1,29 +1,21 @@
 
 
-# For Him / For Her: Alleen Specifieke Categorieën Tonen
+# Doberman Logo: Achtergrond Verwijderen
 
-## Wat verandert
+## Probleem
+Het `logo-doberman.png` bestand heeft een zwarte achtergrond die net iets anders is dan de navbar-achtergrond (`bg-background/80` met backdrop-blur), wat een zichtbaar kleurverschil oplevert.
 
-De dropdowns tonen nu alle categorieën die op producten staan. We filteren dit zodat alleen deze 6 categorieën getoond worden:
-- T-shirts, Pants, Tracksuits, Hoodies, Jackets, Accessories
+## Oplossing
 
-## Wijziging in `src/components/layout/Navbar.tsx`
+### `src/assets/logo-doberman.png`
+Vervang het huidige PNG-bestand door een versie met transparante achtergrond. Dit kan gedaan worden door:
+- De zwarte achtergrond uit het bestand te verwijderen met ImageMagick (automatisch, in de build-omgeving)
+- Het commando `convert logo-doberman.png -fuzz 15% -transparent black logo-doberman.png` verwijdert de zwarte pixels en maakt ze transparant
 
-### Regels 104-129 — `forHimLinks` en `forHerLinks` useMemo's
+### Alternatief (CSS-only, geen bestandswijziging)
+Als de afbeelding niet gewijzigd kan worden, kan `mix-blend-mode: screen` op de `<img>` tag gezet worden. Dit maakt zwarte pixels onzichtbaar tegen een donkere achtergrond. Nadeel: kan lichte delen van het logo ook beïnvloeden.
 
-Voeg een whitelist toe en filter de catMap resultaten:
+**Aanbeveling**: bestandswijziging (transparante achtergrond) geeft het schoonste resultaat.
 
-```typescript
-const ALLOWED_GENDER_SLUGS = ['t-shirts', 'pants', 'tracksuits', 'hoodies', 'jackets', 'accessories'];
-```
-
-In beide useMemo's, na het opbouwen van de catMap, filter op deze slugs:
-
-```typescript
-return Array.from(catMap.values())
-  .filter(c => ALLOWED_GENDER_SLUGS.includes(c.slug))
-  .sort((a, b) => a.position - b.position);
-```
-
-### Eén file, twee locaties (forHimLinks + forHerLinks)
+### Eén asset-bestand
 
