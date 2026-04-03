@@ -1,29 +1,26 @@
 
 
-# Dobermann Splash Screen bij Eerste Load
+# Splash Screen: Zachtere Fade-out
 
-## Concept
-Een fullscreen overlay met het Dobermann-logo dat bij page load verschijnt, 2.5 seconden blijft, en dan elegant wegfadet. Een kruisje (X) rechtsboven laat de gebruiker eerder sluiten.
+## Probleem
+De fade-out duurt 500ms (`duration-500`) maar het component wordt na exact 500ms uit de DOM verwijderd. Door timing-mismatch "springt" het weg voordat de transitie klaar is.
 
-## Technisch
+## Oplossing in `src/components/SplashScreen.tsx`
 
-### Nieuw bestand: `src/components/SplashScreen.tsx`
-- Fullscreen overlay (`fixed inset-0 z-[100]`) met zwarte achtergrond
-- Dobermann-logo gecentreerd, groot (h-32 of groter)
-- Animatie: fade-in + subtle scale-up bij mount, fade-out na 2.5s timeout
-- X-knop rechtsboven om handmatig te sluiten
-- Na fade-out wordt component uit DOM verwijderd via state
-- `sessionStorage` check: toon alleen 1x per sessie (optioneel, afhankelijk van voorkeur)
+### 1. Langere fade-out duur
+- Wijzig `duration-500` naar `duration-1000` (1 seconde fade)
+- Voeg ook de opacity-transitie toe aan het logo zelf zodat het mee-fadet
 
-### Wijziging: `src/components/layout/Layout.tsx`
-- Import en render `<SplashScreen />` bovenaan in de Layout component
+### 2. Gebruik `onTransitionEnd` i.p.v. harde timer
+- Verwijder de `doneTimer` (regel 18) en de `setTimeout` in `handleClose` (regel 29)
+- Voeg `onTransitionEnd` toe aan de overlay-div die `setPhase('done')` aanroept wanneer de fade-out klaar is
+- Pas de auto-timer aan: `outTimer` op 2500ms, geen `doneTimer` meer
 
-### Animatie details
-- **In**: opacity 0→1, scale 0.95→1 over 0.5s ease-out
-- **Hold**: 2s op volle opacity
-- **Out**: opacity 1→0 over 0.5s ease-out
-- Totaal: ~2.5-3s beleving
-- CSS transitions via Tailwind + inline styles of keyframes in `tailwind.config.ts`
+### 3. Subtiele scale-down bij fade-out
+- Logo schaalt licht terug (`scale(0.97)`) tijdens de out-fase voor een vloeiender gevoel
 
-## Twee files, één nieuw component
+### Resultaat
+De overlay fadet geleidelijk uit over 1 seconde en verdwijnt pas uit de DOM wanneer de CSS-transitie daadwerkelijk afgelopen is — geen "sprong" meer.
+
+### Eén file
 
