@@ -23,7 +23,7 @@ const Cart = () => {
             <p className="text-sm text-muted-foreground mb-8">Discover our collections and find something you love.</p>
             <Link
               to="/collections/for-him"
-              className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
+              className="inline-block border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Continue Shopping
             </Link>
