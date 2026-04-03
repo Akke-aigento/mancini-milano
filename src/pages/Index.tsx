@@ -334,7 +334,7 @@ to="/collections/women"
             />
             <button
               type="submit"
-              className="bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
+              className="border border-foreground text-foreground bg-transparent px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Subscribe
             </button>
