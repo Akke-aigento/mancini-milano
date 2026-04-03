@@ -23,8 +23,7 @@ function formatPrice(price: number) {
 
 const Index = () => {
   const { data: trendingProducts = [] } = useProducts({ category_slug: 'trending' });
-  const { data: blueStormTee } = useProduct('blue-storm-luxe-tee');
-  const { data: silentAuthority } = useProduct('silent-authority');
+  const { data: shopTheLookProducts = [] } = useProducts({ category_slug: 'shop-the-look' });
   const { data: fragrance } = useProduct('mancini-milano');
   const { data: categories = [] } = useCategories();
   const newsletterMutation = useNewsletterSubscribe();
@@ -41,7 +40,7 @@ const Index = () => {
     };
   });
 
-  const blueStormProducts = [blueStormTee, silentAuthority].filter(Boolean) as Product[];
+  
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -225,27 +224,26 @@ to="/collections/women"
       </section>
 
       {/* SECTION 5: SHOP THE LOOK */}
-      {blueStormProducts.length > 0 && (
+      {shopTheLookProducts.length > 0 && (
         <section className="pb-20 lg:pb-28">
           <div className="max-w-site mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
               <div className="aspect-[4/5] overflow-hidden bg-card">
-                <img
-                  src="https://mancinimilano.com/cdn/shop/files/rn-image_picker_lib_temp_896ede1b-a149-4125-a1c4-18afec653b26_600x.png?v=1765501528"
-                  alt="Blue Storm Collection Lifestyle"
-                  className="w-full h-full object-cover"
-                />
+                {shopTheLookProducts[0]?.images?.[0] && (
+                  <img
+                    src={shopTheLookProducts[0].images[0].url}
+                    alt={shopTheLookProducts[0].title}
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
               <div className="flex flex-col justify-center">
                 <span className="text-primary text-xs uppercase tracking-button font-medium mb-3">Shop the Look</span>
                 <h2 className="font-heading text-2xl lg:text-3xl tracking-heading uppercase text-foreground mb-6">
-                  Blue Storm Collection
+                  {categories.find((c: any) => c.slug === 'shop-the-look')?.name || 'Shop the Look'}
                 </h2>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-8 max-w-sm">
-                  Bold tones, premium fabrics. The Blue Storm series is designed for those who move with silent authority.
-                </p>
                 <div className="space-y-4 mb-8">
-                  {blueStormProducts.map((product: Product) => (
+                  {shopTheLookProducts.map((product: Product) => (
                     <Link
                       key={product.id}
                       to={`/products/${product.slug}`}
@@ -264,8 +262,8 @@ to="/collections/women"
                   ))}
                 </div>
                 <Link
-                  to="/collections/t-shirts"
-                  className="inline-block bg-primary text-primary-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors self-start"
+                  to="/collections/shop-the-look"
+                  className="inline-block border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors self-start"
                 >
                   Shop Collection →
                 </Link>
