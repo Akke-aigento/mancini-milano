@@ -89,7 +89,9 @@ export function SellQoCartProvider({ children }: { children: React.ReactNode }) 
 
   const clearCart = useCallback(() => {
     try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
-  }, []);
+    queryClient.setQueryData(['cart'], undefined);
+    queryClient.invalidateQueries({ queryKey: ['cart'] });
+  }, [queryClient]);
 
   const items = cart?.items || [];
   const itemCount = cart?.item_count || items.reduce((sum, i) => sum + i.quantity, 0);

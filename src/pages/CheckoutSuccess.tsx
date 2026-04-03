@@ -143,18 +143,22 @@ const CheckoutSuccess = () => {
         )}
 
         {/* QR payment */}
-        {paymentType === 'qr' && state?.qrData && (
+        {paymentType === 'qr' && (state?.qrData || state?.qr_data) && (() => {
+          const qr = state?.qrData || state?.qr_data;
+          const qrImageUrl = qr?.image_url || qr?.qr_image_url;
+          return (
           <div className="max-w-md mx-auto mb-10">
             <div className="flex items-center justify-center gap-2 mb-4">
               <QrCode className="h-5 w-5 text-primary" />
               <span className="text-sm font-medium text-foreground">Scan de QR code om te betalen</span>
             </div>
             <p className="text-muted-foreground text-sm mb-4">
-              Open je bankapp, scan de QR code, en bevestig de betaling.
+              Open je bankapp, kies 'QR code scannen', en bevestig de betaling.
+              Je ontvangt een bevestiging per email zodra de betaling is ontvangen.
             </p>
-            {state.qrData.image_url && (
+            {qrImageUrl && (
               <div className="flex justify-center mb-4">
-                <img src={state.qrData.image_url} alt="Betaal QR code" className="w-64 h-64 border border-border rounded" />
+                <img src={qrImageUrl} alt="Betaal QR code" className="w-64 h-64 border-2 border-border rounded-lg p-2 bg-white" />
               </div>
             )}
             {displayTotal && (
@@ -164,7 +168,8 @@ const CheckoutSuccess = () => {
               <p className="text-sm text-muted-foreground">Bestelnummer: {displayOrderNumber}</p>
             )}
           </div>
-        )}
+          );
+        })()}
 
         {!state?.bankDetails && !state?.qrData && paymentType !== 'redirect' && (
           <p className="text-sm text-muted-foreground mb-10">
