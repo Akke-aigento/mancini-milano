@@ -23,8 +23,7 @@ function formatPrice(price: number) {
 
 const Index = () => {
   const { data: trendingProducts = [] } = useProducts({ category_slug: 'trending' });
-  const { data: blueStormTee } = useProduct('blue-storm-luxe-tee');
-  const { data: silentAuthority } = useProduct('silent-authority');
+  const { data: shopTheLookProducts = [] } = useProducts({ category_slug: 'shop-the-look' });
   const { data: fragrance } = useProduct('mancini-milano');
   const { data: categories = [] } = useCategories();
   const newsletterMutation = useNewsletterSubscribe();
