@@ -221,8 +221,8 @@ const Navbar = () => {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 bg-background lg:hidden">
           <div className="flex items-center justify-between h-16 px-4 border-b border-border">
-            <Link to="/" onClick={closeMobile} className="font-heading text-lg tracking-logo uppercase text-foreground">
-              Mancini Milano
+            <Link to="/" onClick={closeMobile} className="h-10 flex items-center">
+              <img src={logoDoberman} alt="Mancini Milano" className="h-8 w-auto object-contain" />
             </Link>
             <button
               onClick={closeMobile}
