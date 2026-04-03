@@ -62,7 +62,7 @@ const CartDrawer = () => {
             <p className="text-sm text-muted-foreground mb-6">Looks like you haven't added anything yet.</p>
             <button
               onClick={closeCart}
-              className="bg-primary text-primary-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-gold-hover transition-colors"
+              className="border border-foreground text-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Continue Shopping
             </button>
