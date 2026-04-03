@@ -233,7 +233,7 @@ const Checkout = () => {
         if (billingForm.company) billingAddr.company = billingForm.company;
       }
 
-      const res = await checkoutAPI.saveAddress(checkoutData.orderId, {
+      const res = await checkoutAPI.saveAddress(cartId, {
         shipping_address: shippingAddr,
         billing_same_as_shipping: billingSame,
         billing_address: billingAddr,
