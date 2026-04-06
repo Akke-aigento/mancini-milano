@@ -7,33 +7,20 @@ const About = () => (
         About Us
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-20">
-        {/* Image */}
-        <div className="aspect-[4/5] overflow-hidden bg-card">
-          <img
-            src="https://mancinimilano.com/cdn/shop/files/WhatsApp_Image_2026-02-21_at_16.18.43_1x1.jpg?v=1771687166"
-            alt="Mancini Milano"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Text */}
-        <div>
-          <span className="text-primary text-xs uppercase tracking-button font-medium mb-4 block">Our Story</span>
-          <h2 className="font-heading text-2xl lg:text-3xl tracking-heading text-foreground mb-6 italic">
-            Where Italian elegance meets street authority
-          </h2>
-          <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-            <p>
-              At Mancini Milano, fashion is more than clothing — it is a statement of individuality, confidence, and timeless style. Founded with the vision of blending contemporary streetwear with Italian elegance, our brand represents a lifestyle where luxury meets authenticity.
-            </p>
-            <p>
-              Every piece is crafted with attention to detail, combining bold designs, premium materials, and a modern edge. From the streets of Milano to the world stage, we create for those who refuse to blend in.
-            </p>
-            <p>
-              Our collections are designed for the modern individual who values quality, self-expression, and the pursuit of greatness. We believe that what you wear is an extension of who you are — and at Mancini Milano, we make sure you stand out.
-            </p>
-          </div>
+      <div className="max-w-2xl mx-auto mb-20">
+        <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
+          <p>
+            At Mancini Milano, fashion is more than clothing – it is a statement of individuality, confidence, and timeless style. Founded with the vision of blending contemporary streetwear with Italian elegance, our brand represents a lifestyle where luxury meets authenticity.
+          </p>
+          <p>
+            Every piece is crafted with attention to detail, combining bold designs, premium materials, and a modern edge. From iconic hoodies to refined fragrances, we create collections that celebrate self-expression and empower those who wear them.
+          </p>
+          <p>
+            Inspired by Milan's vibrant energy and global fashion culture, Mancini Milano is not just a brand – it's a community. A community of people who dare to stand out, embrace creativity, and set their own trends.
+          </p>
+          <p>
+            Welcome to Mancini Milano. Wear it with pride.
+          </p>
         </div>
       </div>
 
