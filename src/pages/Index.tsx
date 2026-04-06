@@ -40,6 +40,8 @@ const Index = () => {
     };
   });
 
+  const shopTheLookCategory = categories.find((c: any) => c.slug === 'shop-the-look');
+
   
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
