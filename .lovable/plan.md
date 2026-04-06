@@ -1,31 +1,16 @@
 
 
-# Shop the Look: Gebruik categorie-afbeelding (modelfoto)
+# Navbar: "ALL" Dropdown Verwijderen
 
-## Probleem
-De grote afbeelding in de "Shop the Look" sectie toont nu het eerste product (`shopTheLookProducts[0].images[0].url`), maar de modelfoto staat als categorie-afbeelding op SellQo.
+## Wijziging
 
-## Oplossing — `src/pages/Index.tsx` (regels 231-238)
+Verwijder het "All" menu-item uit de navigatie op alle viewports (desktop, tablet, mobiel). Alleen deze items blijven over: Home, For Him, For Her, Fragrances, Contact.
 
-Vervang de product-afbeelding door de categorie-afbeelding:
+## `src/components/layout/Navbar.tsx`
 
-```typescript
-// Van:
-{shopTheLookProducts[0]?.images?.[0] && (
-  <img src={shopTheLookProducts[0].images[0].url} ... />
-)}
+1. **Verwijder de `allLinks` variabele** (regels ~113-119) — de `parentSlugsToExclude` en `allLinks` berekening is niet meer nodig
+2. **Desktop nav** — verwijder het `{allLinks.length > 0 && <DropdownMenu label="All" .../>}` blok
+3. **Mobiel menu** — verwijder het `{allLinks.length > 0 && <MobileAccordion label="All" .../>}` blok
 
-// Naar:
-const shopTheLookCategory = categories.find((c: any) => c.slug === 'shop-the-look');
-// In de JSX:
-{(shopTheLookCategory?.image || shopTheLookProducts[0]?.images?.[0]?.url) && (
-  <img
-    src={shopTheLookCategory?.image || shopTheLookProducts[0].images[0].url}
-    alt={shopTheLookCategory?.name || 'Shop the Look'}
-    className="w-full h-full object-cover"
-  />
-)}
-```
-
-De categorie-afbeelding heeft prioriteit; als die ontbreekt valt het terug op het eerste product. Eén bestand, drie regels.
+Eén bestand, drie verwijderingen.
 
