@@ -20,6 +20,7 @@ import CheckoutSuccess from "./pages/CheckoutSuccess";
 import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
+import QRPayment from "./pages/QRPayment";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
