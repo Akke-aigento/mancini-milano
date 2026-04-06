@@ -368,12 +368,13 @@ const Checkout = () => {
           break;
         case 'qr':
           clearCart();
-          navigate('/checkout/success', {
+          navigate('/checkout/qr-betaling', {
             state: {
               orderNumber: result.order_number,
               total: result.total,
               currency: result.currency,
               qrData: result.qr_data,
+              bankDetails: result.bank_details,
               paymentType: 'qr',
             },
           });

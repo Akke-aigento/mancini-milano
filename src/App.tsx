@@ -20,6 +20,7 @@ import CheckoutSuccess from "./pages/CheckoutSuccess";
 import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
+import QRPayment from "./pages/QRPayment";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/size-guide" element={<SizeGuide />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/checkout/qr-betaling" element={<QRPayment />} />
                 <Route path="/checkout/success" element={<CheckoutSuccess />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/account" element={<Account />} />
