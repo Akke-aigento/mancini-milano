@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCustomerAuth } from '@/integrations/sellqo/CustomerAuthContext';
-import { useCategories, useProducts } from '@/integrations/sellqo/hooks';
+import { useCategories } from '@/integrations/sellqo/hooks';
 import SearchOverlay from '@/components/SearchOverlay';
 import logoDoberman from '@/assets/logo-doberman.png';
 
@@ -89,8 +89,6 @@ const Navbar = () => {
   const { isAuthenticated } = useCustomerAuth();
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
-  const { data: menProducts } = useProducts({ category_slug: 'men' });
-  const { data: womenProducts } = useProducts({ category_slug: 'women' });
   const location = useLocation();
   const isHome = location.pathname === '/';
 
