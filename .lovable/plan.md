@@ -1,52 +1,33 @@
 
 
-# QR Betaling Tusschenpagina
+# Fix: Bankgegevens Correct Doorsturen naar QR Pagina
 
-## Wat verandert
+## Analyse
 
-In plaats van direct naar `/checkout/success` te navigeren na QR-betaling, komt er een dedicated tusschenpagina `/checkout/qr-betaling` met een grote EPC QR-code, instructies en bankgegevens als fallback. De gebruiker klikt "Ik heb betaald" om naar de bedankt-pagina te gaan.
+De hele keten is gecontroleerd. **De data-doorgifte is correct** — `Checkout.tsx` stuurt `qrData` en `bankDetails` mee (regel 376-377), en `QRPayment.tsx` leest ze uit (regel 14-21).
+
+Er zijn twee kleine problemen:
+
+### Probleem 1: Type mismatch voor `bankDetails`
+
+De API stuurt `reference` als veld, maar `QRPayment.tsx` verwacht `bic` in het type (regel 19). Het veld `reference` wordt niet getoond — de mededeling wordt nu handmatig uit `state.orderNumber` gelezen (regel 130), wat toevallig werkt. Maar voor correctheid moet het type `reference` bevatten.
+
+### Probleem 2: Geen debug logging
+
+Er is geen `console.log` om te zien wat er binnenkomt op de QR pagina.
 
 ## Wijzigingen
 
-### 1. `src/pages/QRPayment.tsx` — Nieuw bestand
+### `src/pages/QRPayment.tsx`
 
-Dedicated QR-betaalpagina met:
-- Grote EPC QR-code gegenereerd uit `qrData.payload` via de `qrcode` npm-package (canvas-based)
-- Fallback: als er een `image_url` is, toon die als de package-generated QR faalt
-- Bestelnummer en bedrag prominent weergegeven
-- Stap-voor-stap instructies (open bankapp → scan QR → bevestig betaling)
-- Bankgegevens als fallback sectie (IBAN, rekeninghouder, mededeling)
-- "Ik heb betaald" knop → navigeert naar `/checkout/success` met dezelfde state (paymentType: 'qr')
-- Layout wrapper voor consistente styling
-- Redirect naar `/` als er geen state is (directe URL-toegang)
+1. **Type aanpassen** — voeg `reference` toe aan `bankDetails` type:
+   ```typescript
+   bankDetails?: { iban?: string; account_holder?: string; bic?: string; reference?: string };
+   ```
 
-### 2. `src/pages/Checkout.tsx` — regel 369-380
+2. **Debug log toevoegen** — tijdelijke `useEffect` met `console.log` van alle state velden
 
-Wijzig de `case 'qr'` navigate van `/checkout/success` naar `/checkout/qr-betaling` en voeg `bankDetails` toe aan de state:
+3. **Mededeling uit `bankDetails.reference` lezen** — gebruik `state.bankDetails.reference || state.orderNumber` als mededeling (regel 130)
 
-```typescript
-case 'qr':
-  clearCart();
-  navigate('/checkout/qr-betaling', {
-    state: {
-      orderNumber: result.order_number,
-      total: result.total,
-      currency: result.currency,
-      qrData: result.qr_data,
-      bankDetails: result.bank_details,
-      paymentType: 'qr',
-    },
-  });
-  break;
-```
-
-### 3. `src/App.tsx` — Nieuwe route
-
-Voeg toe: `<Route path="/checkout/qr-betaling" element={<QRPayment />} />`
-
-### 4. Package installatie
-
-Installeer `qrcode` npm-package voor client-side EPC QR-code generatie uit de payload string.
-
-## Vier bestanden, één nieuw component, één npm package
+### Eén bestand
 
