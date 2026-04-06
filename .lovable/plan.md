@@ -1,43 +1,31 @@
 
 
-# Fix: Vaste Subcategorieën + Volgorde voor "For Him" en "For Her"
+# Shop the Look: Gebruik categorie-afbeelding (modelfoto)
 
 ## Probleem
-De subcategorieën worden dynamisch opgebouwd uit productdata. Hierdoor ontbreekt "Jackets" soms, en de volgorde is niet consistent. De klant wil een vaste lijst en volgorde, ook als er geen producten achter zitten.
+De grote afbeelding in de "Shop the Look" sectie toont nu het eerste product (`shopTheLookProducts[0].images[0].url`), maar de modelfoto staat als categorie-afbeelding op SellQo.
 
-## Oplossing — `src/components/layout/Navbar.tsx`
+## Oplossing — `src/pages/Index.tsx` (regels 231-238)
 
-Vervang de dynamische `forHimLinks` en `forHerLinks` useMemo's door een **hardcoded vaste lijst** met de gewenste volgorde:
-
-```
-Jackets → Hoodies → T-Shirts → Pants → Tracksuits → Accessories
-```
-
-Beide genders krijgen exact dezelfde subcategorieën in dezelfde volgorde. De links worden altijd getoond, ongeacht of er producten achter zitten.
-
-### Concrete wijziging (regels 104-135)
-
-Vervang de `ALLOWED_GENDER_SLUGS` constante en beide `useMemo` blokken door:
+Vervang de product-afbeelding door de categorie-afbeelding:
 
 ```typescript
-const FIXED_SUBCATEGORIES = [
-  { label: 'Jackets', slug: 'jackets' },
-  { label: 'Hoodies', slug: 'hoodies' },
-  { label: 'T-Shirts', slug: 't-shirts' },
-  { label: 'Pants', slug: 'pants' },
-  { label: 'Tracksuits', slug: 'tracksuits' },
-  { label: 'Accessories', slug: 'accessories' },
-];
+// Van:
+{shopTheLookProducts[0]?.images?.[0] && (
+  <img src={shopTheLookProducts[0].images[0].url} ... />
+)}
 
-const forHimLinks = FIXED_SUBCATEGORIES;
-const forHerLinks = FIXED_SUBCATEGORIES;
+// Naar:
+const shopTheLookCategory = categories.find((c: any) => c.slug === 'shop-the-look');
+// In de JSX:
+{(shopTheLookCategory?.image || shopTheLookProducts[0]?.images?.[0]?.url) && (
+  <img
+    src={shopTheLookCategory?.image || shopTheLookProducts[0].images[0].url}
+    alt={shopTheLookCategory?.name || 'Shop the Look'}
+    className="w-full h-full object-cover"
+  />
+)}
 ```
 
-Daarnaast: verwijder de conditionele rendering die "For Him"/"For Her" verbergt als er geen producten zijn (regels 187-193 en 285-291). Beide menu-items worden altijd getoond.
-
-## Eén bestand
-
-| Bestand | Wijziging |
-|---|---|
-| `src/components/layout/Navbar.tsx` | Vaste subcategorieën, vaste volgorde, altijd zichtbaar |
+De categorie-afbeelding heeft prioriteit; als die ontbreekt valt het terug op het eerste product. Eén bestand, drie regels.
 
