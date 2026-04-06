@@ -1,33 +1,43 @@
 
 
-# Fix: Bankgegevens Correct Doorsturen naar QR Pagina
+# Fix: Vaste Subcategorieën + Volgorde voor "For Him" en "For Her"
 
-## Analyse
+## Probleem
+De subcategorieën worden dynamisch opgebouwd uit productdata. Hierdoor ontbreekt "Jackets" soms, en de volgorde is niet consistent. De klant wil een vaste lijst en volgorde, ook als er geen producten achter zitten.
 
-De hele keten is gecontroleerd. **De data-doorgifte is correct** — `Checkout.tsx` stuurt `qrData` en `bankDetails` mee (regel 376-377), en `QRPayment.tsx` leest ze uit (regel 14-21).
+## Oplossing — `src/components/layout/Navbar.tsx`
 
-Er zijn twee kleine problemen:
+Vervang de dynamische `forHimLinks` en `forHerLinks` useMemo's door een **hardcoded vaste lijst** met de gewenste volgorde:
 
-### Probleem 1: Type mismatch voor `bankDetails`
+```
+Jackets → Hoodies → T-Shirts → Pants → Tracksuits → Accessories
+```
 
-De API stuurt `reference` als veld, maar `QRPayment.tsx` verwacht `bic` in het type (regel 19). Het veld `reference` wordt niet getoond — de mededeling wordt nu handmatig uit `state.orderNumber` gelezen (regel 130), wat toevallig werkt. Maar voor correctheid moet het type `reference` bevatten.
+Beide genders krijgen exact dezelfde subcategorieën in dezelfde volgorde. De links worden altijd getoond, ongeacht of er producten achter zitten.
 
-### Probleem 2: Geen debug logging
+### Concrete wijziging (regels 104-135)
 
-Er is geen `console.log` om te zien wat er binnenkomt op de QR pagina.
+Vervang de `ALLOWED_GENDER_SLUGS` constante en beide `useMemo` blokken door:
 
-## Wijzigingen
+```typescript
+const FIXED_SUBCATEGORIES = [
+  { label: 'Jackets', slug: 'jackets' },
+  { label: 'Hoodies', slug: 'hoodies' },
+  { label: 'T-Shirts', slug: 't-shirts' },
+  { label: 'Pants', slug: 'pants' },
+  { label: 'Tracksuits', slug: 'tracksuits' },
+  { label: 'Accessories', slug: 'accessories' },
+];
 
-### `src/pages/QRPayment.tsx`
+const forHimLinks = FIXED_SUBCATEGORIES;
+const forHerLinks = FIXED_SUBCATEGORIES;
+```
 
-1. **Type aanpassen** — voeg `reference` toe aan `bankDetails` type:
-   ```typescript
-   bankDetails?: { iban?: string; account_holder?: string; bic?: string; reference?: string };
-   ```
+Daarnaast: verwijder de conditionele rendering die "For Him"/"For Her" verbergt als er geen producten zijn (regels 187-193 en 285-291). Beide menu-items worden altijd getoond.
 
-2. **Debug log toevoegen** — tijdelijke `useEffect` met `console.log` van alle state velden
+## Eén bestand
 
-3. **Mededeling uit `bankDetails.reference` lezen** — gebruik `state.bankDetails.reference || state.orderNumber` als mededeling (regel 130)
-
-### Eén bestand
+| Bestand | Wijziging |
+|---|---|
+| `src/components/layout/Navbar.tsx` | Vaste subcategorieën, vaste volgorde, altijd zichtbaar |
 
