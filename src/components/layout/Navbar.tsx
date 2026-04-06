@@ -111,14 +111,6 @@ const Navbar = () => {
   const forHimLinks = FIXED_SUBCATEGORIES;
   const forHerLinks = FIXED_SUBCATEGORIES;
 
-  // "All" dropdown: all categories with products, excluding parent containers
-  const parentSlugsToExclude = ['for-him', 'for-her', 'men', 'women'];
-  const allLinks = categories
-    ? categories
-        .filter((c: any) => (c.product_count ?? 0) > 0 && !parentSlugsToExclude.includes(c.slug))
-        .sort((a: any, b: any) => (a.position ?? 999) - (b.position ?? 999))
-        .map((c: any) => ({ label: c.name, slug: c.slug }))
-    : [];
 
   const closeMobile = () => setMobileOpen(false);
 
@@ -158,9 +150,6 @@ const Navbar = () => {
             <Link to="/" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Home
             </Link>
-            {allLinks.length > 0 && (
-              <DropdownMenu label="All" links={allLinks} slug="all" scrolled={scrolled} isHome={isHome} />
-            )}
             <DropdownMenu label="For Him" links={forHimLinks} slug="men" scrolled={scrolled} isHome={isHome} linkPrefix="men" />
             <DropdownMenu label="For Her" links={forHerLinks} slug="women" scrolled={scrolled} isHome={isHome} linkPrefix="women" />
             <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
@@ -244,9 +233,6 @@ const Navbar = () => {
             <Link to="/" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
               Home
             </Link>
-            {allLinks.length > 0 && (
-              <MobileAccordion label="All" slug="all" links={allLinks} onClose={closeMobile} />
-            )}
             <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} linkPrefix="men" />
             <MobileAccordion label="For Her" slug="women" links={forHerLinks} onClose={closeMobile} linkPrefix="women" />
             <Link to="/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
