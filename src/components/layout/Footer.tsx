@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { newsletterAPI } from '@/integrations/sellqo/api';
+import { toast } from 'sonner';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   return (
     <footer className="bg-card border-t border-border">
