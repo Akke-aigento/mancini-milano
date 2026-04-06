@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { newsletterAPI } from '@/integrations/sellqo/api';
+import { toast } from 'sonner';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   return (
     <footer className="bg-card border-t border-border">
@@ -66,21 +70,39 @@ const Footer = () => {
               </a>
             </div>
             <p className="text-sm text-muted-foreground mb-3">Subscribe to our newsletter</p>
-            <form onSubmit={(e) => { e.preventDefault(); setEmail(''); }} className="flex">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="flex-1 bg-background border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-              />
-              <button
-                type="submit"
-                className="border border-foreground text-foreground bg-transparent px-4 py-2 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
-              >
-                Subscribe
-              </button>
-            </form>
+            {submitted ? (
+              <p className="text-sm text-foreground">Welcome to the movement. You're in. ✓</p>
+            ) : (
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                if (!email || loading) return;
+                setLoading(true);
+                try {
+                  await newsletterAPI.subscribe(email);
+                  setSubmitted(true);
+                } catch {
+                  toast.error('Something went wrong. Please try again.');
+                } finally {
+                  setLoading(false);
+                }
+              }} className="flex">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="flex-1 bg-background border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="border border-foreground text-foreground bg-transparent px-4 py-2 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors disabled:opacity-50"
+                >
+                  {loading ? '...' : 'Subscribe'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>
