@@ -40,6 +40,8 @@ const Index = () => {
     };
   });
 
+  const shopTheLookCategory = categories.find((c: any) => c.slug === 'shop-the-look');
+
   
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
@@ -229,10 +231,10 @@ to="/collections/women"
           <div className="max-w-site mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
               <div className="aspect-[4/5] overflow-hidden bg-card">
-                {shopTheLookProducts[0]?.images?.[0] && (
+                {(shopTheLookCategory?.image || shopTheLookProducts[0]?.images?.[0]?.url) && (
                   <img
-                    src={shopTheLookProducts[0].images[0].url}
-                    alt={shopTheLookProducts[0].title}
+                    src={shopTheLookCategory?.image || shopTheLookProducts[0].images[0].url}
+                    alt={shopTheLookCategory?.name || 'Shop the Look'}
                     className="w-full h-full object-cover"
                   />
                 )}
