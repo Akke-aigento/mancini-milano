@@ -101,38 +101,17 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const ALLOWED_GENDER_SLUGS = ['t-shirts', 'pants', 'tracksuits', 'hoodies', 'jackets', 'accessories'];
+  const FIXED_SUBCATEGORIES = [
+    { label: 'Jackets', slug: 'jackets' },
+    { label: 'Hoodies', slug: 'hoodies' },
+    { label: 'T-Shirts', slug: 't-shirts' },
+    { label: 'Pants', slug: 'pants' },
+    { label: 'Tracksuits', slug: 'tracksuits' },
+    { label: 'Accessories', slug: 'accessories' },
+  ];
 
-  // Build gender-aware dropdown links from actual product categories
-  const forHimLinks = useMemo(() => {
-    if (!menProducts || menProducts.length === 0) return [];
-    const catMap = new Map<string, { label: string; slug: string; position: number }>();
-    menProducts.forEach(p => {
-      (p.categories || []).forEach(c => {
-        if (c.slug !== 'men' && c.slug !== 'for-him') {
-          catMap.set(c.slug, { label: c.name, slug: c.slug, position: c.position ?? 999 });
-        }
-      });
-    });
-    return Array.from(catMap.values())
-      .filter(c => ALLOWED_GENDER_SLUGS.includes(c.slug))
-      .sort((a, b) => a.position - b.position);
-  }, [menProducts]);
-
-  const forHerLinks = useMemo(() => {
-    if (!womenProducts || womenProducts.length === 0) return [];
-    const catMap = new Map<string, { label: string; slug: string; position: number }>();
-    womenProducts.forEach(p => {
-      (p.categories || []).forEach(c => {
-        if (c.slug !== 'women' && c.slug !== 'for-her') {
-          catMap.set(c.slug, { label: c.name, slug: c.slug, position: c.position ?? 999 });
-        }
-      });
-    });
-    return Array.from(catMap.values())
-      .filter(c => ALLOWED_GENDER_SLUGS.includes(c.slug))
-      .sort((a, b) => a.position - b.position);
-  }, [womenProducts]);
+  const forHimLinks = FIXED_SUBCATEGORIES;
+  const forHerLinks = FIXED_SUBCATEGORIES;
 
   // "All" dropdown: all categories with products, excluding parent containers
   const parentSlugsToExclude = ['for-him', 'for-her', 'men', 'women'];
@@ -184,20 +163,8 @@ const Navbar = () => {
             {allLinks.length > 0 && (
               <DropdownMenu label="All" links={allLinks} slug="all" scrolled={scrolled} isHome={isHome} />
             )}
-            {forHimLinks.length > 0 ? (
-              <DropdownMenu label="For Him" links={forHimLinks} slug="men" scrolled={scrolled} isHome={isHome} linkPrefix="men" />
-            ) : menProducts && menProducts.length > 0 ? (
-              <Link to="/collections/men" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
-                For Him
-              </Link>
-            ) : null}
-            {forHerLinks.length > 0 ? (
-              <DropdownMenu label="For Her" links={forHerLinks} slug="women" scrolled={scrolled} isHome={isHome} linkPrefix="women" />
-            ) : womenProducts && womenProducts.length > 0 ? (
-              <Link to="/collections/women" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
-                For Her
-              </Link>
-            ) : null}
+            <DropdownMenu label="For Him" links={forHimLinks} slug="men" scrolled={scrolled} isHome={isHome} linkPrefix="men" />
+            <DropdownMenu label="For Her" links={forHerLinks} slug="women" scrolled={scrolled} isHome={isHome} linkPrefix="women" />
             <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Fragrances
             </Link>
@@ -282,20 +249,8 @@ const Navbar = () => {
             {allLinks.length > 0 && (
               <MobileAccordion label="All" slug="all" links={allLinks} onClose={closeMobile} />
             )}
-            {forHimLinks.length > 0 ? (
-              <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} linkPrefix="men" />
-            ) : menProducts && menProducts.length > 0 ? (
-              <Link to="/collections/men" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
-                For Him
-              </Link>
-            ) : null}
-            {forHerLinks.length > 0 ? (
-              <MobileAccordion label="For Her" slug="women" links={forHerLinks} onClose={closeMobile} linkPrefix="women" />
-            ) : womenProducts && womenProducts.length > 0 ? (
-              <Link to="/collections/women" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
-                For Her
-              </Link>
-            ) : null}
+            <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} linkPrefix="men" />
+            <MobileAccordion label="For Her" slug="women" links={forHerLinks} onClose={closeMobile} linkPrefix="women" />
             <Link to="/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
               Fragrances
             </Link>
