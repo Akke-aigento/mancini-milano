@@ -231,13 +231,11 @@ to="/collections/women"
           <div className="max-w-site mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
               <div className="aspect-[4/5] overflow-hidden bg-card">
-                {(shopTheLookCategory?.image || shopTheLookProducts[0]?.images?.[0]?.url) && (
-                  <img
-                    src={shopTheLookCategory?.image || shopTheLookProducts[0].images[0].url}
-                    alt={shopTheLookCategory?.name || 'Shop the Look'}
-                    className="w-full h-full object-cover"
-                  />
-                )}
+                <img
+                  src={shopTheLookImage}
+                  alt="Shop the Look — Mancini Milano"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex flex-col justify-center">
                 <span className="text-primary text-xs uppercase tracking-button font-medium mb-3">Shop the Look</span>
