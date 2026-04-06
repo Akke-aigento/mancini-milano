@@ -16,7 +16,7 @@ const QRPayment = () => {
     total?: number;
     currency?: string;
     qrData?: { payload?: string; image_url?: string; qr_image_url?: string };
-    bankDetails?: { iban?: string; account_holder?: string; bic?: string };
+    bankDetails?: { iban?: string; account_holder?: string; bic?: string; reference?: string };
     paymentType?: string;
   } | null;
 
@@ -25,6 +25,10 @@ const QRPayment = () => {
       navigate('/', { replace: true });
     }
   }, [state, navigate]);
+
+  useEffect(() => {
+    console.log('QR Payment page state:', { orderNumber: state?.orderNumber, total: state?.total, currency: state?.currency, qrData: state?.qrData, bankDetails: state?.bankDetails });
+  }, [state]);
 
   useEffect(() => {
     const payload = state?.qrData?.payload;
@@ -127,7 +131,7 @@ const QRPayment = () => {
                   <p><span className="text-muted-foreground">BIC:</span> <span className="font-mono font-medium">{state.bankDetails.bic}</span></p>
                 )}
                 <p><span className="text-muted-foreground">Bedrag:</span> <span className="font-medium">€{formattedTotal}</span></p>
-                <p><span className="text-muted-foreground">Mededeling:</span> <span className="font-mono font-medium">{state.orderNumber}</span></p>
+                <p><span className="text-muted-foreground">Mededeling:</span> <span className="font-mono font-medium">{state.bankDetails?.reference || state.orderNumber}</span></p>
               </div>
             </div>
           )}
