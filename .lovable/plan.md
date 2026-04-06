@@ -1,37 +1,52 @@
 
 
-# Fix: 3 Checkout Bugs
+# QR Betaling Tusschenpagina
 
-## Bug 1: "Bankoverschrijving" hernoemen naar "QR code met je bankapp"
+## Wat verandert
 
-In `src/pages/Checkout.tsx` wordt `bank_transfer` momenteel niet apart gelabeld — alleen `qr_transfer` krijgt een custom label (regel 775). Ik voeg ook `bank_transfer` toe aan de custom label logica zodat **beide** worden getoond als "QR code met je bankapp" (of als er apart een bank_transfer is, krijgt die ook het juiste label).
+In plaats van direct naar `/checkout/success` te navigeren na QR-betaling, komt er een dedicated tusschenpagina `/checkout/qr-betaling` met een grote EPC QR-code, instructies en bankgegevens als fallback. De gebruiker klikt "Ik heb betaald" om naar de bedankt-pagina te gaan.
 
-**Locatie**: regels 753-793 — in de payment method rendering, voeg `bank_transfer` toe aan de `isQr` check:
+## Wijzigingen
+
+### 1. `src/pages/QRPayment.tsx` — Nieuw bestand
+
+Dedicated QR-betaalpagina met:
+- Grote EPC QR-code gegenereerd uit `qrData.payload` via de `qrcode` npm-package (canvas-based)
+- Fallback: als er een `image_url` is, toon die als de package-generated QR faalt
+- Bestelnummer en bedrag prominent weergegeven
+- Stap-voor-stap instructies (open bankapp → scan QR → bevestig betaling)
+- Bankgegevens als fallback sectie (IBAN, rekeninghouder, mededeling)
+- "Ik heb betaald" knop → navigeert naar `/checkout/success` met dezelfde state (paymentType: 'qr')
+- Layout wrapper voor consistente styling
+- Redirect naar `/` als er geen state is (directe URL-toegang)
+
+### 2. `src/pages/Checkout.tsx` — regel 369-380
+
+Wijzig de `case 'qr'` navigate van `/checkout/success` naar `/checkout/qr-betaling` en voeg `bankDetails` toe aan de state:
+
+```typescript
+case 'qr':
+  clearCart();
+  navigate('/checkout/qr-betaling', {
+    state: {
+      orderNumber: result.order_number,
+      total: result.total,
+      currency: result.currency,
+      qrData: result.qr_data,
+      bankDetails: result.bank_details,
+      paymentType: 'qr',
+    },
+  });
+  break;
 ```
-const isQr = methodId === 'qr_transfer' || methodId === 'bank_transfer';
-```
 
-## Bug 2: Winkelmandje badge niet leeg na bestelling
+### 3. `src/App.tsx` — Nieuwe route
 
-**Oorzaak**: `clearCart()` in CartContext (regel 88-90) verwijdert alleen `mancini_cart_id` uit localStorage, maar reset NIET de React Query cache. De `useCartQuery` hook blijft de oude data tonen in de badge.
+Voeg toe: `<Route path="/checkout/qr-betaling" element={<QRPayment />} />`
 
-**Fix in `src/integrations/sellqo/CartContext.tsx`**:
-- Import `useQueryClient` van `@tanstack/react-query`
-- In `clearCart()`: naast `localStorage.removeItem`, ook `queryClient.setQueryData` voor de cart key op `undefined` en `queryClient.invalidateQueries` aanroepen
+### 4. Package installatie
 
-## Bug 3: QR code niet getoond op bedankt-pagina
+Installeer `qrcode` npm-package voor client-side EPC QR-code generatie uit de payload string.
 
-**Analyse**: De CheckoutSuccess pagina (regel 146) controleert `paymentType === 'qr' && state?.qrData`. De checkout navigate (regel 369-379) stuurt correct `paymentType: 'qr'` en `qrData: result.qr_data`.
-
-Mogelijke oorzaak: regel 24 bepaalt `paymentType` fallback: als `state` null is (bijv. na page refresh), valt het terug naar `'manual'` als er geen `session_id` is. Dit is correct. De QR flow zou moeten werken als de state correct wordt doorgegeven.
-
-**Extra safeguard**: voeg `console.log` toe voor debugging en zorg dat de QR sectie ook werkt als `qr_data` onder `state.qrData` OF als genest object beschikbaar is. Voeg fallback toe voor `state?.qrData?.image_url || state?.qrData?.qr_image_url`.
-
-## Bestanden
-
-| Bestand | Wijziging |
-|---|---|
-| `src/pages/Checkout.tsx` | `bank_transfer` toevoegen aan QR label check (1 regel) |
-| `src/integrations/sellqo/CartContext.tsx` | `clearCart()` uitbreiden met React Query cache reset |
-| `src/pages/CheckoutSuccess.tsx` | QR data fallbacks toevoegen |
+## Vier bestanden, één nieuw component, één npm package
 
