@@ -1,29 +1,19 @@
 
 
-# Doberman Logo als Favicon, Deelafbeelding & Meta Update
+# Fix: Favicon & Deelafbeelding — Zwarte Doberman
 
-## Wat verandert
+## Probleem
+De favicon en og-image gebruiken `logo-doberman.png` (witte versie). De gebruiker wil de originele zwarte Doberman uit `src/assets/hero-doberman.png`.
 
-1. **Favicon** — Het Doberman-logo (`src/assets/logo-doberman.png`) wordt gekopieerd naar `public/favicon.png` en ingesteld als favicon. Het bestaande `public/favicon.svg` wordt verwijderd.
+## Oplossing
 
-2. **Deelafbeelding (og:image)** — Het Doberman-logo wordt ook gekopieerd naar `public/og-image.png` zodat het als absolute URL beschikbaar is voor social sharing.
+1. **Kopieer `src/assets/hero-doberman.png`** naar `public/favicon.png` en `public/og-image.png` (overschrijf de huidige witte versie)
+2. Het `hero-doberman.png` bestand is groot (2.3MB) — voor het favicon wordt het verkleind naar ~128x128px. Voor og-image naar ~1200x630px.
 
-3. **Meta-tags in `index.html`** — Alle placeholder-teksten worden vervangen:
-   - `<title>` → "Mancini Milano — Italian Luxury Streetwear"
-   - `meta description` → "Premium Italian streetwear. Elevated essentials for those who move with authority."
-   - `og:title` / `twitter:title` → "Mancini Milano — Italian Luxury Streetwear"
-   - `og:description` / `twitter:description` → "Premium Italian streetwear. Elevated essentials for those who move with authority."
-   - `og:image` / `twitter:image` → `/og-image.png`
-   - `twitter:site` → `@mancinimilanostore`
-   - `meta author` → "Mancini Milano"
-   - Verwijder de TODO-comments
-
-## Bestanden
+## Eén commando, twee bestanden overschreven
 
 | Bestand | Actie |
 |---|---|
-| `public/favicon.png` | Kopieer logo-doberman.png |
-| `public/og-image.png` | Kopieer logo-doberman.png |
-| `public/favicon.svg` | Verwijderen |
-| `index.html` | Favicon link + alle meta-tags updaten |
+| `public/favicon.png` | Overschrijven met hero-doberman (verkleind) |
+| `public/og-image.png` | Overschrijven met hero-doberman (verkleind) |
 
