@@ -1,23 +1,29 @@
 
 
-# Footer Newsletter Koppelen aan SellQo API
+# Doberman Logo als Favicon, Deelafbeelding & Meta Update
 
 ## Wat verandert
 
-De footer newsletter-form stuurt nu het e-mailadres naar de SellQo `newsletterAPI.subscribe()`, met loading state en feedback (succes/fout melding) — identiek aan hoe de homepage het al doet.
+1. **Favicon** — Het Doberman-logo (`src/assets/logo-doberman.png`) wordt gekopieerd naar `public/favicon.png` en ingesteld als favicon. Het bestaande `public/favicon.svg` wordt verwijderd.
 
-## `src/components/layout/Footer.tsx`
+2. **Deelafbeelding (og:image)** — Het Doberman-logo wordt ook gekopieerd naar `public/og-image.png` zodat het als absolute URL beschikbaar is voor social sharing.
 
-1. Importeer `newsletterAPI` uit `@/integrations/sellqo/api`
-2. Voeg `loading` en `submitted` state toe
-3. In de `onSubmit` handler: roep `newsletterAPI.subscribe(email)` aan
-4. Toon loading state op de knop tijdens verzending
-5. Na succes: toon bevestigingstekst in plaats van het formulier
-6. Bij fout: toon een toast/foutmelding
+3. **Meta-tags in `index.html`** — Alle placeholder-teksten worden vervangen:
+   - `<title>` → "Mancini Milano — Italian Luxury Streetwear"
+   - `meta description` → "Premium Italian streetwear. Elevated essentials for those who move with authority."
+   - `og:title` / `twitter:title` → "Mancini Milano — Italian Luxury Streetwear"
+   - `og:description` / `twitter:description` → "Premium Italian streetwear. Elevated essentials for those who move with authority."
+   - `og:image` / `twitter:image` → `/og-image.png`
+   - `twitter:site` → `@mancinimilanostore`
+   - `meta author` → "Mancini Milano"
+   - Verwijder de TODO-comments
 
-## Eén bestand
+## Bestanden
 
-| Bestand | Wijziging |
+| Bestand | Actie |
 |---|---|
-| `src/components/layout/Footer.tsx` | Newsletter form koppelen aan SellQo API + feedback UI |
+| `public/favicon.png` | Kopieer logo-doberman.png |
+| `public/og-image.png` | Kopieer logo-doberman.png |
+| `public/favicon.svg` | Verwijderen |
+| `index.html` | Favicon link + alle meta-tags updaten |
 
