@@ -1,19 +1,22 @@
 
 
-# Fix: Favicon & Deelafbeelding — Zwarte Doberman
+# Fix: Verwijder "For Him" / "For Her" uit collectie-titels
 
 ## Probleem
-De favicon en og-image gebruiken `logo-doberman.png` (witte versie). De gebruiker wil de originele zwarte Doberman uit `src/assets/hero-doberman.png`.
+Bij subcategorieën zoals T-Shirts toont de pagina "T-Shirts — For Him". De klant wil alleen "T-Shirts" zien.
 
-## Oplossing
+## Oplossing — `src/pages/Collection.tsx` (regel 46-47)
 
-1. **Kopieer `src/assets/hero-doberman.png`** naar `public/favicon.png` en `public/og-image.png` (overschrijf de huidige witte versie)
-2. Het `hero-doberman.png` bestand is groot (2.3MB) — voor het favicon wordt het verkleind naar ~128x128px. Voor og-image naar ~1200x630px.
+Verwijder de gender-suffix uit de titel. De `genderLabel` variabele en de samenvoeging worden weggehaald:
 
-## Eén commando, twee bestanden overschreven
+```typescript
+// Was:
+const genderLabel = genderFilter === 'men' ? 'For Him' : genderFilter === 'women' ? 'For Her' : '';
+const title = genderLabel ? `${baseTitle} — ${genderLabel}` : baseTitle;
 
-| Bestand | Actie |
-|---|---|
-| `public/favicon.png` | Overschrijven met hero-doberman (verkleind) |
-| `public/og-image.png` | Overschrijven met hero-doberman (verkleind) |
+// Wordt:
+const title = baseTitle;
+```
+
+Eén bestand, twee regels.
 
