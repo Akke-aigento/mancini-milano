@@ -13,19 +13,26 @@ const Collection = () => {
   const [searchParams] = useSearchParams();
   const genderFilter = searchParams.get('gender'); // 'men' or 'women'
   
-  // When gender filter is active, fetch from gender category and filter by subcategory client-side
-  const fetchSlug = genderFilter || slug;
-  const { data: allProducts = [], isLoading: loading } = useProducts(fetchSlug ? { category_slug: fetchSlug } : undefined);
+  // Primary fetch: gender category when filter active, otherwise the slug
+  const primarySlug = genderFilter || slug;
+  const { data: primaryProducts = [], isLoading: primaryLoading } = useProducts(primarySlug ? { category_slug: primarySlug } : undefined);
+  
+  // Secondary fetch: subcategory slug, only when gender filter is active
+  const { data: subcategoryProducts = [], isLoading: subcategoryLoading } = useProducts(
+    genderFilter && slug ? { category_slug: slug } : undefined
+  );
+  
   const { data: categories = [] } = useCategories();
   const [sort, setSort] = useState<SortOption>('featured');
+  const loading = primaryLoading || (genderFilter ? subcategoryLoading : false);
 
-  // Filter by subcategory when we fetched by gender
+  // Intersect gender + subcategory products when both are fetched
   const genderFilteredProducts = useMemo(() => {
-    if (!genderFilter || !slug) return allProducts;
-    return allProducts.filter(p =>
-      p.categories?.some(c => c.slug === slug)
-    );
-  }, [allProducts, genderFilter, slug]);
+    if (!genderFilter || !slug) return primaryProducts;
+    // Intersect: products that appear in both the gender set and the subcategory set
+    const genderIds = new Set(primaryProducts.map(p => p.id));
+    return subcategoryProducts.filter(p => genderIds.has(p.id));
+  }, [primaryProducts, subcategoryProducts, genderFilter, slug]);
 
   const sortedProducts = useMemo(() => {
     const sorted = [...genderFilteredProducts];
