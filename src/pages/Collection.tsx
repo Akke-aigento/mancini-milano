@@ -43,8 +43,7 @@ const Collection = () => {
 
   const collection = categories.find((c: any) => c.slug === slug);
   const baseTitle = collection?.name || slug?.replace(/-/g, ' ') || '';
-  const genderLabel = genderFilter === 'men' ? 'For Him' : genderFilter === 'women' ? 'For Her' : '';
-  const title = genderLabel ? `${baseTitle} — ${genderLabel}` : baseTitle;
+  const title = baseTitle;
 
   // Build subcategory pills from API categories
   const parentCategories = ['for-him', 'for-her'];
