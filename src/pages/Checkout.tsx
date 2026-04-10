@@ -406,6 +406,32 @@ const Checkout = () => {
     }
   };
 
+  // Re-fetch full pricing from API after any discount change
+  const refreshCheckoutPricing = async (cartId: string) => {
+    try {
+      const res = await checkoutAPI.start(cartId);
+      const result = (res as any)?.data || res;
+      setCheckoutData(prev => prev ? {
+        ...prev,
+        subtotal: toFiniteNumber(result.subtotal, prev.subtotal),
+        total: toFiniteNumber(result.total, prev.total),
+        shippingCost: toFiniteNumber(result.shipping_cost, prev.shippingCost),
+      } : prev);
+      // Re-select shipping to get correct total including shipping
+      if (selectedShipping) {
+        const shipRes = await checkoutAPI.selectShipping(cartId, selectedShipping);
+        const shipResult = (shipRes as any)?.data || shipRes;
+        setCheckoutData(prev => prev ? {
+          ...prev,
+          shippingCost: toFiniteNumber(shipResult.shipping_cost, prev.shippingCost),
+          total: toFiniteNumber(shipResult.total, prev.total),
+        } : prev);
+      }
+    } catch (err) {
+      console.error('refreshCheckoutPricing error:', err);
+    }
+  };
+
   const handleApplyDiscount = async () => {
     if (!checkoutData || !discountInput.trim()) return;
     const cartId = localStorage.getItem('mancini_cart_id');
@@ -418,16 +444,14 @@ const Checkout = () => {
     try {
       const res = await checkoutAPI.applyDiscount(cartId, discountInput.trim());
       const data = res as any;
-      const result = data?.data || data;
       if (data?.error) {
         toast.error(data.error.message || 'Invalid discount code');
         return;
       }
+      const result = data?.data || data;
+      // Add discount code to local list
       setCheckoutData(prev => prev ? {
         ...prev,
-        subtotal: toFiniteNumber(result.subtotal, prev.subtotal),
-        shippingCost: toFiniteNumber(result.shipping_cost ?? result.shippingCost, prev.shippingCost),
-        total: toFiniteNumber(result.total, prev.total),
         discounts: [...prev.discounts, {
           code: result.discount_code || result.code || discountInput.trim(),
           amount: toFiniteNumber(result.discount_amount ?? result.amount ?? result.value, 0),
@@ -435,6 +459,8 @@ const Checkout = () => {
       } : prev);
       setDiscountInput('');
       toast.success('Discount applied!');
+      // Re-fetch full pricing from server
+      await refreshCheckoutPricing(cartId);
     } catch (err: any) {
       toast.error(err?.message || 'Invalid discount code');
     }
@@ -445,16 +471,14 @@ const Checkout = () => {
     const cartId = localStorage.getItem('mancini_cart_id');
     if (!cartId) return;
     try {
-      const res = await checkoutAPI.removeDiscount(cartId, codeToRemove);
-      const data = res as any;
-      const result = data?.data || data;
+      await checkoutAPI.removeDiscount(cartId, codeToRemove);
+      // Remove from local list
       setCheckoutData(prev => prev ? {
         ...prev,
-        subtotal: toFiniteNumber(result.subtotal, prev.subtotal),
-        shippingCost: toFiniteNumber(result.shipping_cost ?? result.shippingCost, prev.shippingCost),
-        total: toFiniteNumber(result.total, prev.total),
         discounts: prev.discounts.filter(d => d.code !== codeToRemove),
       } : prev);
+      // Re-fetch full pricing from server
+      await refreshCheckoutPricing(cartId);
     } catch { /* noop */ }
   };
 
