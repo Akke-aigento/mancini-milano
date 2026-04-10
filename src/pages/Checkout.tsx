@@ -523,7 +523,7 @@ const Checkout = () => {
             <span className="text-primary">{d.code}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-primary">-{formatPrice(d.amount)}</span>
+            {d.amount > 0 && <span className="text-primary">-{formatPrice(d.amount)}</span>}
             <button onClick={() => handleRemoveDiscount(d.code)}><X className="h-3 w-3 text-muted-foreground hover:text-foreground" /></button>
           </div>
         </div>
