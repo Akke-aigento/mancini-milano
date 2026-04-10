@@ -467,7 +467,7 @@ const Checkout = () => {
     }
 
     try {
-      // Step 1: Apply discount via CART endpoint (mutates actual pricing)
+      // Apply via cart endpoint
       const cartRes = await cartAPI.applyDiscount(cartId, code);
       const cartData = (cartRes as any)?.data || cartRes;
       console.log('[Checkout] cartAPI.applyDiscount result:', JSON.stringify(cartData));
@@ -477,26 +477,32 @@ const Checkout = () => {
         return;
       }
 
-      // Also try checkout endpoint to register code there
+      // Apply via checkout endpoint — use response for authoritative pricing
+      let checkoutResult: any = null;
       try {
         const checkoutRes = await checkoutAPI.applyDiscount(cartId, code);
-        console.log('[Checkout] checkoutAPI.applyDiscount result:', JSON.stringify((checkoutRes as any)?.data || checkoutRes));
+        checkoutResult = (checkoutRes as any)?.data || checkoutRes;
+        console.log('[Checkout] checkoutAPI.applyDiscount result:', JSON.stringify(checkoutResult));
       } catch (e) {
         console.warn('[Checkout] checkoutAPI.applyDiscount failed (non-critical):', e);
       }
 
-      // Optimistically add the tag (will be replaced by server data on refresh)
-      const appliedCode = code;
+      // Build discount list from server response
+      const serverCodes: string[] = checkoutResult?.discount_codes || [];
+      const newDiscounts = serverCodes.length > 0
+        ? serverCodes.map((c: string) => ({ code: c, amount: 0 }))
+        : [...checkoutData.discounts, { code, amount: 0 }];
+
       setCheckoutData(prev => prev ? {
         ...prev,
-        discounts: [...prev.discounts, { code: appliedCode, amount: 0 }],
+        discounts: newDiscounts,
+        ...(checkoutResult ? {
+          subtotal: toFiniteNumber(checkoutResult.subtotal, prev.subtotal),
+          shippingCost: toFiniteNumber(checkoutResult.shipping_cost, prev.shippingCost),
+          total: toFiniteNumber(checkoutResult.total, prev.total),
+        } : {}),
       } : prev);
       setDiscountInput('');
-
-      // Step 2: Full refresh to get authoritative pricing
-      await refreshCheckoutPricing(cartId);
-
-      // Step 3: Verify pricing actually changed — only toast success if it did
       toast.success('Discount applied!');
     } catch (err: any) {
       console.error('[Checkout] handleApplyDiscount error:', err);
