@@ -1,66 +1,62 @@
 
-# Permanente fix voor checkout-totaal, shipping en kortingscodes
 
-## Wat er fundamenteel fout zit
-De checkout is nu instabiel omdat de frontend zelf prijslogica probeert te doen:
-- `computedTotal = subtotal + shipping - sum(discounts)` rekent lokaal een totaal uit
-- `discounts` wordt lokaal opgebouwd uit partiële API-responses
-- sommige updates syncen alleen `subtotal`, andere alleen `shippingCost`
-- `Number(...) || prev...` en `Number(...) ?? prev...` behandelen `0` en `NaN` fout
+# Fix: Korting wordt niet van totaal afgetrokken
 
-Daardoor krijg je precies wat op de screenshot staat: codes zichtbaar, maar bedragen `0`, shipping verandert wel, totaal niet betrouwbaar.
+## Oorzaak
+De `checkout_apply_discount` API geeft waarschijnlijk alleen discount-info terug (code, bedrag), maar **niet** de bijgewerkte `total`, `subtotal` of `shipping_cost`. Daardoor valt `toFiniteNumber(result.total, prev.total)` terug op de **oude** total — en verandert er niks.
 
-## Permanente aanpak
-De frontend moet stoppen met business logic doen en de checkout-API als enige bron van waarheid gebruiken.
+## Oplossing
+Na elke apply/remove van een kortingscode: **opnieuw `checkoutAPI.start(cartId)` aanroepen** om de volledige, correcte pricing op te halen. Dit is de enige manier om gegarandeerd de juiste totalen te krijgen, ongeacht wat de discount-endpoint teruggeeft.
 
-| Bestand | Wijziging |
+## Wijzigingen
+
+| Bestand | Wat |
 |---|---|
-| `src/pages/Checkout.tsx` | Lokale totaalberekening verwijderen: `totalDiscountAmount`, `computedTotal` en `displayTotal = computedTotal` schrappen |
-| `src/pages/Checkout.tsx` | Eén centrale helper maken die elke checkout-response veilig in `checkoutData` merged: `subtotal`, `shippingCost`, `total`, `items`, beschikbare methodes en eventuele discount-data |
-| `src/pages/Checkout.tsx` | `initCheckout`, `selectShipping`, `handleApplyDiscount`, `handleRemoveDiscount` en de auto-shipping flow allemaal via diezelfde helper laten lopen |
-| `src/pages/Checkout.tsx` | Discount-codes alleen nog als UI-lijst bijhouden als de API geen volledige discount-array terugstuurt; bedragen niet meer gokken |
-| `src/pages/Checkout.tsx` | Discount-bedrag alleen tonen als de API expliciet een geldig bedrag teruggeeft; anders wel code tonen, maar geen fake `-€0.00` |
-| `src/pages/Checkout.tsx` | Overal veilige number parsing gebruiken met `Number.isFinite`, zodat `0` een geldige waarde blijft |
-| `src/integrations/sellqo/api.ts` | Checkout response types verruimen zodat `subtotal`, `shipping_cost`, `total` en optionele discount-info correct getypt kunnen worden |
+| `src/pages/Checkout.tsx` | Extracteer de init-logica (die `checkoutAPI.start` + auto-shipping doet) naar een herbruikbare `refreshCheckoutPricing(cartId)` functie |
+| `src/pages/Checkout.tsx` | In `handleApplyDiscount`: na succesvolle apply, roep `refreshCheckoutPricing` aan — die haalt subtotal, shipping en total vers op van de server |
+| `src/pages/Checkout.tsx` | In `handleRemoveDiscount`: idem, na succesvolle remove, roep `refreshCheckoutPricing` aan |
+| `src/pages/Checkout.tsx` | Discount-codes blijven lokaal bijgehouden als UI-lijst (voor de tags), maar **alle bedragen** komen uit de verse `start`-response |
 
-## Concreet gedrag na de fix
-- **Subtotal** komt altijd rechtstreeks uit de API
-- **Shipping** komt altijd rechtstreeks uit de API
-- **Total** komt altijd rechtstreeks uit de API
-- **FREESHIP** werkt doordat `shippingCost` vanuit de API naar `0` gaat
-- **Combinatie van meerdere codes** werkt omdat niet meer lokaal wordt herrekend
-- **0-waardes** blijven correct zichtbaar en vallen niet terug op oude waardes
-- **Geen `-€0.00` of `NaN` meer** tenzij de API echt een fout antwoord geeft
-
-## Extra robuustheid
-Ik zou ook deze fout meteen meenemen:
-- `subtotal: Number(result.subtotal) || prev.subtotal` is fout, want een geldige `0` wordt genegeerd
-- `shippingCost: Number(result.shipping_cost ?? result.shippingCost) ?? prev.shippingCost` is ook fout, want `Number(undefined)` wordt `NaN` en `??` vangt dat niet op
-
-Dat moet vervangen worden door één helper in deze stijl:
-```ts
-const toFiniteNumber = (value: unknown, fallback: number) => {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : fallback;
+### Concreet
+```typescript
+const refreshCheckoutPricing = async (cartId: string) => {
+  const res = await checkoutAPI.start(cartId);
+  const result = (res as any)?.data || res;
+  setCheckoutData(prev => prev ? {
+    ...prev,
+    subtotal: toFiniteNumber(result.subtotal, prev.subtotal),
+    total: toFiniteNumber(result.total, prev.total),
+    shippingCost: toFiniteNumber(result.shipping_cost, prev.shippingCost),
+  } : prev);
+  // Re-select shipping als die er is
+  if (selectedShipping) {
+    const shipRes = await checkoutAPI.selectShipping(cartId, selectedShipping);
+    const shipResult = (shipRes as any)?.data || shipRes;
+    setCheckoutData(prev => prev ? {
+      ...prev,
+      shippingCost: toFiniteNumber(shipResult.shipping_cost, prev.shippingCost),
+      total: toFiniteNumber(shipResult.total, prev.total),
+    } : prev);
+  }
 };
 ```
 
-## Technische uitwerking
-1. In `Checkout.tsx` een centrale merge-functie maken voor pricing state
-2. Alle checkout API-handlers daarop laten vertrouwen
-3. Lokale rekenformules verwijderen
-4. Discount rendering loskoppelen van totaalberekening
-5. Alleen expliciete API-bedragen tonen bij kortingsregels
-6. Alles testen op gecombineerde codes en removal-volgorde
+In `handleApplyDiscount`, na de succesvolle discount call:
+```typescript
+// Voeg code toe aan lokale lijst
+setCheckoutData(prev => prev ? {
+  ...prev,
+  discounts: [...prev.discounts, { code: ..., amount: 0 }],
+} : prev);
+// Haal verse totalen op
+await refreshCheckoutPricing(cartId);
+```
 
-## Validatie na implementatie
-Deze flow moet expliciet getest worden:
-1. Zonder korting
-2. Alleen `TEST99`
-3. Alleen `FREESHIP`
-4. `TEST99` + `FREESHIP`
-5. Eerst kortingscode A verwijderen, daarna B
-6. Eerst B verwijderen, daarna A
-7. Geval waar shipping of subtotal exact `0` wordt
+Idem in `handleRemoveDiscount`.
 
-Als dit zo wordt uitgevoerd, is de fix niet “nog een patch”, maar een structurele correctie: één bron van waarheid, geen dubbele rekenlogica, en geen afhankelijke state die uit sync raakt.
+### Resultaat
+- Total, subtotal en shipping komen altijd van de server
+- Geen lokale rekenlogica meer
+- Werkt ongeacht wat de discount-endpoint teruggeeft
+- Combinatie van codes (TEST99 + FREESHIP) werkt correct
+
