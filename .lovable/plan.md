@@ -1,35 +1,34 @@
 
 
-# Fix: Hoofdafbeelding prioriteit in product normalizer
+# Cookie Consent Banner — Minimalistisch & GDPR-conform
 
-## Analyse
+## Wat
 
-De normalizer sorteert images op `position`, maar als SellQo een apart `image` of `featured_image` veld meestuurt naast de `images` array, wordt dit veld **alleen** gebruikt als er helemaal geen images zijn. Als het wél images zijn maar de featured image niet `position: 0` heeft, verschijnt de verkeerde afbeelding eerst.
+Een subtiele cookie-banner onderaan het scherm die voldoet aan de Belgische/EU GDPR-wetgeving. Verschijnt alleen bij eerste bezoek, keuze wordt opgeslagen in `localStorage`.
 
-## Oplossing — `src/integrations/sellqo/normalizer.ts`
+## Design
 
-Na het sorteren op position, controleer of `raw.image` of `raw.featured_image` overeenkomt met een afbeelding in de array. Zo ja, verplaats die naar index 0. Zo nee (en het veld bestaat), voeg het toe als eerste element.
+- Vaste balk onderaan, zwart met subtiele border-top (past bij het donkere thema)
+- Korte tekst + link naar Privacy Policy + twee knoppen: "Alleen noodzakelijk" en "Accepteren"
+- Verdwijnt na keuze, komt niet meer terug (tenzij localStorage gewist)
+- Geen analytics/tracking cookies laden vóór consent
 
-```typescript
-// Na de sort, prioriteer featured_image/image
-const featuredUrl = typeof raw.featured_image === 'string' 
-  ? raw.featured_image 
-  : (typeof raw.image === 'string' ? raw.image : null);
+## Technische aanpak
 
-if (featuredUrl && images.length > 0) {
-  const featuredIdx = images.findIndex(img => img.url === featuredUrl);
-  if (featuredIdx > 0) {
-    const [featured] = images.splice(featuredIdx, 1);
-    images.unshift(featured);
-  } else if (featuredIdx === -1) {
-    images.unshift({ id: 'featured', url: featuredUrl, alt: raw.name || '', position: -1 });
-  }
-}
-```
+### 1. Nieuw component: `src/components/CookieConsent.tsx`
+- Check `localStorage.getItem('cookie-consent')` bij mount
+- Drie states: `null` (tonen), `'essential'` (alleen noodzakelijk), `'all'` (alles geaccepteerd)
+- Minimale animatie: slide-up bij verschijnen
+- Link naar `/privacy-policy`
+- Styling: `fixed bottom-0`, `z-50`, consistent met het bestaande donkere thema
 
-Dit garandeert dat de door SellQo aangeduide hoofdafbeelding altijd `images[0]` is, ongeacht position-waarden.
+### 2. Toevoegen aan `src/components/layout/Layout.tsx`
+- `<CookieConsent />` toevoegen naast `<BackToTop />`
+
+### Bestanden
 
 | Bestand | Wijziging |
 |---|---|
-| `src/integrations/sellqo/normalizer.ts` | Featured image naar index 0 forceren na sort |
+| `src/components/CookieConsent.tsx` | Nieuw component |
+| `src/components/layout/Layout.tsx` | Component importeren en toevoegen |
 
