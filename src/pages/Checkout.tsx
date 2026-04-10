@@ -33,7 +33,7 @@ interface CheckoutData {
   total: number;
   currency: string;
   shippingCost: number;
-  discount: { code: string; amount: number } | null;
+  discounts: { code: string; amount: number }[];
 }
 
 const PAYMENT_SORT_ORDER: Record<string, number> = { qr_transfer: 0, bank_transfer: 1, stripe: 2 };
