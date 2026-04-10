@@ -1,37 +1,46 @@
 
 
-# Plan: Navigatie & Footer aanpassingen
+# Plan: Fix afbeeldingsvolgorde + Categorie-overzicht bij "Shop Men/Women"
 
-## 4 wijzigingen
+## Probleem 1: Verkeerde hoofdafbeelding (bv. "No Face")
 
-### 1. "View All For Him/Her" verwijderen uit mobiele accordeon
-**Bestand:** `src/components/layout/Navbar.tsx` (regels 60-66)
-Verwijder het `<Link>` blok met "View All {label}" uit de `MobileAccordion` component.
+De normalizer in `normalizer.ts` mapt afbeeldingen maar **sorteert ze niet op `position`**. Als de API afbeeldingen in willekeurige volgorde stuurt, toont de ProductCard de verkeerde afbeelding als eerste.
 
-### 2. CTA "Shop Men/Women" toont subcategorieën
-**Bestand:** `src/pages/Collection.tsx` (regel 57)
-Het probleem: `parentCategories` bevat `['for-him', 'for-her']` maar de daadwerkelijke slugs zijn `'men'` en `'women'`. Hierdoor worden de subcategorie-pills niet getoond.
-Fix: wijzig naar `['men', 'women']`.
+**Fix:** Na het mappen van images, sorteer op `position`:
 
-### 3. "Bags" toevoegen als subcategorie
-**Bestand:** `src/components/layout/Navbar.tsx` (regels 102-109)
-Voeg `{ label: 'Bags', slug: 'bags' }` toe tussen Tracksuits en Accessories in `FIXED_SUBCATEGORIES`.
+```typescript
+// normalizer.ts — na de images map
+const images: ProductImage[] = (Array.isArray(rawImages) ? rawImages : [])
+  .map(...)
+  .sort((a, b) => a.position - b.position);
+```
 
-**Bestand:** `src/pages/Collection.tsx`
-De subcategorie-pills worden opgebouwd uit API-categorieën (via `collection?.id` en `parent_id`). Als "Bags" in SellQo correct als subcategorie staat, verschijnt het automatisch. Maar als fallback moeten we ook de hardcoded lijst in Collection.tsx updaten — momenteel wordt die niet gebruikt voor de pills, dus dit vereist geen extra wijziging.
+## Probleem 2: "Shop Men/Women" toont alle producten i.p.v. categorieën
 
-### 4. Footer: alleen For Him, For Her, Fragrance
-**Bestand:** `src/components/layout/Footer.tsx` (regels 27-33)
-Vervang de huidige Shop-links door:
-- For Him → `/collections/men`
-- For Her → `/collections/women`  
-- Fragrances → `/collections/fragrances`
+Momenteel linkt "Shop Men" naar `/collections/men` wat álle producten in de "men" categorie toont. De subcategorie-pills verschijnen alleen als de API `parent_id` correct koppelt (mogelijk faalt dit).
 
-## Bestanden
+De gebruiker wil een **categorie-overzichtspagina** zien: een grid van subcategorieën (Jackets, Hoodies, T-Shirts, etc.) met afbeeldingen, vergelijkbaar met de featured categories op de homepage.
+
+**Fix in `Collection.tsx`:** Wanneer `slug` een parent-categorie is (`men` of `women`), toon een categorie-grid in plaats van een productlijst. Gebruik de `FIXED_SUBCATEGORIES` lijst (dezelfde als in de Navbar) met links naar `/collections/{subcategory}?gender={men|women}`.
+
+```text
+Huidige flow:  /collections/men → alle producten + pills bovenaan
+Nieuwe flow:   /collections/men → grid van subcategorieën (Jackets, Hoodies, etc.)
+               Klik op subcategorie → /collections/jackets?gender=men → producten
+```
+
+### Concrete wijzigingen
 
 | Bestand | Wijziging |
 |---|---|
-| `src/components/layout/Navbar.tsx` | "View All" weg + "Bags" toevoegen |
-| `src/pages/Collection.tsx` | parentCategories fix: `men`/`women` |
-| `src/components/layout/Footer.tsx` | Shop-links vereenvoudigen |
+| `src/integrations/sellqo/normalizer.ts` | `.sort((a, b) => a.position - b.position)` na images map |
+| `src/pages/Collection.tsx` | Als `isParent`: toon categorie-grid met subcategorie-kaarten i.p.v. productgrid. Gebruik hardcoded subcategorie-lijst + API categorie-images waar beschikbaar |
+
+### Categorie-grid design
+
+Elke subcategorie wordt een kaart in een 2-koloms grid (mobiel) / 3-koloms (desktop), met:
+- Categorie-afbeelding (van API als beschikbaar)
+- Categorienaam
+- "Shop Now →" link
+- Dezelfde stijl als de featured categories op de homepage
 
