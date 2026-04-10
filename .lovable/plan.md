@@ -1,12 +1,27 @@
 
 
-# Cart Drawer: Verzendkosten tekst aanpassen
+# Mobiele footer: maatselectie toevoegen
 
-In de CartDrawer staat nu "Shipping → Free". Dit moet worden gewijzigd naar "Calculated at checkout" (of "Calculated in next step"), aangezien verzendkosten pas bij de checkout worden berekend en alleen gratis zijn boven €150.
+## Probleem
+De sticky footer op mobiel toont "Select Size" maar heeft geen maatselector. De gebruiker moet terug omhoog scrollen om een maat te kiezen, wat een slechte UX is.
 
-## Wijziging
+## Oplossing
+De sticky footer uitbreiden met een maatselectie-dropdown of -knoppen wanneer er nog geen maat geselecteerd is. Als de gebruiker op "Select Size" klikt, opent een selectiemenu met de beschikbare maten.
 
-| Bestand | Wat |
+## Technische aanpak
+
+| Bestand | Wijziging |
 |---|---|
-| `src/components/CartDrawer.tsx` | "Free" vervangen door "Calculated at checkout" bij de Shipping-regel |
+| `src/pages/ProductDetail.tsx` (regels 347-367) | Sticky footer aanpassen: wanneer `needsSize && !selectedSize`, toon een dropdown/sheet met maatknoppen in plaats van alleen een disabled knop |
+
+### Gedrag
+1. Als er **geen maat geselecteerd** is: de "Select Size" knop opent een klein paneel/dropdown met alle beschikbare maten direct in de footer
+2. Als er **wel een maat geselecteerd** is: de footer toont de geselecteerde maat + "Add to Cart" knop (zoals nu)
+3. Na maat-selectie sluit het paneel automatisch en verandert de knop naar "Add to Cart"
+
+### Implementatie
+- State toevoegen: `showSizeSelector` (boolean) voor het tonen/verbergen van de maatknoppen in de footer
+- Bij klik op "Select Size" → toggle `showSizeSelector`
+- Maatknoppen renderen boven de footer-balk als uitklapbaar paneel
+- Geselecteerde maat tonen naast de productnaam
 
