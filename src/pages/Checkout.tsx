@@ -141,7 +141,15 @@ const Checkout = () => {
         });
 
         if (result.available_shipping_methods?.length > 0) {
-          setSelectedShipping(result.available_shipping_methods[0].id);
+          const firstShipId = result.available_shipping_methods[0].id;
+          setSelectedShipping(firstShipId);
+          try {
+            const shipRes = await checkoutAPI.selectShipping(cartId, firstShipId);
+            const shipData = (shipRes as any)?.data || shipRes;
+            setCheckoutData(prev => prev ? { ...prev, shippingCost: Number(shipData.shipping_cost) || 0 } : prev);
+          } catch (shipErr) {
+            console.error('Auto-select shipping error:', shipErr);
+          }
         }
         if (result.available_payment_methods?.length > 0) {
           setSelectedPayment(result.available_payment_methods[0].id || result.available_payment_methods[0].type);
@@ -520,7 +528,7 @@ const Checkout = () => {
         <div className="flex justify-between">
           <span className="text-muted-foreground">Shipping</span>
           <span className="text-foreground">
-            {checkoutData.shippingCost > 0 ? formatPrice(checkoutData.shippingCost) : step === 'details' ? 'Calculated next' : 'Free'}
+            {checkoutData.shippingCost > 0 ? formatPrice(checkoutData.shippingCost) : selectedShipping ? 'Free' : 'Calculated next'}
           </span>
         </div>
         <div className="border-t border-border pt-2 flex justify-between font-medium">
