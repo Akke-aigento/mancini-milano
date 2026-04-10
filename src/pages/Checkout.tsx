@@ -4,7 +4,7 @@ import { ChevronLeft, Loader2, Tag, X } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCustomerAuth } from '@/integrations/sellqo/CustomerAuthContext';
-import { checkoutAPI } from '@/integrations/sellqo/api';
+import { checkoutAPI, cartAPI } from '@/integrations/sellqo/api';
 import { formatPrice } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -406,21 +406,45 @@ const Checkout = () => {
     }
   };
 
-  // Re-fetch full pricing from API after any discount change
+  // Full server refresh: re-start checkout + re-select shipping to get authoritative pricing
   const refreshCheckoutPricing = async (cartId: string) => {
     try {
+      // 1. Re-start checkout to get fresh subtotal/total from server
       const res = await checkoutAPI.start(cartId);
       const result = (res as any)?.data || res;
+      console.log('[Checkout] refreshCheckoutPricing start result:', JSON.stringify(result));
+
+      // Extract discount info from server if available
+      const serverDiscounts: { code: string; amount: number }[] = [];
+      if (result.discount_code) {
+        serverDiscounts.push({
+          code: result.discount_code,
+          amount: toFiniteNumber(result.discount_amount ?? result.discount, 0),
+        });
+      }
+      if (Array.isArray(result.discounts)) {
+        for (const d of result.discounts) {
+          const code = d.code || d.discount_code || '';
+          if (code && !serverDiscounts.some(s => s.code.toUpperCase() === code.toUpperCase())) {
+            serverDiscounts.push({ code, amount: toFiniteNumber(d.amount ?? d.discount_amount ?? d.value, 0) });
+          }
+        }
+      }
+
       setCheckoutData(prev => prev ? {
         ...prev,
         subtotal: toFiniteNumber(result.subtotal, prev.subtotal),
         total: toFiniteNumber(result.total, prev.total),
         shippingCost: toFiniteNumber(result.shipping_cost, prev.shippingCost),
+        // If server returns discount info, use it; otherwise keep local list
+        ...(serverDiscounts.length > 0 ? { discounts: serverDiscounts } : {}),
       } : prev);
-      // Re-select shipping to get correct total including shipping
+
+      // 2. Re-select shipping to get correct total including shipping
       if (selectedShipping) {
         const shipRes = await checkoutAPI.selectShipping(cartId, selectedShipping);
         const shipResult = (shipRes as any)?.data || shipRes;
+        console.log('[Checkout] refreshCheckoutPricing shipping result:', JSON.stringify(shipResult));
         setCheckoutData(prev => prev ? {
           ...prev,
           shippingCost: toFiniteNumber(shipResult.shipping_cost, prev.shippingCost),
@@ -441,27 +465,41 @@ const Checkout = () => {
       toast.error('This discount code is already applied');
       return;
     }
+
     try {
-      const res = await checkoutAPI.applyDiscount(cartId, discountInput.trim());
-      const data = res as any;
-      if (data?.error) {
-        toast.error(data.error.message || 'Invalid discount code');
+      // Step 1: Apply discount via CART endpoint (mutates actual pricing)
+      const cartRes = await cartAPI.applyDiscount(cartId, discountInput.trim());
+      const cartData = (cartRes as any)?.data || cartRes;
+      console.log('[Checkout] cartAPI.applyDiscount result:', JSON.stringify(cartData));
+
+      if ((cartRes as any)?.error || cartData?.error) {
+        toast.error(cartData?.error?.message || (cartRes as any)?.error?.message || 'Invalid discount code');
         return;
       }
-      const result = data?.data || data;
-      // Add discount code to local list
+
+      // Also try checkout endpoint to register code there
+      try {
+        const checkoutRes = await checkoutAPI.applyDiscount(cartId, discountInput.trim());
+        console.log('[Checkout] checkoutAPI.applyDiscount result:', JSON.stringify((checkoutRes as any)?.data || checkoutRes));
+      } catch (e) {
+        console.warn('[Checkout] checkoutAPI.applyDiscount failed (non-critical):', e);
+      }
+
+      // Optimistically add the tag (will be replaced by server data on refresh)
+      const appliedCode = discountInput.trim();
       setCheckoutData(prev => prev ? {
         ...prev,
-        discounts: [...prev.discounts, {
-          code: result.discount_code || result.code || discountInput.trim(),
-          amount: toFiniteNumber(result.discount_amount ?? result.amount ?? result.value, 0),
-        }],
+        discounts: [...prev.discounts, { code: appliedCode, amount: 0 }],
       } : prev);
       setDiscountInput('');
-      toast.success('Discount applied!');
-      // Re-fetch full pricing from server
+
+      // Step 2: Full refresh to get authoritative pricing
       await refreshCheckoutPricing(cartId);
+
+      // Step 3: Verify pricing actually changed — only toast success if it did
+      toast.success('Discount applied!');
     } catch (err: any) {
+      console.error('[Checkout] handleApplyDiscount error:', err);
       toast.error(err?.message || 'Invalid discount code');
     }
   };
@@ -471,15 +509,28 @@ const Checkout = () => {
     const cartId = localStorage.getItem('mancini_cart_id');
     if (!cartId) return;
     try {
-      await checkoutAPI.removeDiscount(cartId, codeToRemove);
-      // Remove from local list
+      // Remove via cart endpoint
+      await cartAPI.removeDiscount(cartId);
+      console.log('[Checkout] cartAPI.removeDiscount done');
+
+      // Also try checkout endpoint
+      try {
+        await checkoutAPI.removeDiscount(cartId, codeToRemove);
+      } catch (e) {
+        console.warn('[Checkout] checkoutAPI.removeDiscount failed (non-critical):', e);
+      }
+
+      // Remove from local list immediately
       setCheckoutData(prev => prev ? {
         ...prev,
         discounts: prev.discounts.filter(d => d.code !== codeToRemove),
       } : prev);
-      // Re-fetch full pricing from server
+
+      // Full refresh
       await refreshCheckoutPricing(cartId);
-    } catch { /* noop */ }
+    } catch (err) {
+      console.error('[Checkout] handleRemoveDiscount error:', err);
+    }
   };
 
   if (isInitializing) {
