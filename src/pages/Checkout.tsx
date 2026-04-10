@@ -418,7 +418,6 @@ const Checkout = () => {
       setCheckoutData(prev => prev ? {
         ...prev,
         discounts: [...prev.discounts, { code: result.discount_code, amount: result.discount_amount }],
-        total: result.total,
       } : prev);
       setDiscountInput('');
       toast.success('Discount applied!');
