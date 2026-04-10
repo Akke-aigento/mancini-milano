@@ -150,7 +150,7 @@ const CartDrawer = () => {
                 )}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span className="text-primary">Free</span>
+                  <span className="text-muted-foreground">Calculated at checkout</span>
                 </div>
               </div>
 
