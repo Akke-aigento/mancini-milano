@@ -1,27 +1,31 @@
 
 
-# Mobiele footer: maatselector heropenen + direct toevoegen
+# Out-of-stock meldingen toevoegen
 
 ## Probleem
-Na het selecteren van een maat sluit de maatselector en kan deze niet meer geopend worden. De gebruiker kan geen andere maat kiezen of de selectie wijzigen vanuit de footer.
+Als een product of variant uitverkocht is, krijgt de gebruiker geen duidelijke melding. De knoppen werken gewoon niet, zonder uitleg waarom.
 
 ## Oplossing
-De maatselector altijd kunnen heropenen, ook als er al een maat geselecteerd is. De geselecteerde maat tonen in de footer-knop en bij klik op de maat in de selector direct toevoegen aan winkelmandje.
+Op 3 plekken duidelijke, stijlvolle out-of-stock meldingen toevoegen:
 
 ## Wijzigingen
 
 | Bestand | Wat |
 |---|---|
-| `src/pages/ProductDetail.tsx` (regels 348-398) | Footer aanpassen |
+| `src/pages/ProductDetail.tsx` | 1. **Product-niveau**: als `product.in_stock === false`, toon een "Sold Out" badge en disable de Add to Cart knop met tekst "Sold Out" |
+| | 2. **Variant-niveau**: als de geselecteerde variant `stock_status === 'out_of_stock'` is, disable de Add to Cart knop met "Sold Out" tekst |
+| | 3. **Maatknoppen**: individuele maten die uitverkocht zijn visueel doorstrepen (line-through + lagere opacity) en niet selecteerbaar maken |
+| | 4. **Mobiele footer**: dezelfde "Sold Out" status tonen in de sticky footer |
+| `src/components/ProductCard.tsx` | "Sold Out" badge overlay tonen op productkaarten als `in_stock === false` of `stock_status === 'out_of_stock'` |
 
-### Gedrag
-1. Footer-knop toont geselecteerde maat (bijv. "Add to Cart – M") als er een maat is gekozen
-2. Klik op de geselecteerde maat-tekst of een "Change size" link opent de selector opnieuw
-3. In de maatselector: klik op een maat → selecteert de maat, sluit de selector, en voegt direct toe aan winkelmandje
-4. De "Add to Cart" knop blijft werken als er al een maat geselecteerd is
+### Visueel
+- **Sold Out badge**: klein label linksboven op de productafbeelding (zwart/wit, uppercase, tracking)
+- **Uitverkochte maten**: doorgestreepte tekst + verlaagde opacity, niet klikbaar
+- **Add to Cart knop**: disabled state met "Sold Out" tekst in gedempte kleur
+- **Low stock**: optioneel een subtiel "Low Stock" label tonen als `stock_status === 'low_stock'`
 
-### Implementatie
-- Footer-knop `onClick`: altijd `setShowSizeSelector(true)` tonen als `needsSize`, ongeacht of er al een maat is
-- Maatselector `onClick` per maat: `setSelectedSize(size)` → `setShowSizeSelector(false)` → direct `handleAddToCart()` aanroepen
-- Knoptekst updaten: als maat geselecteerd → "Add to Cart" (knop voegt toe), als niet → "Select Size" (knop opent selector)
+### Technisch
+- `ProductCard` interface uitbreiden met optionele `in_stock` en `stock_status` props
+- Per variant de `stock_status` checken voor de maatknoppen
+- `selectedVariant?.stock_status` gebruiken om de Add to Cart knop state te bepalen
 
