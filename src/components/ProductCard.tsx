@@ -15,11 +15,14 @@ interface ProductCardProps {
     title: string;
     price: number;
     images: { url: string; alt?: string }[];
+    in_stock?: boolean;
+    stock_status?: string;
   };
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const hasSecondImage = product.images.length > 1;
+  const isOutOfStock = product.in_stock === false || product.stock_status === 'out_of_stock';
 
   return (
     <Link to={`/products/${product.slug}`} className="group block">
@@ -43,6 +46,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
           />
+        )}
+        {isOutOfStock && (
+          <div className="absolute top-2 left-2 z-10">
+            <span className="bg-foreground text-background text-[10px] uppercase tracking-button font-medium px-2.5 py-1">
+              Sold Out
+            </span>
+          </div>
         )}
         <div className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-colors flex items-center justify-center">
           <span className="text-xs uppercase tracking-button font-medium text-foreground opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 px-4 py-2">
