@@ -400,23 +400,31 @@ const ProductDetail = () => {
               <button onClick={() => setShowSizeSelector(false)} className="text-xs text-muted-foreground">Close</button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => {
-                    setSelectedSize(size);
-                    setShowSizeSelector(false);
-                    handleAddToCart(size);
-                  }}
-                  className={`min-w-[48px] h-10 px-3 text-xs uppercase tracking-button font-medium border transition-colors ${
-                    selectedSize === size
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
+              {sizes.map((size) => {
+                const sizeStock = getVariantStockForSize(size);
+                const isSizeOOS = sizeStock === 'out_of_stock';
+                return (
+                  <button
+                    key={size}
+                    disabled={isSizeOOS}
+                    onClick={() => {
+                      if (isSizeOOS) return;
+                      setSelectedSize(size);
+                      setShowSizeSelector(false);
+                      handleAddToCart(size);
+                    }}
+                    className={`min-w-[48px] h-10 px-3 text-xs uppercase tracking-button font-medium border transition-colors ${
+                      isSizeOOS
+                        ? 'border-border text-muted-foreground/40 line-through cursor-not-allowed'
+                        : selectedSize === size
+                          ? 'bg-foreground text-background border-foreground'
+                          : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -427,7 +435,9 @@ const ProductDetail = () => {
               <p className="text-sm text-primary font-medium">{formatPrice(displayPrice)}</p>
             </div>
             <button
+              disabled={isOutOfStock}
               onClick={() => {
+                if (isOutOfStock) return;
                 if (needsSize) {
                   setShowSizeSelector(true);
                 } else {
@@ -435,14 +445,16 @@ const ProductDetail = () => {
                 }
               }}
               className={`px-6 py-3 text-xs uppercase tracking-button font-medium transition-colors flex-shrink-0 min-h-[44px] ${
-                addedToCart
-                  ? 'bg-green-700 text-foreground'
-                  : canAddToCart
-                    ? 'border border-foreground text-foreground hover:bg-foreground hover:text-background'
-                    : 'border border-foreground text-foreground'
+                isOutOfStock
+                  ? 'bg-card text-muted-foreground cursor-not-allowed'
+                  : addedToCart
+                    ? 'bg-green-700 text-foreground'
+                    : canAddToCart
+                      ? 'border border-foreground text-foreground hover:bg-foreground hover:text-background'
+                      : 'border border-foreground text-foreground'
               }`}
             >
-              {addedToCart ? '✓ Added' : canAddToCart ? `Add to Cart – ${selectedSize}` : 'Select Size'}
+              {isOutOfStock ? 'Sold Out' : addedToCart ? '✓ Added' : canAddToCart ? `Add to Cart – ${selectedSize}` : 'Select Size'}
             </button>
           </div>
         </div>
