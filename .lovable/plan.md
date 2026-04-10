@@ -1,46 +1,31 @@
 
 
-# Plan: Fix afbeeldingsvolgorde + Categorie-overzicht bij "Shop Men/Women"
+# Fix: Varianten met niet-Engelse optiesleutels worden niet gerenderd
 
-## Probleem 1: Verkeerde hoofdafbeelding (bv. "No Face")
+## Probleem
 
-De normalizer in `normalizer.ts` mapt afbeeldingen maar **sorteert ze niet op `position`**. Als de API afbeeldingen in willekeurige volgorde stuurt, toont de ProductCard de verkeerde afbeelding als eerste.
+De SellQo API stuurt variant-opties als `{ maat: "l" }` (Nederlands). De normalizer lowercased de sleutels correct, maar `ProductDetail.tsx` zoekt hardcoded naar `size` en `color`. Daardoor worden de maat-knoppen niet getoond.
 
-**Fix:** Na het mappen van images, sorteer op `position`:
+## Oplossing — `src/pages/ProductDetail.tsx`
 
-```typescript
-// normalizer.ts — na de images map
-const images: ProductImage[] = (Array.isArray(rawImages) ? rawImages : [])
-  .map(...)
-  .sort((a, b) => a.position - b.position);
-```
+Maak de size/color detectie flexibel door meerdere sleutelnamen te ondersteunen:
 
-## Probleem 2: "Shop Men/Women" toont alle producten i.p.v. categorieën
-
-Momenteel linkt "Shop Men" naar `/collections/men` wat álle producten in de "men" categorie toont. De subcategorie-pills verschijnen alleen als de API `parent_id` correct koppelt (mogelijk faalt dit).
-
-De gebruiker wil een **categorie-overzichtspagina** zien: een grid van subcategorieën (Jackets, Hoodies, T-Shirts, etc.) met afbeeldingen, vergelijkbaar met de featured categories op de homepage.
-
-**Fix in `Collection.tsx`:** Wanneer `slug` een parent-categorie is (`men` of `women`), toon een categorie-grid in plaats van een productlijst. Gebruik de `FIXED_SUBCATEGORIES` lijst (dezelfde als in de Navbar) met links naar `/collections/{subcategory}?gender={men|women}`.
-
-```text
-Huidige flow:  /collections/men → alle producten + pills bovenaan
-Nieuwe flow:   /collections/men → grid van subcategorieën (Jackets, Hoodies, etc.)
-               Klik op subcategorie → /collections/jackets?gender=men → producten
-```
+| Concept | Ondersteunde sleutels |
+|---|---|
+| Size | `size`, `maat`, `taille`, `größe` |
+| Color | `color`, `colour`, `kleur`, `couleur`, `farbe` |
 
 ### Concrete wijzigingen
 
+1. **Helper functie** — `getOptionValue(options, keys[])` die de eerste match uit een lijst van sleutels retourneert
+2. **`sizes` memo** — gebruik `getOptionValue(v.options, SIZE_KEYS)` i.p.v. `v.options?.size`
+3. **`colors` memo** — idem met `COLOR_KEYS`
+4. **`selectedVariant` memo** — match op dezelfde manier
+5. **Label** — toon "Maat" als de gevonden sleutel "maat" is (gebruik de originele sleutelnaam als label)
+
+### Eén bestand
+
 | Bestand | Wijziging |
 |---|---|
-| `src/integrations/sellqo/normalizer.ts` | `.sort((a, b) => a.position - b.position)` na images map |
-| `src/pages/Collection.tsx` | Als `isParent`: toon categorie-grid met subcategorie-kaarten i.p.v. productgrid. Gebruik hardcoded subcategorie-lijst + API categorie-images waar beschikbaar |
-
-### Categorie-grid design
-
-Elke subcategorie wordt een kaart in een 2-koloms grid (mobiel) / 3-koloms (desktop), met:
-- Categorie-afbeelding (van API als beschikbaar)
-- Categorienaam
-- "Shop Now →" link
-- Dezelfde stijl als de featured categories op de homepage
+| `src/pages/ProductDetail.tsx` | Flexibele optiesleutel-detectie voor sizes en colors |
 
