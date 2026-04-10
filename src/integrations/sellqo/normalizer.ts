@@ -19,7 +19,7 @@ export function normalizeProduct(raw: any): Product {
       }
       return { id: img.id || `img-${i}`, url: img.url, alt: img.alt || '', position: img.position ?? i };
     }
-  );
+  ).sort((a, b) => a.position - b.position);
 
   // Normalize variants
   const rawVariants = raw.variants || [];

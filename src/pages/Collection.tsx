@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ArrowRight } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ProductCard from '@/components/ProductCard';
@@ -8,20 +8,35 @@ import { useProducts, useCategories } from '@/integrations/sellqo/hooks';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
+const SUBCATEGORIES = [
+  { label: 'Jackets', slug: 'jackets' },
+  { label: 'Hoodies', slug: 'hoodies' },
+  { label: 'T-Shirts', slug: 't-shirts' },
+  { label: 'Pants', slug: 'pants' },
+  { label: 'Tracksuits', slug: 'tracksuits' },
+  { label: 'Bags', slug: 'bags' },
+  { label: 'Accessories', slug: 'accessories' },
+];
+
 const Collection = () => {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams] = useSearchParams();
-  const genderFilter = searchParams.get('gender'); // 'men' or 'women'
-  
+  const genderFilter = searchParams.get('gender');
+
+  const parentCategories = ['men', 'women'];
+  const isParent = slug ? parentCategories.includes(slug) : false;
+
   // Primary fetch: gender category when filter active, otherwise the slug
   const primarySlug = genderFilter || slug;
-  const { data: primaryProducts = [], isLoading: primaryLoading } = useProducts(primarySlug ? { category_slug: primarySlug } : undefined);
-  
+  const { data: primaryProducts = [], isLoading: primaryLoading } = useProducts(
+    !isParent && primarySlug ? { category_slug: primarySlug } : undefined
+  );
+
   // Secondary fetch: subcategory slug, only when gender filter is active
   const { data: subcategoryProducts = [], isLoading: subcategoryLoading } = useProducts(
     genderFilter && slug ? { category_slug: slug } : undefined
   );
-  
+
   const { data: categories = [] } = useCategories();
   const [sort, setSort] = useState<SortOption>('featured');
   const loading = primaryLoading || (genderFilter ? subcategoryLoading : false);
@@ -29,7 +44,6 @@ const Collection = () => {
   // Intersect gender + subcategory products when both are fetched
   const genderFilteredProducts = useMemo(() => {
     if (!genderFilter || !slug) return primaryProducts;
-    // Intersect: products that appear in both the gender set and the subcategory set
     const genderIds = new Set(primaryProducts.map(p => p.id));
     return subcategoryProducts.filter(p => genderIds.has(p.id));
   }, [primaryProducts, subcategoryProducts, genderFilter, slug]);
@@ -52,18 +66,82 @@ const Collection = () => {
   const baseTitle = collection?.name || slug?.replace(/-/g, ' ') || '';
   const title = baseTitle;
 
-  // Build subcategory pills from API categories
-  const parentCategories = ['men', 'women'];
-  const isParent = slug && parentCategories.includes(slug);
-  const pills = isParent
-    ? [
-        { label: 'All', slug: slug! },
-        ...categories
-          .filter((c: any) => c.parent_id && c.parent_id === collection?.id)
-          .map((c: any) => ({ label: c.name, slug: c.slug })),
-      ]
+  // Build subcategory cards for parent pages using API category images
+  const subcategoryCards = useMemo(() => {
+    return SUBCATEGORIES.map((sub) => {
+      const apiCat = categories.find((c: any) => c.slug === sub.slug);
+      return {
+        label: sub.label,
+        slug: sub.slug,
+        image: apiCat?.image || '',
+      };
+    });
+  }, [categories]);
+
+  // For non-parent pages, build subcategory pills
+  const pills = !isParent && slug
+    ? (() => {
+        const col = categories.find((c: any) => c.slug === slug);
+        if (!col) return undefined;
+        const children = categories.filter((c: any) => c.parent_id && c.parent_id === col.id);
+        if (children.length === 0) return undefined;
+        return [
+          { label: 'All', slug: slug },
+          ...children.map((c: any) => ({ label: c.name, slug: c.slug })),
+        ];
+      })()
     : undefined;
 
+  // Parent category page: show category grid
+  if (isParent) {
+    return (
+      <Layout>
+        <SEO title={title} description={`Shop ${title} at Mancini Milano. Premium Italian luxury streetwear.`} />
+        <section className="max-w-site mx-auto px-4 lg:px-8 pt-12 pb-6 lg:pt-16 lg:pb-8">
+          <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-2 text-center">
+            {title}
+          </h1>
+          <p className="text-sm text-muted-foreground text-center">
+            Browse our categories
+          </p>
+        </section>
+
+        <section className="max-w-site mx-auto px-4 lg:px-8 pb-20 lg:pb-28">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+            {subcategoryCards.map((cat) => (
+              <Link
+                key={cat.slug}
+                to={`/collections/${cat.slug}?gender=${slug}`}
+                className="group block"
+              >
+                <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
+                  {cat.image ? (
+                    <img
+                      src={cat.image}
+                      alt={cat.label}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                      <span className="text-muted-foreground text-sm uppercase tracking-widest">{cat.label}</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-colors" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-foreground uppercase tracking-wide">{cat.label}</h3>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </Layout>
+    );
+  }
+
+  // Regular collection page with products
   return (
     <Layout>
       <SEO title={title} description={`Shop ${title} at Mancini Milano. Premium Italian luxury streetwear.`} />
