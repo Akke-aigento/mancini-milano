@@ -818,7 +818,7 @@ const Checkout = () => {
 
           {/* Sidebar */}
           <div className="order-first lg:order-last">
-            <OrderSummary />
+            {orderSummary}
           </div>
         </div>
       </section>
