@@ -90,14 +90,26 @@ const ProductDetail = () => {
   const canAddToCart = (!needsSize || selectedSize) && (!needsColor || selectedColor);
   const displayPrice = selectedVariant?.price ?? product?.price ?? 0;
 
-  const handleAddToCart = async () => {
-    if (!product || !canAddToCart) return;
+  const handleAddToCart = async (overrideSize?: string) => {
+    if (!product) return;
+    const sizeToUse = overrideSize ?? selectedSize;
+    if (needsSize && !sizeToUse) return;
+    if (needsColor && !selectedColor) return;
+
+    const variant = overrideSize
+      ? product.variants?.find((v: any) => {
+          const sizeVal = getOptionValue(v.options, SIZE_KEYS);
+          const colorVal = getOptionValue(v.options, COLOR_KEYS);
+          return (!sizes.length || sizeVal?.value === overrideSize) && (!colors.length || colorVal?.value === selectedColor);
+        }) || null
+      : selectedVariant;
+
     await addItem({
       product_id: product.id,
-      variant_id: selectedVariant?.id,
+      variant_id: variant?.id,
       title: product.title,
-      variant_title: selectedVariant?.title || '',
-      price: displayPrice,
+      variant_title: variant?.title || '',
+      price: variant?.price ?? product.price ?? 0,
       quantity: 1,
       image: product.images?.[0]?.url,
     });
@@ -279,7 +291,7 @@ const ProductDetail = () => {
             )}
 
             <button
-              onClick={handleAddToCart}
+              onClick={() => handleAddToCart()}
               disabled={!canAddToCart}
               className={`w-full py-3.5 text-xs uppercase tracking-button font-medium transition-colors mb-6 ${
                 addedToCart
@@ -356,7 +368,11 @@ const ProductDetail = () => {
               {sizes.map((size) => (
                 <button
                   key={size}
-                  onClick={() => { setSelectedSize(size); setShowSizeSelector(false); }}
+                  onClick={() => {
+                    setSelectedSize(size);
+                    setShowSizeSelector(false);
+                    handleAddToCart(size);
+                  }}
                   className={`min-w-[48px] h-10 px-3 text-xs uppercase tracking-button font-medium border transition-colors ${
                     selectedSize === size
                       ? 'bg-foreground text-background border-foreground'
@@ -377,7 +393,7 @@ const ProductDetail = () => {
             </div>
             <button
               onClick={() => {
-                if (needsSize && !selectedSize) {
+                if (needsSize) {
                   setShowSizeSelector(true);
                 } else {
                   handleAddToCart();
@@ -391,7 +407,7 @@ const ProductDetail = () => {
                     : 'border border-foreground text-foreground'
               }`}
             >
-              {addedToCart ? '✓ Added' : canAddToCart ? 'Add to Cart' : 'Select Size'}
+              {addedToCart ? '✓ Added' : canAddToCart ? `Add to Cart – ${selectedSize}` : 'Select Size'}
             </button>
           </div>
         </div>
