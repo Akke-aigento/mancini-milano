@@ -425,6 +425,8 @@ const Checkout = () => {
       }
       setCheckoutData(prev => prev ? {
         ...prev,
+        subtotal: Number(result.subtotal) || prev.subtotal,
+        shippingCost: Number(result.shipping_cost ?? result.shippingCost) ?? prev.shippingCost,
         discounts: [...prev.discounts, { code: result.discount_code || result.code || discountInput.trim(), amount: Number(result.discount_amount ?? result.amount ?? result.value ?? 0) || 0 }],
       } : prev);
       setDiscountInput('');
@@ -444,6 +446,8 @@ const Checkout = () => {
       const result = data?.data || data;
       setCheckoutData(prev => prev ? {
         ...prev,
+        subtotal: Number(result.subtotal) || prev.subtotal,
+        shippingCost: Number(result.shipping_cost ?? result.shippingCost) ?? prev.shippingCost,
         discounts: prev.discounts.filter(d => d.code !== codeToRemove),
       } : prev);
     } catch { /* noop */ }
