@@ -21,6 +21,21 @@ export function normalizeProduct(raw: any): Product {
     }
   ).sort((a, b) => a.position - b.position);
 
+  // Prioriteer featured_image/image als hoofdafbeelding
+  const featuredUrl = typeof raw.featured_image === 'string'
+    ? raw.featured_image
+    : (typeof raw.image === 'string' ? raw.image : null);
+
+  if (featuredUrl && images.length > 0) {
+    const featuredIdx = images.findIndex(img => img.url === featuredUrl);
+    if (featuredIdx > 0) {
+      const [featured] = images.splice(featuredIdx, 1);
+      images.unshift(featured);
+    } else if (featuredIdx === -1) {
+      images.unshift({ id: 'featured', url: featuredUrl, alt: raw.name || raw.title || '', position: -1 });
+    }
+  }
+
   // Normalize variants
   const rawVariants = raw.variants || [];
   const variants: ProductVariant[] = rawVariants.map((v: any) => ({
