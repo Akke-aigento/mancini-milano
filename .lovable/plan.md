@@ -1,27 +1,27 @@
 
 
-# Mobiele footer: maatselectie toevoegen
+# Mobiele footer: maatselector heropenen + direct toevoegen
 
 ## Probleem
-De sticky footer op mobiel toont "Select Size" maar heeft geen maatselector. De gebruiker moet terug omhoog scrollen om een maat te kiezen, wat een slechte UX is.
+Na het selecteren van een maat sluit de maatselector en kan deze niet meer geopend worden. De gebruiker kan geen andere maat kiezen of de selectie wijzigen vanuit de footer.
 
 ## Oplossing
-De sticky footer uitbreiden met een maatselectie-dropdown of -knoppen wanneer er nog geen maat geselecteerd is. Als de gebruiker op "Select Size" klikt, opent een selectiemenu met de beschikbare maten.
+De maatselector altijd kunnen heropenen, ook als er al een maat geselecteerd is. De geselecteerde maat tonen in de footer-knop en bij klik op de maat in de selector direct toevoegen aan winkelmandje.
 
-## Technische aanpak
+## Wijzigingen
 
-| Bestand | Wijziging |
+| Bestand | Wat |
 |---|---|
-| `src/pages/ProductDetail.tsx` (regels 347-367) | Sticky footer aanpassen: wanneer `needsSize && !selectedSize`, toon een dropdown/sheet met maatknoppen in plaats van alleen een disabled knop |
+| `src/pages/ProductDetail.tsx` (regels 348-398) | Footer aanpassen |
 
 ### Gedrag
-1. Als er **geen maat geselecteerd** is: de "Select Size" knop opent een klein paneel/dropdown met alle beschikbare maten direct in de footer
-2. Als er **wel een maat geselecteerd** is: de footer toont de geselecteerde maat + "Add to Cart" knop (zoals nu)
-3. Na maat-selectie sluit het paneel automatisch en verandert de knop naar "Add to Cart"
+1. Footer-knop toont geselecteerde maat (bijv. "Add to Cart – M") als er een maat is gekozen
+2. Klik op de geselecteerde maat-tekst of een "Change size" link opent de selector opnieuw
+3. In de maatselector: klik op een maat → selecteert de maat, sluit de selector, en voegt direct toe aan winkelmandje
+4. De "Add to Cart" knop blijft werken als er al een maat geselecteerd is
 
 ### Implementatie
-- State toevoegen: `showSizeSelector` (boolean) voor het tonen/verbergen van de maatknoppen in de footer
-- Bij klik op "Select Size" → toggle `showSizeSelector`
-- Maatknoppen renderen boven de footer-balk als uitklapbaar paneel
-- Geselecteerde maat tonen naast de productnaam
+- Footer-knop `onClick`: altijd `setShowSizeSelector(true)` tonen als `needsSize`, ongeacht of er al een maat is
+- Maatselector `onClick` per maat: `setSelectedSize(size)` → `setShowSizeSelector(false)` → direct `handleAddToCart()` aanroepen
+- Knoptekst updaten: als maat geselecteerd → "Add to Cart" (knop voegt toe), als niet → "Select Size" (knop opent selector)
 
