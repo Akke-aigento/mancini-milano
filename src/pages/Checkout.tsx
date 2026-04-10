@@ -216,7 +216,7 @@ const Checkout = () => {
     return Math.max(0, sub + ship - totalDiscountAmount);
   }, [checkoutData?.subtotal, checkoutData?.shippingCost, totalDiscountAmount]);
 
-  const displayTotal = checkoutData?.total && checkoutData.total > 0 ? checkoutData.total : computedTotal;
+  const displayTotal = computedTotal;
 
   // Combined step 1: customer + address + auto-shipping
   const handleDetailsSubmit = async () => {
