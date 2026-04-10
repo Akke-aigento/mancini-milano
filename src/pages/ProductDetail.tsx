@@ -27,6 +27,7 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [showSizeSelector, setShowSizeSelector] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>('description');
 
   // Debug: log variant data
@@ -344,25 +345,55 @@ const ProductDetail = () => {
         </section>
       )}
 
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-card border-t border-border p-4 lg:hidden">
-        <div className="flex items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">{product.title}</p>
-            <p className="text-sm text-primary font-medium">{formatPrice(displayPrice)}</p>
+      <div className="fixed bottom-0 left-0 right-0 z-30 lg:hidden">
+        {showSizeSelector && needsSize && (
+          <div className="bg-card border-t border-border px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs uppercase tracking-button font-medium text-foreground">{sizeLabel}</span>
+              <button onClick={() => setShowSizeSelector(false)} className="text-xs text-muted-foreground">Close</button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {sizes.map((size) => (
+                <button
+                  key={size}
+                  onClick={() => { setSelectedSize(size); setShowSizeSelector(false); }}
+                  className={`min-w-[48px] h-10 px-3 text-xs uppercase tracking-button font-medium border transition-colors ${
+                    selectedSize === size
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
           </div>
-          <button
-            onClick={handleAddToCart}
-            disabled={!canAddToCart}
-            className={`px-6 py-3 text-xs uppercase tracking-button font-medium transition-colors flex-shrink-0 min-h-[44px] ${
-              addedToCart
-                ? 'bg-green-700 text-foreground'
-                : canAddToCart
-                  ? 'border border-foreground text-foreground hover:bg-foreground hover:text-background'
-                  : 'bg-muted text-muted-foreground cursor-not-allowed'
-            }`}
-          >
-            {addedToCart ? '✓ Added' : canAddToCart ? 'Add to Cart' : 'Select Size'}
-          </button>
+        )}
+        <div className="bg-card border-t border-border p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">{product.title}</p>
+              <p className="text-sm text-primary font-medium">{formatPrice(displayPrice)}</p>
+            </div>
+            <button
+              onClick={() => {
+                if (needsSize && !selectedSize) {
+                  setShowSizeSelector(true);
+                } else {
+                  handleAddToCart();
+                }
+              }}
+              className={`px-6 py-3 text-xs uppercase tracking-button font-medium transition-colors flex-shrink-0 min-h-[44px] ${
+                addedToCart
+                  ? 'bg-green-700 text-foreground'
+                  : canAddToCart
+                    ? 'border border-foreground text-foreground hover:bg-foreground hover:text-background'
+                    : 'border border-foreground text-foreground'
+              }`}
+            >
+              {addedToCart ? '✓ Added' : canAddToCart ? 'Add to Cart' : 'Select Size'}
+            </button>
+          </div>
         </div>
       </div>
       <div className="h-20 lg:hidden" />
