@@ -1,31 +1,35 @@
 
 
-# Fix: Varianten met niet-Engelse optiesleutels worden niet gerenderd
+# Fix: Hoofdafbeelding prioriteit in product normalizer
 
-## Probleem
+## Analyse
 
-De SellQo API stuurt variant-opties als `{ maat: "l" }` (Nederlands). De normalizer lowercased de sleutels correct, maar `ProductDetail.tsx` zoekt hardcoded naar `size` en `color`. Daardoor worden de maat-knoppen niet getoond.
+De normalizer sorteert images op `position`, maar als SellQo een apart `image` of `featured_image` veld meestuurt naast de `images` array, wordt dit veld **alleen** gebruikt als er helemaal geen images zijn. Als het wél images zijn maar de featured image niet `position: 0` heeft, verschijnt de verkeerde afbeelding eerst.
 
-## Oplossing — `src/pages/ProductDetail.tsx`
+## Oplossing — `src/integrations/sellqo/normalizer.ts`
 
-Maak de size/color detectie flexibel door meerdere sleutelnamen te ondersteunen:
+Na het sorteren op position, controleer of `raw.image` of `raw.featured_image` overeenkomt met een afbeelding in de array. Zo ja, verplaats die naar index 0. Zo nee (en het veld bestaat), voeg het toe als eerste element.
 
-| Concept | Ondersteunde sleutels |
-|---|---|
-| Size | `size`, `maat`, `taille`, `größe` |
-| Color | `color`, `colour`, `kleur`, `couleur`, `farbe` |
+```typescript
+// Na de sort, prioriteer featured_image/image
+const featuredUrl = typeof raw.featured_image === 'string' 
+  ? raw.featured_image 
+  : (typeof raw.image === 'string' ? raw.image : null);
 
-### Concrete wijzigingen
+if (featuredUrl && images.length > 0) {
+  const featuredIdx = images.findIndex(img => img.url === featuredUrl);
+  if (featuredIdx > 0) {
+    const [featured] = images.splice(featuredIdx, 1);
+    images.unshift(featured);
+  } else if (featuredIdx === -1) {
+    images.unshift({ id: 'featured', url: featuredUrl, alt: raw.name || '', position: -1 });
+  }
+}
+```
 
-1. **Helper functie** — `getOptionValue(options, keys[])` die de eerste match uit een lijst van sleutels retourneert
-2. **`sizes` memo** — gebruik `getOptionValue(v.options, SIZE_KEYS)` i.p.v. `v.options?.size`
-3. **`colors` memo** — idem met `COLOR_KEYS`
-4. **`selectedVariant` memo** — match op dezelfde manier
-5. **Label** — toon "Maat" als de gevonden sleutel "maat" is (gebruik de originele sleutelnaam als label)
-
-### Eén bestand
+Dit garandeert dat de door SellQo aangeduide hoofdafbeelding altijd `images[0]` is, ongeacht position-waarden.
 
 | Bestand | Wijziging |
 |---|---|
-| `src/pages/ProductDetail.tsx` | Flexibele optiesleutel-detectie voor sizes en colors |
+| `src/integrations/sellqo/normalizer.ts` | Featured image naar index 0 forceren na sort |
 
