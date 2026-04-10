@@ -1,36 +1,37 @@
 
 
-# Fix: Producten verschijnen niet bij gender + subcategorie filtering
+# Plan: Navigatie & Footer aanpassingen
 
-## Probleem
+## 4 wijzigingen
 
-Het product "The Midnight Jacket" staat in SellQo gekoppeld aan zowel "Men" als "Jackets". Maar bij "For Him > Jackets" verschijnt het niet.
+### 1. "View All For Him/Her" verwijderen uit mobiele accordeon
+**Bestand:** `src/components/layout/Navbar.tsx` (regels 60-66)
+Verwijder het `<Link>` blok met "View All {label}" uit de `MobileAccordion` component.
 
-**Oorzaak**: De API stuurt bij `category_slug=men` alleen de primaire categorie per product mee (niet alle gekoppelde categorieën). De normalizer maakt `categories: [raw.category]` — met alleen `{slug: 'men'}`. De client-side filter `p.categories?.some(c => c.slug === 'jackets')` vindt dan geen match.
+### 2. CTA "Shop Men/Women" toont subcategorieën
+**Bestand:** `src/pages/Collection.tsx` (regel 57)
+Het probleem: `parentCategories` bevat `['for-him', 'for-her']` maar de daadwerkelijke slugs zijn `'men'` en `'women'`. Hierdoor worden de subcategorie-pills niet getoond.
+Fix: wijzig naar `['men', 'women']`.
 
-## Oplossing — `src/pages/Collection.tsx`
+### 3. "Bags" toevoegen als subcategorie
+**Bestand:** `src/components/layout/Navbar.tsx` (regels 102-109)
+Voeg `{ label: 'Bags', slug: 'bags' }` toe tussen Tracksuits en Accessories in `FIXED_SUBCATEGORIES`.
 
-Dual-fetch strategie: wanneer er een `genderFilter` én een subcategorie `slug` actief zijn, haal producten op voor **beide** slugs en neem de intersectie (producten die in beide resultaten voorkomen).
+**Bestand:** `src/pages/Collection.tsx`
+De subcategorie-pills worden opgebouwd uit API-categorieën (via `collection?.id` en `parent_id`). Als "Bags" in SellQo correct als subcategorie staat, verschijnt het automatisch. Maar als fallback moeten we ook de hardcoded lijst in Collection.tsx updaten — momenteel wordt die niet gebruikt voor de pills, dus dit vereist geen extra wijziging.
 
-```text
-Huidige flow:
-  fetch(category_slug=men) → filter client-side op 'jackets' → FAALT
+### 4. Footer: alleen For Him, For Her, Fragrance
+**Bestand:** `src/components/layout/Footer.tsx` (regels 27-33)
+Vervang de huidige Shop-links door:
+- For Him → `/collections/men`
+- For Her → `/collections/women`  
+- Fragrances → `/collections/fragrances`
 
-Nieuwe flow:
-  fetch(category_slug=men)     → Set A (alle men producten)
-  fetch(category_slug=jackets) → Set B (alle jackets producten)
-  intersectie(A, B)            → producten die in beide zitten ✓
-```
-
-### Concrete wijzigingen
-
-1. **Tweede `useProducts` call toevoegen** — `useProducts({ category_slug: slug })`, alleen enabled wanneer `genderFilter` aanwezig is
-2. **Intersectie berekenen** — in de `genderFilteredProducts` memo: neem producten waarvan het `id` in beide sets voorkomt
-3. **Fallback behouden** — als er geen `genderFilter` is, werkt alles zoals nu (één fetch op `slug`)
-
-### Eén bestand
+## Bestanden
 
 | Bestand | Wijziging |
 |---|---|
-| `src/pages/Collection.tsx` | Tweede useProducts hook + intersectie-logica |
+| `src/components/layout/Navbar.tsx` | "View All" weg + "Bags" toevoegen |
+| `src/pages/Collection.tsx` | parentCategories fix: `men`/`women` |
+| `src/components/layout/Footer.tsx` | Shop-links vereenvoudigen |
 
