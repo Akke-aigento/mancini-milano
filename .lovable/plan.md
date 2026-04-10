@@ -1,24 +1,24 @@
 
 
-# Checkout: prijzen, shipping & korting-totaal fixen
+# Shipping direct berekenen bij checkout init
 
-## Problemen
+## Probleem
+Shipping toont "Calculated next" op stap 1, terwijl de gebruiker daar al zijn verzendgegevens invult. De `selectShipping` API-call wordt pas gedaan bij het doorsturen naar de volgende stap.
 
-1. **Itemprijzen tonen €0.00** — De checkout API retourneert `price: 0` voor items. De code op regel 467 (`Number(item.price) || 0`) toont dit blindelings.
-2. **Korting niet afgetrokken van totaal** — `displayTotal` (regel 219) geeft voorrang aan `checkoutData.total` uit de API, die de kortingen niet correct meeneemt. De `computedTotal` (regel 212-217) berekent dit wél goed met `subtotal + shipping - discounts`.
-3. **Shipping toont "Calculated next"** — Dit is correct op stap 1, maar na kortingen toepassen (wat ook op stap 1 kan) kan het verwarrend zijn.
-
-## Wijzigingen
+## Wijziging
 
 | Bestand | Wat |
 |---|---|
-| `src/pages/Checkout.tsx` (regel 458-480) | **Item price fallback**: bij het renderen van items, als `item.price === 0`, terugvallen op de prijs uit `cartItems` op basis van matching `id` of `title` |
-| `src/pages/Checkout.tsx` (regel 219) | **displayTotal verwijderen**: altijd `computedTotal` gebruiken. Deze berekent correct `subtotal + shipping - totalDiscountAmount` |
-| `src/pages/Checkout.tsx` (regel 418-422) | **handleApplyDiscount**: bij het toevoegen van een korting, `total` NIET meer overschrijven vanuit de API response. Alleen `discounts` array updaten — `computedTotal` doet de rest |
-| `src/pages/Checkout.tsx` (regel 438-442) | **handleRemoveDiscount**: idem, `total` niet overschrijven maar laten berekenen door `computedTotal` |
+| `src/pages/Checkout.tsx` (regels 118-159) | Na het initialiseren van de checkout en het selecteren van de eerste shipping method, direct `checkoutAPI.selectShipping()` aanroepen om de shippingkosten op te halen en in `checkoutData.shippingCost` te zetten |
+| `src/pages/Checkout.tsx` (regel 523) | Shipping-tekst aanpassen: als `shippingCost === 0` en er een shipping method is geselecteerd, toon "Free" i.p.v. "Calculated next" |
 
-### Samengevat
-- Items tonen de juiste prijs (fallback naar cart)
-- Totaal wordt altijd berekend als `subtotal + shipping - sum(discounts)` 
-- Geen afhankelijkheid meer van de (foutieve) API-total
+### Technisch
+In `initCheckout`, na regel 144 (`setSelectedShipping`), direct:
+```typescript
+const shipRes = await checkoutAPI.selectShipping(cartId, result.available_shipping_methods[0].id);
+const shipResult = shipRes?.data || shipRes;
+// shippingCost meteen setten in checkoutData
+```
+
+De "Calculated next" tekst wordt dan enkel nog getoond als er nog geen shipping method beschikbaar is (edge case).
 
