@@ -231,7 +231,7 @@ const ProductDetail = () => {
             {needsSize && (
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs uppercase tracking-button font-medium text-foreground">Size</span>
+                  <span className="text-xs uppercase tracking-button font-medium text-foreground">{sizeLabel}</span>
                   <Link to="/size-guide" className="text-xs uppercase tracking-button text-primary hover:text-gold-hover transition-colors">
                     Size Guide
                   </Link>
@@ -257,7 +257,7 @@ const ProductDetail = () => {
             {needsColor && (
               <div className="mb-6">
                 <span className="text-xs uppercase tracking-button font-medium text-foreground mb-3 block">
-                  Color{selectedColor ? `: ${selectedColor}` : ''}
+                  {colorLabel}{selectedColor ? `: ${selectedColor}` : ''}
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {colors.map((color) => (
