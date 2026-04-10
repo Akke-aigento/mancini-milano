@@ -216,7 +216,7 @@ const Checkout = () => {
     return Math.max(0, sub + ship - totalDiscountAmount);
   }, [checkoutData?.subtotal, checkoutData?.shippingCost, totalDiscountAmount]);
 
-  const displayTotal = checkoutData?.total && checkoutData.total > 0 ? checkoutData.total : computedTotal;
+  const displayTotal = computedTotal;
 
   // Combined step 1: customer + address + auto-shipping
   const handleDetailsSubmit = async () => {
@@ -418,7 +418,6 @@ const Checkout = () => {
       setCheckoutData(prev => prev ? {
         ...prev,
         discounts: [...prev.discounts, { code: result.discount_code, amount: result.discount_amount }],
-        total: result.total,
       } : prev);
       setDiscountInput('');
       toast.success('Discount applied!');
@@ -438,7 +437,6 @@ const Checkout = () => {
       setCheckoutData(prev => prev ? {
         ...prev,
         discounts: prev.discounts.filter(d => d.code !== codeToRemove),
-        total: result.total ?? prev.subtotal,
       } : prev);
     } catch { /* noop */ }
   };
@@ -464,7 +462,8 @@ const Checkout = () => {
 
       <div className="divide-y divide-border">
         {displayItems.map(item => {
-          const itemPrice = Number(item.price) || 0;
+          const fallbackPrice = cartItems.find(c => c.id === item.id || c.title === item.title)?.price;
+          const itemPrice = Number(item.price) || Number(fallbackPrice) || 0;
           return (
             <div key={item.id} className="flex gap-3 py-3 first:pt-0">
               {(item as any).image && (
