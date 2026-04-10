@@ -1,61 +1,60 @@
 
 
-# Fix: Kortingscodes werken niet — case-sensitivity bug
+# Fix: Meerdere kortingscodes & prijsberekening — Backend + Frontend
 
-## Oorzaak
-De **edge function logs** bewijzen het definitief:
+## Probleem
+Er zijn **twee** problemen:
 
+### 1. Backend: slechts 1 discount_code per cart
+`storefront_carts.discount_code` is een enkele `text` kolom. Elke nieuwe code overschrijft de vorige. TEST99 + FREESHIP tegelijk is onmogelijk.
+
+### 2. Backend: checkoutShipping negeert free_shipping van kortingscode
+Wanneer FREESHIP wordt toegepast, zet `checkoutApplyDiscount` correct `shipping_cost: 0` op de cart. Maar daarna roept de frontend `refreshCheckoutPricing` aan, die `checkoutShipping` triggert. Die functie (regel 1611) berekent shipping puur op basis van `free_above` — en negeert compleet dat er een free_shipping kortingscode actief is. Resultaat: shipping wordt weer €8.
+
+## Aanpak: wijzigingen in Sellqo project
+
+### A. Meerdere discount codes ondersteunen
+
+**Database migratie:**
+- `storefront_carts.discount_code` (text) → `discount_codes` (text[] array)
+- `storefront_carts.discount_amount` blijft (som van alle kortingen)
+
+**Edge function (`storefront-api/index.ts`):**
+- `cartApplyDiscount`: code toevoegen aan array i.p.v. overschrijven
+- `cartRemoveDiscount`: specifieke code uit array verwijderen (nieuwe param `code`)
+- `checkoutApplyDiscount`: idem — code toevoegen aan array, alle codes herberekenen
+- `checkoutRemoveDiscount`: specifieke code verwijderen, herberekenen
+- `checkoutStart`: discount_codes array meegeven in response
+- `createOrderFromCart`: alle codes opslaan (bv. comma-separated in `orders.discount_code`)
+
+### B. checkoutShipping: free_shipping respecteren
+
+In `checkoutShipping` (regel 1611):
+```text
+Huidig:  shippingCost = free_above check only
+Nieuw:   als cart.discount_codes een free_shipping code bevat → shippingCost = 0
+         anders: normale free_above logica
 ```
-cart_apply_discount params={"cart_id":"...","code":"freeship"}  → 500
-cart_apply_discount params={"cart_id":"...","code":"test99"}    → 500
-```
 
-De codes worden **lowercase** naar de SellQo backend gestuurd. De backend doet een exacte match: `.eq('code', code)`. Maar codes worden in de database **UPPERCASE** opgeslagen (het admin-dashboard forceert `toUpperCase()`).
+### C. Frontend (dit project)
 
-In `Checkout.tsx` regel 463 wordt `code` correct naar uppercase geconverteerd, maar op **regel 471** wordt `discountInput.trim()` (de originele, lowercase waarde) doorgegeven aan de API:
-
-```typescript
-const code = discountInput.trim().toUpperCase();  // ← correct
-// ...
-const cartRes = await cartAPI.applyDiscount(cartId, discountInput.trim());  // ← BUG: lowercase!
-```
-
-Hetzelfde op regel 482 voor `checkoutAPI.applyDiscount`.
-
-## Oplossing
-
-Alle plekken waar `discountInput.trim()` naar een API gaat, vervangen door `code` (de uppercase variant):
-
-| Regel | Huidig | Nieuw |
-|---|---|---|
-| 471 | `cartAPI.applyDiscount(cartId, discountInput.trim())` | `cartAPI.applyDiscount(cartId, code)` |
-| 482 | `checkoutAPI.applyDiscount(cartId, discountInput.trim())` | `checkoutAPI.applyDiscount(cartId, code)` |
-| 489 | `const appliedCode = discountInput.trim();` | `const appliedCode = code;` |
-
-## Extra: meerdere codes ondersteunen
-
-De SellQo backend ondersteunt slechts **één `discount_code` veld per cart** (kolom `storefront_carts.discount_code`). Het `checkoutApplyDiscount` endpoint overschrijft simpelweg de vorige code. Om meerdere codes te combineren zijn er twee opties:
-
-1. **Frontend-side**: Na elke code-wijziging de backend aanroepen met de "nieuwe" code. Elke volgende code overschrijft de vorige. Dit is technisch een beperking van de backend — slechts één code tegelijk.
-
-2. **Backend-uitbreiding** (in Sellqo project): het `discount_code` veld omzetten naar een array of een aparte koppeltabel.
-
-Aangezien de backend nu alleen één code tegelijk ondersteunt, zou ik in deze storefront:
-- Wél meerdere codes als tags tonen (UI)
-- Maar bij elke nieuwe code de backend aanroepen met die ene code (de "meest recente")
-- Bij verwijderen: als er nog een andere code overblijft, die opnieuw toepassen; als er geen overblijft, discount verwijderen
-
-Dit is een tijdelijke workaround. Voor echte meervoudige ondersteuning moet de backend worden uitgebreid.
+Na backend-fix:
+- `handleApplyDiscount`: vertrouw op `checkoutApplyDiscount` response voor alle pricing (subtotal, shipping_cost, total, discount_amount)
+- Stop met `refreshCheckoutPricing` na apply — de response heeft al alles
+- `handleRemoveDiscount`: stuur specifieke code mee naar remove endpoint
+- Toon discount tags op basis van server-returned `discount_codes` array
 
 ## Bestanden
 
-| Bestand | Wijziging |
-|---|---|
-| `src/pages/Checkout.tsx` | `discountInput.trim()` → `code` op 3 plekken (regels 471, 482, 489) |
-| `src/pages/Checkout.tsx` | Multi-code handling: bij remove, vorige code opnieuw toepassen |
+| Project | Bestand | Wijziging |
+|---|---|---|
+| **Sellqo** | `supabase/functions/storefront-api/index.ts` | `cartApplyDiscount`, `cartRemoveDiscount`, `checkoutApplyDiscount`, `checkoutRemoveDiscount`, `checkoutShipping`, `checkoutStart`, `createOrderFromCart` aanpassen voor multi-code + free_shipping check |
+| **Sellqo** | Nieuwe migratie | `discount_code text` → `discount_codes text[]` |
+| **Mancini** | `src/pages/Checkout.tsx` | Pricing direct uit applyDiscount response gebruiken, geen refreshCheckoutPricing meer na discount, remove met specifieke code |
 
-## Resultaat
-- Codes worden altijd uppercase naar de API gestuurd
-- Geen 500-fouten meer van "Ongeldige kortingscode"
-- Subtotal, shipping en total worden correct bijgewerkt na succesvolle apply
+## Volgorde
+1. Eerst Sellqo backend aanpassen (migratie + edge function)
+2. Dan Mancini frontend aanpassen
+
+Zal ik beginnen met de Sellqo backend?
 
