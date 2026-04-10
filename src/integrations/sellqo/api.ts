@@ -136,13 +136,13 @@ export const checkoutAPI = {
     }),
 
   applyDiscount: (cart_id: string, discount_code: string) =>
-    sellqoFetch<{ discount_code: string; discount_amount: number; total: number }>('/checkout/discount', {
+    sellqoFetch<{ discount_code?: string; code?: string; discount_amount?: number; amount?: number; value?: number; subtotal?: number; shipping_cost?: number; shippingCost?: number; total?: number }>('/checkout/discount', {
       method: 'POST',
       body: JSON.stringify({ cart_id, discount_code }),
     }),
 
   removeDiscount: (cart_id: string, discount_code?: string) =>
-    sellqoFetch<{ total: number }>('/checkout/discount', {
+    sellqoFetch<{ subtotal?: number; shipping_cost?: number; shippingCost?: number; total?: number }>('/checkout/discount', {
       method: 'DELETE',
       body: JSON.stringify({ cart_id, ...(discount_code ? { discount_code } : {}) }),
     }),
