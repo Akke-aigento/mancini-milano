@@ -1,24 +1,23 @@
 
 
-# Shipping direct berekenen bij checkout init
+# Fix: Korting toont -€NaN
 
-## Probleem
-Shipping toont "Calculated next" op stap 1, terwijl de gebruiker daar al zijn verzendgegevens invult. De `selectShipping` API-call wordt pas gedaan bij het doorsturen naar de volgende stap.
+## Oorzaak
+In `handleApplyDiscount` (regel 428) worden `result.discount_code` en `result.discount_amount` uit de API-response gehaald. Als de API deze velden anders noemt (bijv. `code`, `amount`, of genest in een ander object), wordt `undefined` opgeslagen. `formatPrice(undefined)` geeft dan `-€NaN`.
 
 ## Wijziging
 
 | Bestand | Wat |
 |---|---|
-| `src/pages/Checkout.tsx` (regels 118-159) | Na het initialiseren van de checkout en het selecteren van de eerste shipping method, direct `checkoutAPI.selectShipping()` aanroepen om de shippingkosten op te halen en in `checkoutData.shippingCost` te zetten |
-| `src/pages/Checkout.tsx` (regel 523) | Shipping-tekst aanpassen: als `shippingCost === 0` en er een shipping method is geselecteerd, toon "Free" i.p.v. "Calculated next" |
+| `src/pages/Checkout.tsx` (regel 428) | Fallback-extractie toevoegen voor het discount bedrag en code: `result.discount_amount || result.amount || result.value || 0` en `result.discount_code || result.code || discountInput.trim()`. Dit vangt alle mogelijke API-response-formaten op en voorkomt `NaN`. |
 
-### Technisch
-In `initCheckout`, na regel 144 (`setSelectedShipping`), direct:
+### Code
 ```typescript
-const shipRes = await checkoutAPI.selectShipping(cartId, result.available_shipping_methods[0].id);
-const shipResult = shipRes?.data || shipRes;
-// shippingCost meteen setten in checkoutData
+discounts: [...prev.discounts, {
+  code: result.discount_code || result.code || discountInput.trim(),
+  amount: Number(result.discount_amount ?? result.amount ?? result.value ?? 0) || 0,
+}],
 ```
 
-De "Calculated next" tekst wordt dan enkel nog getoond als er nog geen shipping method beschikbaar is (edge case).
+Eén regel wijzigen, geen andere bestanden nodig.
 
