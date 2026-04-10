@@ -7,6 +7,17 @@ import ProductCard, { formatPrice } from '@/components/ProductCard';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useProduct, useRelatedProducts } from '@/integrations/sellqo/hooks';
 
+const SIZE_KEYS = ['size', 'maat', 'taille', 'größe'];
+const COLOR_KEYS = ['color', 'colour', 'kleur', 'couleur', 'farbe'];
+
+const getOptionValue = (options: Record<string, string> | undefined, keys: string[]): { value: string; key: string } | null => {
+  if (!options) return null;
+  for (const k of keys) {
+    if (k in options) return { value: options[k], key: k };
+  }
+  return null;
+};
+
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { addItem } = useSellQoCart();
@@ -34,29 +45,41 @@ const ProductDetail = () => {
     setAddedToCart(false);
   }
 
-  const sizes = useMemo(() => {
-    if (!product?.variants?.length) return [];
+  const { items: sizes, label: sizeLabel } = useMemo(() => {
+    if (!product?.variants?.length) return { items: [] as string[], label: 'Size' };
     const s = new Set<string>();
+    let detectedKey = 'Size';
     product.variants.forEach((v: any) => {
-      if (v.options?.size) s.add(v.options.size);
+      const match = getOptionValue(v.options, SIZE_KEYS);
+      if (match) {
+        s.add(match.value);
+        detectedKey = match.key.charAt(0).toUpperCase() + match.key.slice(1);
+      }
     });
-    return Array.from(s);
+    return { items: Array.from(s), label: detectedKey };
   }, [product]);
 
-  const colors = useMemo(() => {
-    if (!product?.variants?.length) return [];
+  const { items: colors, label: colorLabel } = useMemo(() => {
+    if (!product?.variants?.length) return { items: [] as string[], label: 'Color' };
     const c = new Set<string>();
+    let detectedKey = 'Color';
     product.variants.forEach((v: any) => {
-      if (v.options?.color) c.add(v.options.color);
+      const match = getOptionValue(v.options, COLOR_KEYS);
+      if (match) {
+        c.add(match.value);
+        detectedKey = match.key.charAt(0).toUpperCase() + match.key.slice(1);
+      }
     });
-    return Array.from(c);
+    return { items: Array.from(c), label: detectedKey };
   }, [product]);
 
   const selectedVariant = useMemo(() => {
     if (!product?.variants?.length) return null;
     return product.variants.find((v: any) => {
-      const sizeMatch = !sizes.length || v.options?.size === selectedSize;
-      const colorMatch = !colors.length || v.options?.color === selectedColor;
+      const sizeVal = getOptionValue(v.options, SIZE_KEYS);
+      const colorVal = getOptionValue(v.options, COLOR_KEYS);
+      const sizeMatch = !sizes.length || sizeVal?.value === selectedSize;
+      const colorMatch = !colors.length || colorVal?.value === selectedColor;
       return sizeMatch && colorMatch;
     }) || null;
   }, [product, selectedSize, selectedColor, sizes, colors]);
