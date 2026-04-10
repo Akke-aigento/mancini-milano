@@ -225,7 +225,7 @@ const ProductDetail = () => {
             </p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8 pb-6 border-b border-border">
               <Truck className="h-4 w-4" />
-              <span>Free worldwide shipping</span>
+              <span>Free worldwide shipping on orders over €150</span>
             </div>
 
             {needsSize && (
@@ -300,7 +300,7 @@ const ProductDetail = () => {
             <div className="border-t border-border">
               {[
                 { key: 'description', label: 'Description', content: product.description },
-                { key: 'shipping', label: 'Shipping & Returns', content: '{ key: 'shipping', label: 'Shipping & Returns', content: 'Free worldwide shipping on orders over €150. Returns accepted within 14 days of delivery. Items must be unworn, unwashed, and in original packaging with tags attached.' }, of delivery. Items must be unworn, unwashed, and in original packaging with tags attached.' },
+                { key: 'shipping', label: 'Shipping & Returns', content: 'Free worldwide shipping on orders over \u20AC150. Returns accepted within 14 days of delivery. Items must be unworn, unwashed, and in original packaging with tags attached.' },
                 { key: 'care', label: 'Care Instructions', content: 'Machine wash cold with similar colors. Do not bleach. Tumble dry low. Iron on low heat if needed. Do not dry clean.' },
               ].map(({ key, label, content }) => (
                 <div key={key} className="border-b border-border">
