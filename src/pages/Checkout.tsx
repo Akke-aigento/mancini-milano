@@ -462,7 +462,8 @@ const Checkout = () => {
 
       <div className="divide-y divide-border">
         {displayItems.map(item => {
-          const itemPrice = Number(item.price) || 0;
+          const fallbackPrice = cartItems.find(c => c.id === item.id || c.title === item.title)?.price;
+          const itemPrice = Number(item.price) || Number(fallbackPrice) || 0;
           return (
             <div key={item.id} className="flex gap-3 py-3 first:pt-0">
               {(item as any).image && (
