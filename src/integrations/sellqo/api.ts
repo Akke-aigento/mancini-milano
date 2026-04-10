@@ -79,8 +79,11 @@ export const cartAPI = {
       body: JSON.stringify({ code }),
     }),
 
-  removeDiscount: (cartId: string) =>
-    sellqoFetch<Cart>(`/cart/${cartId}/discount`, { method: 'DELETE' }),
+  removeDiscount: (cartId: string, code?: string) =>
+    sellqoFetch<Cart>(`/cart/${cartId}/discount`, {
+      method: 'DELETE',
+      ...(code ? { body: JSON.stringify({ code }) } : {}),
+    }),
 };
 
 // === CHECKOUT (v2 step-by-step flow) ===

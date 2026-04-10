@@ -467,7 +467,7 @@ const Checkout = () => {
     }
 
     try {
-      // Step 1: Apply discount via CART endpoint (mutates actual pricing)
+      // Apply via cart endpoint
       const cartRes = await cartAPI.applyDiscount(cartId, code);
       const cartData = (cartRes as any)?.data || cartRes;
       console.log('[Checkout] cartAPI.applyDiscount result:', JSON.stringify(cartData));
@@ -477,26 +477,32 @@ const Checkout = () => {
         return;
       }
 
-      // Also try checkout endpoint to register code there
+      // Apply via checkout endpoint — use response for authoritative pricing
+      let checkoutResult: any = null;
       try {
         const checkoutRes = await checkoutAPI.applyDiscount(cartId, code);
-        console.log('[Checkout] checkoutAPI.applyDiscount result:', JSON.stringify((checkoutRes as any)?.data || checkoutRes));
+        checkoutResult = (checkoutRes as any)?.data || checkoutRes;
+        console.log('[Checkout] checkoutAPI.applyDiscount result:', JSON.stringify(checkoutResult));
       } catch (e) {
         console.warn('[Checkout] checkoutAPI.applyDiscount failed (non-critical):', e);
       }
 
-      // Optimistically add the tag (will be replaced by server data on refresh)
-      const appliedCode = code;
+      // Build discount list from server response
+      const serverCodes: string[] = checkoutResult?.discount_codes || [];
+      const newDiscounts = serverCodes.length > 0
+        ? serverCodes.map((c: string) => ({ code: c, amount: 0 }))
+        : [...checkoutData.discounts, { code, amount: 0 }];
+
       setCheckoutData(prev => prev ? {
         ...prev,
-        discounts: [...prev.discounts, { code: appliedCode, amount: 0 }],
+        discounts: newDiscounts,
+        ...(checkoutResult ? {
+          subtotal: toFiniteNumber(checkoutResult.subtotal, prev.subtotal),
+          shippingCost: toFiniteNumber(checkoutResult.shipping_cost, prev.shippingCost),
+          total: toFiniteNumber(checkoutResult.total, prev.total),
+        } : {}),
       } : prev);
       setDiscountInput('');
-
-      // Step 2: Full refresh to get authoritative pricing
-      await refreshCheckoutPricing(cartId);
-
-      // Step 3: Verify pricing actually changed — only toast success if it did
       toast.success('Discount applied!');
     } catch (err: any) {
       console.error('[Checkout] handleApplyDiscount error:', err);
@@ -509,40 +515,35 @@ const Checkout = () => {
     const cartId = localStorage.getItem('mancini_cart_id');
     if (!cartId) return;
     try {
-      // Remove via cart endpoint
-      await cartAPI.removeDiscount(cartId);
-      console.log('[Checkout] cartAPI.removeDiscount done');
+      // Remove specific code via cart endpoint
+      await cartAPI.removeDiscount(cartId, codeToRemove);
+      console.log('[Checkout] cartAPI.removeDiscount done for', codeToRemove);
 
-      // Also try checkout endpoint
+      // Remove via checkout endpoint — use response for authoritative pricing
+      let removeResult: any = null;
       try {
-        await checkoutAPI.removeDiscount(cartId, codeToRemove);
+        const res = await checkoutAPI.removeDiscount(cartId, codeToRemove);
+        removeResult = (res as any)?.data || res;
+        console.log('[Checkout] checkoutAPI.removeDiscount result:', JSON.stringify(removeResult));
       } catch (e) {
         console.warn('[Checkout] checkoutAPI.removeDiscount failed (non-critical):', e);
       }
 
-      // Remove from local list
-      const remainingCodes = checkoutData.discounts
-        .filter(d => d.code !== codeToRemove)
-        .map(d => d.code);
+      // Build discount list from server response
+      const serverCodes: string[] = removeResult?.discount_codes || [];
+      const newDiscounts = removeResult
+        ? serverCodes.map((c: string) => ({ code: c, amount: 0 }))
+        : checkoutData.discounts.filter(d => d.code !== codeToRemove);
 
       setCheckoutData(prev => prev ? {
         ...prev,
-        discounts: prev.discounts.filter(d => d.code !== codeToRemove),
+        discounts: newDiscounts,
+        ...(removeResult ? {
+          subtotal: toFiniteNumber(removeResult.subtotal, prev.subtotal),
+          shippingCost: toFiniteNumber(removeResult.shipping_cost, prev.shippingCost),
+          total: toFiniteNumber(removeResult.total, prev.total),
+        } : {}),
       } : prev);
-
-      // If another code remains, re-apply it (backend only supports one at a time)
-      if (remainingCodes.length > 0) {
-        const reapplyCode = remainingCodes[remainingCodes.length - 1];
-        try {
-          await cartAPI.applyDiscount(cartId, reapplyCode);
-          await checkoutAPI.applyDiscount(cartId, reapplyCode);
-        } catch (e) {
-          console.warn('[Checkout] re-apply remaining code failed:', e);
-        }
-      }
-
-      // Full refresh
-      await refreshCheckoutPricing(cartId);
     } catch (err) {
       console.error('[Checkout] handleRemoveDiscount error:', err);
     }

@@ -86,7 +86,7 @@ function resolveAction(
         return { action: 'cart_apply_discount', tenant_id: tenantId, params: { ...params, ...body } };
       }
       if (method === 'DELETE') {
-        return { action: 'cart_remove_discount', tenant_id: tenantId, params };
+        return { action: 'cart_remove_discount', tenant_id: tenantId, params: { ...params, ...body } };
       }
     }
   }
