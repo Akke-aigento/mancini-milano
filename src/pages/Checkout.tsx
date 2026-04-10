@@ -448,8 +448,8 @@ const Checkout = () => {
 
   const displayItems = checkoutData.items.length > 0 ? checkoutData.items : cartItems;
 
-  // Order summary sidebar
-  const OrderSummary = () => (
+  // Order summary sidebar (inline JSX variable, not a component, to avoid remounting)
+  const orderSummary = (
     <div className="border border-border p-5 space-y-4">
       <h3 className="text-sm uppercase tracking-button font-medium text-foreground">Order Summary</h3>
 
@@ -818,7 +818,7 @@ const Checkout = () => {
 
           {/* Sidebar */}
           <div className="order-first lg:order-last">
-            <OrderSummary />
+            {orderSummary}
           </div>
         </div>
       </section>

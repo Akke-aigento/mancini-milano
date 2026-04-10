@@ -273,6 +273,10 @@ export function useApplyDiscount() {
       return normalizeCart(raw);
     },
     onSuccess: (cart) => { queryClient.setQueryData(sellqoKeys.cart(cart.id), cart); },
+    onSettled: () => {
+      const cartId = getStoredCartId();
+      if (cartId) queryClient.invalidateQueries({ queryKey: sellqoKeys.cart(cartId) });
+    },
   });
 }
 
