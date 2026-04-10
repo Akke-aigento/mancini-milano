@@ -27,6 +27,7 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [showSizeSelector, setShowSizeSelector] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>('description');
 
   // Debug: log variant data
