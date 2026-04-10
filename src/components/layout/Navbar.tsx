@@ -57,13 +57,6 @@ function MobileAccordion({ label, slug, links, onClose, linkPrefix }: { label: s
       </button>
       {open && (
         <div className="pl-4 pb-2 space-y-1">
-          <Link
-            to={`/collections/${slug}`}
-            onClick={onClose}
-            className="block py-2.5 text-sm uppercase tracking-button text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center"
-          >
-            View All {label}
-          </Link>
           {links.map(l => (
             <Link
               key={l.slug}
@@ -105,6 +98,7 @@ const Navbar = () => {
     { label: 'T-Shirts', slug: 't-shirts' },
     { label: 'Pants', slug: 'pants' },
     { label: 'Tracksuits', slug: 'tracksuits' },
+    { label: 'Bags', slug: 'bags' },
     { label: 'Accessories', slug: 'accessories' },
   ];
 
