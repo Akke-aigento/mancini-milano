@@ -300,7 +300,7 @@ const ProductDetail = () => {
             <div className="border-t border-border">
               {[
                 { key: 'description', label: 'Description', content: product.description },
-                { key: 'shipping', label: 'Shipping & Returns', content: 'Free worldwide shipping on all orders. Returns accepted within 14 days of delivery. Items must be unworn, unwashed, and in original packaging with tags attached.' },
+                { key: 'shipping', label: 'Shipping & Returns', content: '{ key: 'shipping', label: 'Shipping & Returns', content: 'Free worldwide shipping on orders over €150. Returns accepted within 14 days of delivery. Items must be unworn, unwashed, and in original packaging with tags attached.' }, of delivery. Items must be unworn, unwashed, and in original packaging with tags attached.' },
                 { key: 'care', label: 'Care Instructions', content: 'Machine wash cold with similar colors. Do not bleach. Tumble dry low. Iron on low heat if needed. Do not dry clean.' },
               ].map(({ key, label, content }) => (
                 <div key={key} className="border-b border-border">

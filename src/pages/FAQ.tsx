@@ -9,7 +9,7 @@ const faqs = [
   },
   {
     q: 'How long does shipping take?',
-    a: 'We offer free worldwide shipping on all orders. European orders typically arrive within 3–5 business days. International orders outside Europe take 5–10 business days depending on the destination.',
+    a: 'a: 'We offer free worldwide shipping on orders over €150. European orders typically arrive within 3–5 business days. International orders outside Europe take 5–10 business days depending on the destination.', European orders typically arrive within 3–5 business days. International orders outside Europe take 5–10 business days depending on the destination.',
   },
   {
     q: 'What is your return policy?',
@@ -17,7 +17,7 @@ const faqs = [
   },
   {
     q: 'Do you ship internationally?',
-    a: 'Yes! We ship worldwide with free shipping on all orders. Customs duties and import taxes may apply depending on your country and are the responsibility of the buyer.',
+    a: 'a: 'Yes! We ship worldwide with free shipping on orders over €150. Customs duties and import taxes may apply depending on your country and are the responsibility of the buyer.', Customs duties and import taxes may apply depending on your country and are the responsibility of the buyer.',
   },
   {
     q: 'How can I track my order?',
