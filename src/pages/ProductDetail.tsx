@@ -291,7 +291,7 @@ const ProductDetail = () => {
             )}
 
             <button
-              onClick={handleAddToCart}
+              onClick={() => handleAddToCart()}
               disabled={!canAddToCart}
               className={`w-full py-3.5 text-xs uppercase tracking-button font-medium transition-colors mb-6 ${
                 addedToCart
