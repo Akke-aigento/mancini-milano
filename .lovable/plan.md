@@ -1,16 +1,12 @@
 
 
-# "Free Shipping" tekst overal aanpassen naar €150 minimum
+# Cart Drawer: Verzendkosten tekst aanpassen
 
-De tekst over gratis verzending moet op 3 plekken worden aangepast:
+In de CartDrawer staat nu "Shipping → Free". Dit moet worden gewijzigd naar "Calculated at checkout" (of "Calculated in next step"), aangezien verzendkosten pas bij de checkout worden berekend en alleen gratis zijn boven €150.
 
-| Bestand | Huidige tekst | Nieuwe tekst |
-|---|---|---|
-| `src/components/layout/AnnouncementBar.tsx` | ✅ Al correct | "Free Worldwide Shipping on Orders Over €150" |
-| `src/pages/ProductDetail.tsx` regel 228 | "Free worldwide shipping" | "Free worldwide shipping on orders over €150" |
-| `src/pages/ProductDetail.tsx` regel 303 | "Free worldwide shipping on all orders..." | "Free worldwide shipping on orders over €150..." |
-| `src/pages/FAQ.tsx` regel 12 | "...free worldwide shipping on all orders..." | "...free worldwide shipping on orders over €150..." |
-| `src/pages/FAQ.tsx` regel 20 | "...free shipping on all orders..." | "...free shipping on orders over €150..." |
+## Wijziging
 
-Totaal: 4 tekstaanpassingen in 2 bestanden.
+| Bestand | Wat |
+|---|---|
+| `src/components/CartDrawer.tsx` | "Free" vervangen door "Calculated at checkout" bij de Shipping-regel |
 
