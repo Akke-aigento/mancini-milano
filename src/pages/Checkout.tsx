@@ -137,7 +137,7 @@ const Checkout = () => {
           total: result.total || cartSubtotal,
           currency: result.currency || 'EUR',
           shippingCost: 0,
-          discount: null,
+          discounts: [],
         });
 
         if (result.available_shipping_methods?.length > 0) {
@@ -204,13 +204,17 @@ const Checkout = () => {
   };
 
   // Computed total with fallback
+  const totalDiscountAmount = useMemo(() => {
+    if (!checkoutData) return 0;
+    return checkoutData.discounts.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+  }, [checkoutData?.discounts]);
+
   const computedTotal = useMemo(() => {
     if (!checkoutData) return 0;
     const sub = Number(checkoutData.subtotal) || 0;
     const ship = Number(checkoutData.shippingCost) || 0;
-    const disc = Number(checkoutData.discount?.amount) || 0;
-    return Math.max(0, sub + ship - disc);
-  }, [checkoutData?.subtotal, checkoutData?.shippingCost, checkoutData?.discount?.amount]);
+    return Math.max(0, sub + ship - totalDiscountAmount);
+  }, [checkoutData?.subtotal, checkoutData?.shippingCost, totalDiscountAmount]);
 
   const displayTotal = checkoutData?.total && checkoutData.total > 0 ? checkoutData.total : computedTotal;
 
@@ -398,6 +402,11 @@ const Checkout = () => {
     if (!checkoutData || !discountInput.trim()) return;
     const cartId = localStorage.getItem('mancini_cart_id');
     if (!cartId) return;
+    const code = discountInput.trim().toUpperCase();
+    if (checkoutData.discounts.some(d => d.code.toUpperCase() === code)) {
+      toast.error('This discount code is already applied');
+      return;
+    }
     try {
       const res = await checkoutAPI.applyDiscount(cartId, discountInput.trim());
       const data = res as any;
@@ -408,7 +417,7 @@ const Checkout = () => {
       }
       setCheckoutData(prev => prev ? {
         ...prev,
-        discount: { code: result.discount_code, amount: result.discount_amount },
+        discounts: [...prev.discounts, { code: result.discount_code, amount: result.discount_amount }],
         total: result.total,
       } : prev);
       setDiscountInput('');
@@ -418,17 +427,17 @@ const Checkout = () => {
     }
   };
 
-  const handleRemoveDiscount = async () => {
+  const handleRemoveDiscount = async (codeToRemove: string) => {
     if (!checkoutData) return;
     const cartId = localStorage.getItem('mancini_cart_id');
     if (!cartId) return;
     try {
-      const res = await checkoutAPI.removeDiscount(cartId);
+      const res = await checkoutAPI.removeDiscount(cartId, codeToRemove);
       const data = res as any;
       const result = data?.data || data;
       setCheckoutData(prev => prev ? {
         ...prev,
-        discount: null,
+        discounts: prev.discounts.filter(d => d.code !== codeToRemove),
         total: result.total ?? prev.subtotal,
       } : prev);
     } catch { /* noop */ }
@@ -491,18 +500,18 @@ const Checkout = () => {
         </button>
       </div>
 
-      {checkoutData.discount && (
-        <div className="flex items-center justify-between text-sm">
+      {checkoutData.discounts.map(d => (
+        <div key={d.code} className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-1.5">
             <Tag className="h-3 w-3 text-primary" />
-            <span className="text-primary">{checkoutData.discount.code}</span>
+            <span className="text-primary">{d.code}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-primary">-{formatPrice(checkoutData.discount.amount)}</span>
-            <button onClick={handleRemoveDiscount}><X className="h-3 w-3 text-muted-foreground hover:text-foreground" /></button>
+            <span className="text-primary">-{formatPrice(d.amount)}</span>
+            <button onClick={() => handleRemoveDiscount(d.code)}><X className="h-3 w-3 text-muted-foreground hover:text-foreground" /></button>
           </div>
         </div>
-      )}
+      ))}
 
       <div className="space-y-1.5 text-sm">
         <div className="flex justify-between">

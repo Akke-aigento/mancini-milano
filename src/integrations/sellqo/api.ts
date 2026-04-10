@@ -141,10 +141,10 @@ export const checkoutAPI = {
       body: JSON.stringify({ cart_id, discount_code }),
     }),
 
-  removeDiscount: (cart_id: string) =>
+  removeDiscount: (cart_id: string, discount_code?: string) =>
     sellqoFetch<{ total: number }>('/checkout/discount', {
       method: 'DELETE',
-      body: JSON.stringify({ cart_id }),
+      body: JSON.stringify({ cart_id, ...(discount_code ? { discount_code } : {}) }),
     }),
 
   getOrderBySession: (stripe_session_id: string) =>
