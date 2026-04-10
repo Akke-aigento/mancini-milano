@@ -468,7 +468,7 @@ const Checkout = () => {
 
     try {
       // Step 1: Apply discount via CART endpoint (mutates actual pricing)
-      const cartRes = await cartAPI.applyDiscount(cartId, discountInput.trim());
+      const cartRes = await cartAPI.applyDiscount(cartId, code);
       const cartData = (cartRes as any)?.data || cartRes;
       console.log('[Checkout] cartAPI.applyDiscount result:', JSON.stringify(cartData));
 
@@ -479,14 +479,14 @@ const Checkout = () => {
 
       // Also try checkout endpoint to register code there
       try {
-        const checkoutRes = await checkoutAPI.applyDiscount(cartId, discountInput.trim());
+        const checkoutRes = await checkoutAPI.applyDiscount(cartId, code);
         console.log('[Checkout] checkoutAPI.applyDiscount result:', JSON.stringify((checkoutRes as any)?.data || checkoutRes));
       } catch (e) {
         console.warn('[Checkout] checkoutAPI.applyDiscount failed (non-critical):', e);
       }
 
       // Optimistically add the tag (will be replaced by server data on refresh)
-      const appliedCode = discountInput.trim();
+      const appliedCode = code;
       setCheckoutData(prev => prev ? {
         ...prev,
         discounts: [...prev.discounts, { code: appliedCode, amount: 0 }],
@@ -520,11 +520,26 @@ const Checkout = () => {
         console.warn('[Checkout] checkoutAPI.removeDiscount failed (non-critical):', e);
       }
 
-      // Remove from local list immediately
+      // Remove from local list
+      const remainingCodes = checkoutData.discounts
+        .filter(d => d.code !== codeToRemove)
+        .map(d => d.code);
+
       setCheckoutData(prev => prev ? {
         ...prev,
         discounts: prev.discounts.filter(d => d.code !== codeToRemove),
       } : prev);
+
+      // If another code remains, re-apply it (backend only supports one at a time)
+      if (remainingCodes.length > 0) {
+        const reapplyCode = remainingCodes[remainingCodes.length - 1];
+        try {
+          await cartAPI.applyDiscount(cartId, reapplyCode);
+          await checkoutAPI.applyDiscount(cartId, reapplyCode);
+        } catch (e) {
+          console.warn('[Checkout] re-apply remaining code failed:', e);
+        }
+      }
 
       // Full refresh
       await refreshCheckoutPricing(cartId);
