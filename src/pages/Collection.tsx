@@ -53,7 +53,7 @@ const Collection = () => {
   const title = baseTitle;
 
   // Build subcategory pills from API categories
-  const parentCategories = ['for-him', 'for-her'];
+  const parentCategories = ['men', 'women'];
   const isParent = slug && parentCategories.includes(slug);
   const pills = isParent
     ? [

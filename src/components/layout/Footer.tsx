@@ -25,11 +25,8 @@ const Footer = () => {
             <h4 className="text-xs uppercase tracking-button font-medium text-foreground mb-4">Shop</h4>
             <ul className="space-y-2.5">
               {[
-                { label: 'For Him', to: '/collections/for-him' },
-                { label: 'For Her', to: '/collections/for-her' },
-                { label: 'T-Shirts', to: '/collections/t-shirts' },
-                { label: 'Jackets', to: '/collections/jackets' },
-                { label: 'Accessories', to: '/collections/accessories' },
+                { label: 'For Him', to: '/collections/men' },
+                { label: 'For Her', to: '/collections/women' },
                 { label: 'Fragrances', to: '/collections/fragrances' },
               ].map(link => (
                 <li key={link.to}>
