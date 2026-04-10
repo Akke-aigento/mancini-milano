@@ -1,7 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
-import { useState } from 'react';
 import { formatPrice } from '@/components/ProductCard';
 
 const CartDrawer = () => {
@@ -9,26 +8,10 @@ const CartDrawer = () => {
   const {
     items, itemCount, subtotal, total,
     isOpen, closeCart,
-    updateQuantity, removeItem, applyDiscount, isLoading,
-    discountCode, setDiscountCode,
+    updateQuantity, removeItem, isLoading,
     cart,
   } = useSellQoCart();
-  const [code, setCode] = useState('');
-  const [codeError, setCodeError] = useState(false);
-  const [codeSuccess, setCodeSuccess] = useState(false);
 
-  const handleApplyCode = async () => {
-    if (!code.trim()) return;
-    setCodeError(false);
-    setCodeSuccess(false);
-    try {
-      await applyDiscount(code.trim());
-      setCodeSuccess(true);
-      setCode('');
-    } catch {
-      setCodeError(true);
-    }
-  };
 
   const handleCheckout = () => {
     closeCart();
@@ -114,28 +97,6 @@ const CartDrawer = () => {
             </div>
 
             <div className="border-t border-border p-5 space-y-4">
-              <div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={code}
-                    onChange={(e) => { setCode(e.target.value); setCodeError(false); setCodeSuccess(false); }}
-                    placeholder="Discount code"
-                    className="flex-1 bg-background border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-                  />
-                  <button
-                    onClick={handleApplyCode}
-                    className="px-4 py-2 text-xs uppercase tracking-button font-medium border border-border text-foreground hover:border-primary hover:text-primary transition-colors"
-                  >
-                    Apply
-                  </button>
-                </div>
-                {codeError && <p className="text-xs text-destructive mt-1">Invalid discount code</p>}
-                {codeSuccess && <p className="text-xs text-primary mt-1">Discount applied!</p>}
-                {cart?.discount_code && !codeSuccess && (
-                  <p className="text-xs text-primary mt-1">Code "{cart.discount_code}" applied</p>
-                )}
-              </div>
 
               <div className="space-y-1.5">
                 <div className="flex justify-between text-sm">
