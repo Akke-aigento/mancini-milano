@@ -437,7 +437,6 @@ const Checkout = () => {
       setCheckoutData(prev => prev ? {
         ...prev,
         discounts: prev.discounts.filter(d => d.code !== codeToRemove),
-        total: result.total ?? prev.subtotal,
       } : prev);
     } catch { /* noop */ }
   };
