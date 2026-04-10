@@ -38,6 +38,12 @@ interface CheckoutData {
 
 const PAYMENT_SORT_ORDER: Record<string, number> = { qr_transfer: 0, bank_transfer: 1, stripe: 2 };
 
+/** Safely parse a value to a finite number, returning fallback for NaN/Infinity/undefined/null */
+const toFiniteNumber = (value: unknown, fallback: number): number => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+};
+
 const Checkout = () => {
   const navigate = useNavigate();
   const { items: cartItems, subtotal: cartSubtotal, cart, clearCart } = useSellQoCart();
@@ -129,12 +135,14 @@ const Checkout = () => {
         const data = res as any;
         const result = data?.data || data;
 
+        const initSubtotal = toFiniteNumber(result.subtotal, cartSubtotal);
+        const initTotal = toFiniteNumber(result.total, initSubtotal);
         setCheckoutData({
           items: result.items || cartItems.map(i => ({ id: i.id, title: i.title, variant_title: i.variant_title, quantity: i.quantity, price: i.price, image: i.image })),
           availablePaymentMethods: result.available_payment_methods || [],
           availableShippingMethods: result.available_shipping_methods || [],
-          subtotal: result.subtotal || cartSubtotal,
-          total: result.total || cartSubtotal,
+          subtotal: initSubtotal,
+          total: initTotal,
           currency: result.currency || 'EUR',
           shippingCost: 0,
           discounts: [],
@@ -146,7 +154,11 @@ const Checkout = () => {
           try {
             const shipRes = await checkoutAPI.selectShipping(cartId, firstShipId);
             const shipData = (shipRes as any)?.data || shipRes;
-            setCheckoutData(prev => prev ? { ...prev, shippingCost: Number(shipData.shipping_cost) || 0 } : prev);
+            setCheckoutData(prev => prev ? {
+              ...prev,
+              shippingCost: toFiniteNumber(shipData.shipping_cost, prev.shippingCost),
+              total: toFiniteNumber(shipData.total, prev.total),
+            } : prev);
           } catch (shipErr) {
             console.error('Auto-select shipping error:', shipErr);
           }
@@ -211,20 +223,8 @@ const Checkout = () => {
     if (prev) setStep(prev);
   };
 
-  // Computed total with fallback
-  const totalDiscountAmount = useMemo(() => {
-    if (!checkoutData) return 0;
-    return checkoutData.discounts.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
-  }, [checkoutData?.discounts]);
-
-  const computedTotal = useMemo(() => {
-    if (!checkoutData) return 0;
-    const sub = Number(checkoutData.subtotal) || 0;
-    const ship = Number(checkoutData.shippingCost) || 0;
-    return Math.max(0, sub + ship - totalDiscountAmount);
-  }, [checkoutData?.subtotal, checkoutData?.shippingCost, totalDiscountAmount]);
-
-  const displayTotal = computedTotal;
+  // Total comes directly from API — no local recalculation
+  const displayTotal = checkoutData?.total ?? 0;
 
   // Combined step 1: customer + address + auto-shipping
   const handleDetailsSubmit = async () => {
@@ -297,8 +297,8 @@ const Checkout = () => {
         const shipResult = shipData?.data || shipData;
         setCheckoutData(prev => prev ? {
           ...prev,
-          shippingCost: shipResult.shipping_cost ?? 0,
-          total: shipResult.total ?? prev.total,
+          shippingCost: toFiniteNumber(shipResult.shipping_cost, prev.shippingCost),
+          total: toFiniteNumber(shipResult.total, prev.total),
         } : prev);
       }
 
@@ -328,8 +328,8 @@ const Checkout = () => {
       const result = data?.data || data;
       setCheckoutData(prev => prev ? {
         ...prev,
-        shippingCost: result.shipping_cost ?? 0,
-        total: result.total ?? prev.total,
+        shippingCost: toFiniteNumber(result.shipping_cost, prev.shippingCost),
+        total: toFiniteNumber(result.total, prev.total),
       } : prev);
       setStep('payment');
     } catch (err: any) {
@@ -425,9 +425,13 @@ const Checkout = () => {
       }
       setCheckoutData(prev => prev ? {
         ...prev,
-        subtotal: Number(result.subtotal) || prev.subtotal,
-        shippingCost: Number(result.shipping_cost ?? result.shippingCost) ?? prev.shippingCost,
-        discounts: [...prev.discounts, { code: result.discount_code || result.code || discountInput.trim(), amount: Number(result.discount_amount ?? result.amount ?? result.value ?? 0) || 0 }],
+        subtotal: toFiniteNumber(result.subtotal, prev.subtotal),
+        shippingCost: toFiniteNumber(result.shipping_cost ?? result.shippingCost, prev.shippingCost),
+        total: toFiniteNumber(result.total, prev.total),
+        discounts: [...prev.discounts, {
+          code: result.discount_code || result.code || discountInput.trim(),
+          amount: toFiniteNumber(result.discount_amount ?? result.amount ?? result.value, 0),
+        }],
       } : prev);
       setDiscountInput('');
       toast.success('Discount applied!');
@@ -446,8 +450,9 @@ const Checkout = () => {
       const result = data?.data || data;
       setCheckoutData(prev => prev ? {
         ...prev,
-        subtotal: Number(result.subtotal) || prev.subtotal,
-        shippingCost: Number(result.shipping_cost ?? result.shippingCost) ?? prev.shippingCost,
+        subtotal: toFiniteNumber(result.subtotal, prev.subtotal),
+        shippingCost: toFiniteNumber(result.shipping_cost ?? result.shippingCost, prev.shippingCost),
+        total: toFiniteNumber(result.total, prev.total),
         discounts: prev.discounts.filter(d => d.code !== codeToRemove),
       } : prev);
     } catch { /* noop */ }
@@ -518,7 +523,7 @@ const Checkout = () => {
             <span className="text-primary">{d.code}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-primary">-{formatPrice(d.amount)}</span>
+            {d.amount > 0 && <span className="text-primary">-{formatPrice(d.amount)}</span>}
             <button onClick={() => handleRemoveDiscount(d.code)}><X className="h-3 w-3 text-muted-foreground hover:text-foreground" /></button>
           </div>
         </div>
