@@ -93,6 +93,23 @@ const Collection = () => {
     : undefined;
 
   // Parent category page: show category grid
+  if (isParent && slug === 'women') {
+    return (
+      <Layout>
+        <SEO title="For Her" description="Coming soon — our women's collection at Mancini Milano." />
+        <section className="max-w-site mx-auto px-4 lg:px-8 pt-20 pb-32 text-center">
+          <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-4">
+            For Her
+          </h1>
+          <p className="text-lg text-muted-foreground mb-2">Coming Soon</p>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            We're working on our women's collection. Stay tuned.
+          </p>
+        </section>
+      </Layout>
+    );
+  }
+
   if (isParent) {
     return (
       <Layout>
