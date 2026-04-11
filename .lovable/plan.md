@@ -1,34 +1,34 @@
 
 
-# "Coming Soon" voor alle vrouwencategorieën
+# Fix: No Face hoodie — voorkant tonen op collectiepagina
 
-## Wat
-Niet alleen `/collections/women` maar ook alle subcategorieën met `?gender=women` (bijv. `/collections/hoodies?gender=women`) moeten "Coming Soon" tonen.
+## Probleem
+De "No Face" hoodie toont de achterkant als hoofdafbeelding op de collectiepagina. De SellQo config werkt niet mee om dit via de backend te fixen.
+
+## Oplossing
+Een simpele slug-based override in de normalizer die voor het product "no-face" de afbeeldingsvolgorde omdraait, zodat de voorkant (met het model / front design) als eerste wordt getoond.
 
 ## Aanpak
 
-**Bestand: `src/pages/Collection.tsx`**
+**Bestand: `src/integrations/sellqo/normalizer.ts`**
 
-Vroeg in de component, vóór de product-rendering, een extra check toevoegen:
+Na de bestaande featured_image logica (regel 37), een override toevoegen:
 
 ```typescript
-if (slug === 'women' || genderFilter === 'women') {
-  return (
-    <Layout>
-      <SEO title="For Her" description="Coming soon — our women's collection at Mancini Milano." />
-      <section className="max-w-site mx-auto px-4 lg:px-8 pt-20 pb-32 text-center">
-        <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-4">
-          For Her
-        </h1>
-        <p className="text-lg text-muted-foreground mb-2">Coming Soon</p>
-        <p className="text-sm text-muted-foreground max-w-md mx-auto">
-          We're working on our women's collection. Stay tuned.
-        </p>
-      </section>
-    </Layout>
-  );
+// Override: No Face hoodie — toon voorkant als hoofdafbeelding
+if ((raw.slug === 'no-face' || raw.handle === 'no-face') && images.length > 1) {
+  // Zoek de afbeelding met het model (voorkant) — typisch index 1
+  // Swap eerste twee afbeeldingen
+  const [back, front, ...rest] = images;
+  images.length = 0;
+  images.push(front, back, ...rest);
 }
 ```
 
-Dit vangt zowel de parent (`/collections/women`) als alle subcategorieën met `?gender=women` af. Het bestaande `if (isParent && slug === 'women')` blok wordt hierdoor overbodig en kan weg.
+Dit is een minimale, gerichte fix. Zodra de SellQo config later werkt, kan dit blok simpelweg verwijderd worden.
+
+## Bestanden
+| Bestand | Wijziging |
+|---|---|
+| `src/integrations/sellqo/normalizer.ts` | Slug-based image swap voor "no-face" |
 
