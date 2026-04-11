@@ -36,6 +36,13 @@ export function normalizeProduct(raw: any): Product {
     }
   }
 
+  // Override: No Face hoodie — toon voorkant als hoofdafbeelding
+  if ((raw.slug === 'no-face' || raw.handle === 'no-face') && images.length > 1) {
+    const [back, front, ...rest] = images;
+    images.length = 0;
+    images.push(front, back, ...rest);
+  }
+
   // Normalize variants
   const rawVariants = raw.variants || [];
   const variants: ProductVariant[] = rawVariants.map((v: any) => ({
