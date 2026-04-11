@@ -93,7 +93,7 @@ const Collection = () => {
     : undefined;
 
   // Parent category page: show category grid
-  if (isParent && slug === 'women') {
+  if (slug === 'women' || genderFilter === 'women') {
     return (
       <Layout>
         <SEO title="For Her" description="Coming soon — our women's collection at Mancini Milano." />
