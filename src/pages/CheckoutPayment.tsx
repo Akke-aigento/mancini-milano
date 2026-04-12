@@ -9,12 +9,13 @@ import { formatPrice } from '@/components/ProductCard';
 import { toast } from 'sonner';
 
 interface PaymentMethod {
-  id: string;
-  type: string;
+  method: string;
+  group: 'direct' | 'later' | 'transfer';
   name: string;
   description?: string;
-  fee?: number;
-  reason_unavailable?: string;
+  fee_cents?: number;
+  available: boolean;
+  reason_unavailable?: string | null;
 }
 
 const PAYMENT_LOGOS: Record<string, string> = {
