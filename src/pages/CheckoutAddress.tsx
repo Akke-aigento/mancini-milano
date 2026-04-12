@@ -3,31 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
+import { useCheckout } from '@/integrations/sellqo/CheckoutContext';
 import { useCustomerAuth } from '@/integrations/sellqo/CustomerAuthContext';
 import { checkoutAPI } from '@/integrations/sellqo/api';
 import { formatPrice } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
-const toFiniteNumber = (value: unknown, fallback: number): number => {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : fallback;
-};
-
 const CheckoutAddress = () => {
   const navigate = useNavigate();
-  const { items: cartItems, subtotal: cartSubtotal } = useSellQoCart();
+  const { items: cartItems } = useSellQoCart();
+  const { checkoutData, initCheckout, updateFromResponse } = useCheckout();
   const { customer } = useCustomerAuth();
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  // Customer form
   const [customerForm, setCustomerForm] = useState({
     email: '', first_name: '', last_name: '', phone: '',
   });
-
-  // Address form
   const [addressForm, setAddressForm] = useState({
     street: '', house_number: '', postal_code: '', city: '', country: 'BE', company: '',
   });
@@ -36,13 +30,17 @@ const CheckoutAddress = () => {
     street: '', house_number: '', postal_code: '', city: '', country: 'BE', company: '',
   });
 
-  // Redirect if no cart
+  // Ensure checkout is initialized
   useEffect(() => {
     const cartId = localStorage.getItem('mancini_cart_id');
     if (!cartId || cartItems.length === 0) {
       navigate('/cart');
+      return;
     }
-  }, [cartItems, navigate]);
+    if (!checkoutData) {
+      initCheckout(cartId).catch(() => navigate('/checkout'));
+    }
+  }, [cartItems, navigate, checkoutData, initCheckout]);
 
   // Pre-fill from customer
   useEffect(() => {
@@ -90,6 +88,7 @@ const CheckoutAddress = () => {
         last_name: customerForm.last_name,
         phone: customerForm.phone || undefined,
       });
+      updateFromResponse(custRes);
       const custData = custRes as any;
       if (custData?.error?.code === 'VALIDATION_ERROR' && custData?.error?.fields) {
         setFieldErrors(custData.error.fields);
@@ -122,6 +121,7 @@ const CheckoutAddress = () => {
         billing_same_as_shipping: billingSame,
         billing_address: billingAddr,
       });
+      updateFromResponse(addrRes);
       const addrData = addrRes as any;
       if (addrData?.error?.code === 'VALIDATION_ERROR' && addrData?.error?.fields) {
         setFieldErrors(addrData.error.fields);
@@ -131,10 +131,10 @@ const CheckoutAddress = () => {
 
       // 3. Auto-select first shipping method
       try {
-        const startRes = await checkoutAPI.start(cartId);
-        const startData = (startRes as any)?.data || startRes;
-        if (startData.available_shipping_methods?.length > 0) {
-          await checkoutAPI.selectShipping(cartId, startData.available_shipping_methods[0].id);
+        const methods = checkoutData?.available_shipping_methods;
+        if (methods?.length) {
+          const shipRes = await checkoutAPI.selectShipping(cartId, methods[0].id);
+          updateFromResponse(shipRes);
         }
       } catch (e) {
         console.error('Auto-select shipping error:', e);
@@ -150,17 +150,14 @@ const CheckoutAddress = () => {
   };
 
   const countries = [
-    { code: 'BE', name: 'België' },
-    { code: 'NL', name: 'Nederland' },
-    { code: 'DE', name: 'Duitsland' },
-    { code: 'FR', name: 'Frankrijk' },
-    { code: 'LU', name: 'Luxemburg' },
-    { code: 'GB', name: 'Verenigd Koninkrijk' },
-    { code: 'IT', name: 'Italië' },
-    { code: 'ES', name: 'Spanje' },
-    { code: 'AT', name: 'Oostenrijk' },
-    { code: 'US', name: 'Verenigde Staten' },
+    { code: 'BE', name: 'België' }, { code: 'NL', name: 'Nederland' },
+    { code: 'DE', name: 'Duitsland' }, { code: 'FR', name: 'Frankrijk' },
+    { code: 'LU', name: 'Luxemburg' }, { code: 'GB', name: 'Verenigd Koninkrijk' },
+    { code: 'IT', name: 'Italië' }, { code: 'ES', name: 'Spanje' },
+    { code: 'AT', name: 'Oostenrijk' }, { code: 'US', name: 'Verenigde Staten' },
   ];
+
+  const displayItems = checkoutData?.items?.length ? checkoutData.items : cartItems;
 
   return (
     <Layout>
@@ -319,11 +316,11 @@ const CheckoutAddress = () => {
             <div className="border border-border p-5 space-y-4">
               <h3 className="text-sm uppercase tracking-button font-medium text-foreground">Overzicht</h3>
               <div className="divide-y divide-border">
-                {cartItems.map(item => (
+                {displayItems.map(item => (
                   <div key={item.id} className="flex gap-3 py-3 first:pt-0">
-                    {item.image && (
+                    {(item as any).image && (
                       <div className="w-14 h-18 bg-card overflow-hidden flex-shrink-0">
-                        <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                        <img src={(item as any).image} alt={item.title} className="w-full h-full object-cover" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
@@ -338,11 +335,23 @@ const CheckoutAddress = () => {
               <div className="space-y-1.5 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotaal</span>
-                  <span className="text-foreground">{formatPrice(cartSubtotal)}</span>
+                  <span className="text-foreground">{formatPrice(checkoutData?.subtotal ?? 0)}</span>
                 </div>
+                {checkoutData?.discount_total != null && checkoutData.discount_total > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Korting</span>
+                    <span className="text-primary">-{formatPrice(checkoutData.discount_total)}</span>
+                  </div>
+                )}
+                {checkoutData?.shipping_cost != null && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Verzending</span>
+                    <span className="text-foreground">{checkoutData.shipping_cost > 0 ? formatPrice(checkoutData.shipping_cost) : 'Gratis'}</span>
+                  </div>
+                )}
                 <div className="border-t border-border pt-2 flex justify-between font-medium">
                   <span>Totaal</span>
-                  <span className="text-lg">{formatPrice(cartSubtotal)}</span>
+                  <span className="text-lg">{formatPrice(checkoutData?.total ?? 0)}</span>
                 </div>
               </div>
             </div>
