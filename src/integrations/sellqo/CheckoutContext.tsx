@@ -17,7 +17,7 @@ export interface CheckoutCartDisplay {
   discount_total?: number;
   applied_discounts?: Array<{ code: string; amount: number }>;
   shipping_cost?: number;
-  fee?: number;
+  fee?: number | null;
   fee_label?: string;
   total: number;
   currency?: string;
