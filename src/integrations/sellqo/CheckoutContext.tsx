@@ -60,10 +60,10 @@ function normalizeResponse(raw: unknown, prev: CheckoutCartDisplay | null): Chec
   const data = (raw as any)?.data || raw;
   if (!data || typeof data !== 'object') return prev || emptyDisplay();
 
-  // Fee and total MUST always be overwritten from response (not merged with prev)
-  // to ensure switching payment methods updates correctly
-  const fee = 'fee' in data ? toNum(data.fee, 0)
-    : 'transaction_fee' in data ? toNum(data.transaction_fee, 0)
+  // Fee: always overwrite from response (including null = no fee)
+  const fee: number | null | undefined =
+    'fee' in data ? (data.fee != null ? toNum(data.fee, 0) : null)
+    : 'transaction_fee' in data ? (data.transaction_fee != null ? toNum(data.transaction_fee, 0) : null)
     : prev?.fee;
 
   return {
