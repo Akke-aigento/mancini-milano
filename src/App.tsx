@@ -16,11 +16,13 @@ import Cart from "./pages/Cart";
 import FAQ from "./pages/FAQ";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import SizeGuide from "./pages/SizeGuide";
-import CheckoutSuccess from "./pages/CheckoutSuccess";
 import Checkout from "./pages/Checkout";
+import CheckoutAddress from "./pages/CheckoutAddress";
+import CheckoutPayment from "./pages/CheckoutPayment";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
+import Bedankt from "./pages/Bedankt";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
-import QRPayment from "./pages/QRPayment";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,8 +48,10 @@ const App = () => (
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/size-guide" element={<SizeGuide />} />
                 <Route path="/checkout" element={<Checkout />} />
-                <Route path="/checkout/qr-betaling" element={<QRPayment />} />
+                <Route path="/checkout/address" element={<CheckoutAddress />} />
+                <Route path="/checkout/payment" element={<CheckoutPayment />} />
                 <Route path="/checkout/success" element={<CheckoutSuccess />} />
+                <Route path="/bedankt" element={<Bedankt />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/account" element={<Account />} />
                 <Route path="*" element={<NotFound />} />
