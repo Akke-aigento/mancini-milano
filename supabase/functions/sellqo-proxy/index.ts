@@ -104,6 +104,9 @@ function resolveAction(
     if (segments[1] === 'shipping' && method === 'POST') {
       return { action: 'checkout_shipping', tenant_id: tenantId, params: { ...params, ...body } };
     }
+    if (segments[1] === 'select-payment-method' && method === 'POST') {
+      return { action: 'checkout_select_payment_method', tenant_id: tenantId, params: { ...params, ...body } };
+    }
     if (segments[1] === 'complete' && method === 'POST') {
       return { action: 'checkout_complete', tenant_id: tenantId, params: { ...params, ...body } };
     }
