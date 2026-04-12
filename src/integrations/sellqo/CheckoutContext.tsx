@@ -37,6 +37,7 @@ export interface CheckoutCartDisplay {
     price: number;
     estimated_days?: string;
   }>;
+  payment_section_order?: ('direct' | 'later' | 'transfer')[];
 }
 
 interface CheckoutContextType {
@@ -73,6 +74,7 @@ function normalizeResponse(raw: unknown, prev: CheckoutCartDisplay | null): Chec
     pass_fee_to_customer: data.pass_fee_to_customer ?? prev?.pass_fee_to_customer,
     available_payment_methods: data.available_payment_methods ?? prev?.available_payment_methods,
     available_shipping_methods: data.available_shipping_methods ?? prev?.available_shipping_methods,
+    payment_section_order: data.payment_section_order ?? prev?.payment_section_order,
   };
 }
 
