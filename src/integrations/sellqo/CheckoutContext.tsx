@@ -11,6 +11,7 @@ export interface CheckoutCartDisplay {
     quantity: number;
     price: number;
     line_total?: number;
+    image?: string;
   }>;
   subtotal: number;
   discount_total?: number;
