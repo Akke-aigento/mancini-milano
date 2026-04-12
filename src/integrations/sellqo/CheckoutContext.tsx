@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback, useState } from 'react';
+import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
 import { checkoutAPI } from './api';
 
 /** Shape returned by every checkout_* action from SellQo */
@@ -20,6 +20,7 @@ export interface CheckoutCartDisplay {
   fee?: number | null;
   fee_label?: string;
   total: number;
+  payment_method?: string | null;
   currency?: string;
   pass_fee_to_customer?: boolean;
   available_payment_methods?: Array<{
@@ -58,13 +59,28 @@ const CheckoutContext = createContext<CheckoutContextType | null>(null);
 /** Normalize any API response into a CheckoutCartDisplay, merging with previous state.
  *  Pricing fields (total, fee, subtotal, etc.) are ALWAYS overwritten from the response
  *  when present — the backend is the single source of truth. */
+function unwrapCheckoutPayload(raw: unknown): Record<string, any> | null {
+  let current = raw as any;
+
+  while (
+    current &&
+    typeof current === 'object' &&
+    'data' in current &&
+    current.data &&
+    typeof current.data === 'object' &&
+    !Array.isArray(current.data)
+  ) {
+    current = current.data;
+  }
+
+  return current && typeof current === 'object' && !Array.isArray(current)
+    ? current as Record<string, any>
+    : null;
+}
+
 function normalizeResponse(raw: unknown, prev: CheckoutCartDisplay | null): CheckoutCartDisplay {
-  // Unwrap { data: ... } wrapper if present
-  const outer = raw as any;
-  const data = (outer && typeof outer === 'object' && 'data' in outer && outer.data && typeof outer.data === 'object')
-    ? outer.data
-    : outer;
-  if (!data || typeof data !== 'object') return prev || emptyDisplay();
+  const data = unwrapCheckoutPayload(raw);
+  if (!data) return prev || emptyDisplay();
 
   // Resolve fee: check 'fee' first, then 'transaction_fee'
   let fee: number | null | undefined;
@@ -86,6 +102,7 @@ function normalizeResponse(raw: unknown, prev: CheckoutCartDisplay | null): Chec
     fee,
     fee_label: 'fee_label' in data ? data.fee_label : prev?.fee_label,
     total: 'total' in data ? toNum(data.total, 0) : (prev?.total ?? 0),
+    payment_method: 'payment_method' in data ? (data.payment_method ?? null) : prev?.payment_method,
     currency: data.currency ?? prev?.currency,
     pass_fee_to_customer: 'pass_fee_to_customer' in data ? data.pass_fee_to_customer : prev?.pass_fee_to_customer,
     available_payment_methods: 'available_payment_methods' in data ? data.available_payment_methods : prev?.available_payment_methods,
@@ -104,27 +121,30 @@ function toNum(v: unknown, fb: number): number {
 }
 
 export function CheckoutProvider({ children }: { children: React.ReactNode }) {
-  const [checkoutData, setCheckoutData] = useState<CheckoutCartDisplay | null>(null);
+  const [checkoutData, setCheckoutDataState] = useState<CheckoutCartDisplay | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const checkoutDataRef = useRef<CheckoutCartDisplay | null>(null);
+
+  const setCheckoutData = useCallback((data: CheckoutCartDisplay) => {
+    const next = { ...data };
+    checkoutDataRef.current = next;
+    setCheckoutDataState(next);
+  }, []);
 
   const updateFromResponse = useCallback((response: unknown) => {
-    let result: CheckoutCartDisplay = emptyDisplay();
-    setCheckoutData(prev => {
-      result = normalizeResponse(response, prev);
-      return result;
-    });
-    return result;
+    const next = { ...normalizeResponse(response, checkoutDataRef.current) };
+    checkoutDataRef.current = next;
+    setCheckoutDataState(next);
+    return next;
   }, []);
 
   const initCheckout = useCallback(async (cartId: string) => {
     const res = await checkoutAPI.start(cartId);
-    let result: CheckoutCartDisplay = emptyDisplay();
-    setCheckoutData(prev => {
-      result = normalizeResponse(res, prev);
-      return result;
-    });
+    const next = { ...normalizeResponse(res, checkoutDataRef.current) };
+    checkoutDataRef.current = next;
+    setCheckoutDataState(next);
     setIsInitialized(true);
-    return result;
+    return next;
   }, []);
 
   return (
