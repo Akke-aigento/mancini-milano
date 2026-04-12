@@ -36,7 +36,7 @@ const SECTION_LABELS: Record<string, string> = {
   direct: 'Direct betalen', later: 'Achteraf betalen', transfer: 'Overschrijving',
 };
 
-const SECTION_ORDER = ['direct', 'later', 'transfer'];
+
 
 const CheckoutPayment = () => {
   const navigate = useNavigate();
@@ -123,6 +123,7 @@ const CheckoutPayment = () => {
   };
 
   const paymentMethods: PaymentMethod[] = checkoutData?.available_payment_methods ?? [];
+  const sectionOrder = checkoutData?.payment_section_order ?? ['direct', 'later', 'transfer'];
   const passFeeToCustomer = checkoutData?.pass_fee_to_customer ?? false;
   const feeLabel = checkoutData?.fee_label ?? 'Transactiekosten';
 
@@ -173,7 +174,7 @@ const CheckoutPayment = () => {
           <div className="space-y-8">
             <h2 className="text-sm uppercase tracking-button font-medium text-foreground">Betaalmethode</h2>
 
-            {SECTION_ORDER.map(sectionKey => {
+            {sectionOrder.map(sectionKey => {
               const methods = groupedMethods[sectionKey];
               if (!methods?.length) return null;
               return (
