@@ -92,8 +92,10 @@ export const checkoutAPI = {
     sellqoFetch<{
       order_id: string;
       items: Array<{ id: string; title: string; variant_title?: string; quantity: number; price: number; image?: string }>;
-      available_payment_methods: Array<{ id: string; type: string; name: string; description?: string }>;
+      available_payment_methods: Array<{ id: string; type: string; name: string; description?: string; fee?: number; reason_unavailable?: string }>;
       available_shipping_methods: Array<{ id: string; name: string; price: number; estimated_days?: string }>;
+      pass_fee_to_customer?: boolean;
+      fee_label?: string;
       subtotal: number;
       total: number;
       currency: string;
@@ -124,10 +126,17 @@ export const checkoutAPI = {
       body: JSON.stringify({ cart_id, shipping_method_id }),
     }),
 
+  selectPaymentMethod: (cart_id: string, payment_method_id: string) =>
+    sellqoFetch<{ subtotal: number; shipping_cost: number; transaction_fee: number; total: number }>('/checkout/select-payment-method', {
+      method: 'POST',
+      body: JSON.stringify({ cart_id, payment_method_id }),
+    }),
+
   complete: (cart_id: string, payment_method_id: string, success_url: string, cancel_url: string) =>
     sellqoFetch<{
-      payment_type: 'redirect' | 'manual' | 'qr';
+      payment_type: 'redirect' | 'manual' | 'qr' | 'bank_transfer';
       checkout_url?: string;
+      redirect_url?: string;
       order_number?: string;
       total?: number;
       currency?: string;
