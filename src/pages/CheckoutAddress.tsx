@@ -328,7 +328,7 @@ const CheckoutAddress = () => {
                       {item.variant_title && <p className="text-xs text-muted-foreground">{item.variant_title}</p>}
                       <p className="text-xs text-muted-foreground">Aantal: {item.quantity}</p>
                     </div>
-                    <p className="text-sm text-foreground">{formatPrice(item.price * item.quantity)}</p>
+                    <p className="text-sm text-foreground">{formatPrice((item as any).line_total ?? item.price * item.quantity)}</p>
                   </div>
                 ))}
               </div>
