@@ -9,12 +9,13 @@ import { formatPrice } from '@/components/ProductCard';
 import { toast } from 'sonner';
 
 interface PaymentMethod {
-  id: string;
-  type: string;
+  method: string;
+  group: 'direct' | 'later' | 'transfer';
   name: string;
   description?: string;
-  fee?: number;
-  reason_unavailable?: string;
+  fee_cents?: number;
+  available: boolean;
+  reason_unavailable?: string | null;
 }
 
 const PAYMENT_LOGOS: Record<string, string> = {
@@ -61,13 +62,11 @@ const CheckoutPayment = () => {
   }, []);
 
   const handleSelectMethod = async (methodId: string) => {
-    console.log('[CheckoutPayment] handleSelectMethod called with:', methodId);
     setSelectedMethod(methodId);
     const cartId = localStorage.getItem('mancini_cart_id');
-    if (!cartId) { console.warn('[CheckoutPayment] No cartId found'); return; }
+    if (!cartId) return;
     try {
       const res = await checkoutAPI.selectPaymentMethod(cartId, methodId);
-      console.log('[CheckoutPayment] selectPaymentMethod response:', res);
       updateFromResponse(res);
     } catch (err) {
       console.error('[CheckoutPayment] Select payment method error:', err);
@@ -75,11 +74,10 @@ const CheckoutPayment = () => {
   };
 
   const handleCompleteOrder = async () => {
-    console.log('[CheckoutPayment] handleCompleteOrder called, selectedMethod:', selectedMethod);
-    if (!selectedMethod) { console.warn('[CheckoutPayment] No selectedMethod, aborting'); return; }
+    if (!selectedMethod) return;
     setIsProcessing(true);
     const cartId = localStorage.getItem('mancini_cart_id');
-    if (!cartId) { console.warn('[CheckoutPayment] No cartId found'); return; }
+    if (!cartId) return;
 
     try {
       const successUrl = `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
@@ -130,11 +128,10 @@ const CheckoutPayment = () => {
 
   const groupedMethods = useMemo(() => {
     const groups: Record<string, PaymentMethod[]> = {};
-    for (const method of paymentMethods) {
-      const methodId = method.id || method.type;
-      const section = SECTION_MAP[methodId] || 'direct';
+    for (const m of paymentMethods) {
+      const section = m.group || SECTION_MAP[m.method] || 'direct';
       if (!groups[section]) groups[section] = [];
-      groups[section].push(method);
+      groups[section].push(m);
     }
     return groups;
   }, [paymentMethods]);
@@ -183,11 +180,11 @@ const CheckoutPayment = () => {
                 <div key={sectionKey} className="space-y-3">
                   <h3 className="text-xs uppercase tracking-button text-muted-foreground font-medium">{SECTION_LABELS[sectionKey]}</h3>
                   {methods.map(method => {
-                    const methodId = method.id || method.type;
+                    const methodId = method.method;
                     const isSelected = selectedMethod === methodId;
-                    const isDisabled = !!method.reason_unavailable;
+                    const isDisabled = !method.available;
                     const logoSrc = PAYMENT_LOGOS[methodId];
-                    const fee = method.fee ?? 0;
+                    const fee = method.fee_cents ? method.fee_cents / 100 : 0;
                     const isFree = methodId === 'bank_transfer' || methodId === 'qr_transfer';
 
                     return (
@@ -195,7 +192,7 @@ const CheckoutPayment = () => {
                         key={methodId}
                         onClick={() => !isDisabled && handleSelectMethod(methodId)}
                         disabled={isDisabled}
-                        title={isDisabled ? method.reason_unavailable : undefined}
+                        title={isDisabled && method.reason_unavailable ? method.reason_unavailable : undefined}
                         className={`w-full flex items-center gap-4 p-4 border transition-colors text-left min-h-[56px] ${
                           isDisabled ? 'opacity-50 cursor-not-allowed border-border'
                             : isSelected ? 'border-primary bg-primary/5'

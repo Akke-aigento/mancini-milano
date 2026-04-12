@@ -23,12 +23,13 @@ export interface CheckoutCartDisplay {
   currency?: string;
   pass_fee_to_customer?: boolean;
   available_payment_methods?: Array<{
-    id: string;
-    type: string;
+    method: string;
+    group: 'direct' | 'later' | 'transfer';
     name: string;
     description?: string;
-    fee?: number;
-    reason_unavailable?: string;
+    fee_cents?: number;
+    available: boolean;
+    reason_unavailable?: string | null;
   }>;
   available_shipping_methods?: Array<{
     id: string;
