@@ -60,16 +60,22 @@ function normalizeResponse(raw: unknown, prev: CheckoutCartDisplay | null): Chec
   const data = (raw as any)?.data || raw;
   if (!data || typeof data !== 'object') return prev || emptyDisplay();
 
+  // Fee and total MUST always be overwritten from response (not merged with prev)
+  // to ensure switching payment methods updates correctly
+  const fee = 'fee' in data ? toNum(data.fee, 0)
+    : 'transaction_fee' in data ? toNum(data.transaction_fee, 0)
+    : prev?.fee;
+
   return {
     order_id: data.order_id ?? prev?.order_id,
     items: data.items ?? prev?.items ?? [],
-    subtotal: toNum(data.subtotal, prev?.subtotal ?? 0),
-    discount_total: data.discount_total !== undefined ? toNum(data.discount_total, 0) : prev?.discount_total,
+    subtotal: 'subtotal' in data ? toNum(data.subtotal, 0) : (prev?.subtotal ?? 0),
+    discount_total: 'discount_total' in data ? toNum(data.discount_total, 0) : prev?.discount_total,
     applied_discounts: data.applied_discounts ?? prev?.applied_discounts,
-    shipping_cost: data.shipping_cost !== undefined ? toNum(data.shipping_cost, 0) : prev?.shipping_cost,
-    fee: data.fee !== undefined ? toNum(data.fee, 0) : (data.transaction_fee !== undefined ? toNum(data.transaction_fee, 0) : prev?.fee),
+    shipping_cost: 'shipping_cost' in data ? toNum(data.shipping_cost, 0) : prev?.shipping_cost,
+    fee,
     fee_label: data.fee_label ?? prev?.fee_label,
-    total: toNum(data.total, prev?.total ?? 0),
+    total: 'total' in data ? toNum(data.total, 0) : (prev?.total ?? 0),
     currency: data.currency ?? prev?.currency,
     pass_fee_to_customer: data.pass_fee_to_customer ?? prev?.pass_fee_to_customer,
     available_payment_methods: data.available_payment_methods ?? prev?.available_payment_methods,
