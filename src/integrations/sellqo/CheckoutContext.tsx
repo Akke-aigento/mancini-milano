@@ -98,18 +98,24 @@ export function CheckoutProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
 
   const updateFromResponse = useCallback((response: unknown) => {
-    const updated = normalizeResponse(response, checkoutData);
-    setCheckoutData(updated);
-    return updated;
-  }, [checkoutData]);
+    let result: CheckoutCartDisplay = emptyDisplay();
+    setCheckoutData(prev => {
+      result = normalizeResponse(response, prev);
+      return result;
+    });
+    return result;
+  }, []);
 
   const initCheckout = useCallback(async (cartId: string) => {
     const res = await checkoutAPI.start(cartId);
-    const updated = normalizeResponse(res, checkoutData);
-    setCheckoutData(updated);
+    let result: CheckoutCartDisplay = emptyDisplay();
+    setCheckoutData(prev => {
+      result = normalizeResponse(res, prev);
+      return result;
+    });
     setIsInitialized(true);
-    return updated;
-  }, [checkoutData]);
+    return result;
+  }, []);
 
   return (
     <CheckoutContext.Provider value={{ checkoutData, setCheckoutData, updateFromResponse, isInitialized, initCheckout }}>
