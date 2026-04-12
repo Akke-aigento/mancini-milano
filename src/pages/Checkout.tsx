@@ -3,26 +3,18 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Loader2, Tag, X, ChevronLeft } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
+import { useCheckout } from '@/integrations/sellqo/CheckoutContext';
 import { checkoutAPI, cartAPI } from '@/integrations/sellqo/api';
 import { formatPrice } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
-const toFiniteNumber = (value: unknown, fallback: number): number => {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : fallback;
-};
-
 const Checkout = () => {
   const navigate = useNavigate();
-  const { items: cartItems, subtotal: cartSubtotal, cart } = useSellQoCart();
+  const { items: cartItems } = useSellQoCart();
+  const { checkoutData, initCheckout, updateFromResponse } = useCheckout();
 
   const [isInitializing, setIsInitializing] = useState(true);
-  const [checkoutItems, setCheckoutItems] = useState<Array<{ id: string; title: string; variant_title?: string; quantity: number; price: number; image?: string }>>([]);
-  const [subtotal, setSubtotal] = useState(0);
-  const [total, setTotal] = useState(0);
-  const [shippingCost, setShippingCost] = useState(0);
-  const [discounts, setDiscounts] = useState<{ code: string; amount: number }[]>([]);
   const [discountInput, setDiscountInput] = useState('');
 
   useEffect(() => {
@@ -33,19 +25,12 @@ const Checkout = () => {
         return;
       }
       try {
-        const res = await checkoutAPI.start(cartId);
-        const data = (res as any)?.data || res;
-        setCheckoutItems(data.items || cartItems.map(i => ({ id: i.id, title: i.title, variant_title: i.variant_title, quantity: i.quantity, price: i.price, image: i.image })));
-        setSubtotal(toFiniteNumber(data.subtotal, cartSubtotal));
-        setTotal(toFiniteNumber(data.total, cartSubtotal));
-
+        const data = await initCheckout(cartId);
         // Auto-select first shipping
-        if (data.available_shipping_methods?.length > 0) {
+        if (data.available_shipping_methods?.length) {
           try {
             const shipRes = await checkoutAPI.selectShipping(cartId, data.available_shipping_methods[0].id);
-            const shipData = (shipRes as any)?.data || shipRes;
-            setShippingCost(toFiniteNumber(shipData.shipping_cost, 0));
-            setTotal(toFiniteNumber(shipData.total, toFiniteNumber(data.total, cartSubtotal)));
+            updateFromResponse(shipRes);
           } catch (e) {
             console.error('Auto-select shipping error:', e);
           }
@@ -66,29 +51,16 @@ const Checkout = () => {
     const cartId = localStorage.getItem('mancini_cart_id');
     if (!cartId) return;
     const code = discountInput.trim().toUpperCase();
-    if (discounts.some(d => d.code.toUpperCase() === code)) {
+    if (checkoutData?.applied_discounts?.some(d => d.code.toUpperCase() === code)) {
       toast.error('Deze kortingscode is al toegepast');
       return;
     }
     try {
       await cartAPI.applyDiscount(cartId, code);
-      let checkoutResult: any = null;
       try {
-        const checkoutRes = await checkoutAPI.applyDiscount(cartId, code);
-        checkoutResult = (checkoutRes as any)?.data || checkoutRes;
+        const res = await checkoutAPI.applyDiscount(cartId, code);
+        updateFromResponse(res);
       } catch { /* non-critical */ }
-
-      const serverCodes: string[] = checkoutResult?.discount_codes || [];
-      const newDiscounts = serverCodes.length > 0
-        ? serverCodes.map((c: string) => ({ code: c, amount: 0 }))
-        : [...discounts, { code, amount: 0 }];
-
-      setDiscounts(newDiscounts);
-      if (checkoutResult) {
-        setSubtotal(toFiniteNumber(checkoutResult.subtotal, subtotal));
-        setShippingCost(toFiniteNumber(checkoutResult.shipping_cost, shippingCost));
-        setTotal(toFiniteNumber(checkoutResult.total, total));
-      }
       setDiscountInput('');
       toast.success('Kortingscode toegepast!');
     } catch (err: any) {
@@ -101,22 +73,10 @@ const Checkout = () => {
     if (!cartId) return;
     try {
       await cartAPI.removeDiscount(cartId, codeToRemove);
-      let removeResult: any = null;
       try {
         const res = await checkoutAPI.removeDiscount(cartId, codeToRemove);
-        removeResult = (res as any)?.data || res;
+        updateFromResponse(res);
       } catch { /* non-critical */ }
-
-      const serverCodes: string[] = removeResult?.discount_codes || [];
-      const newDiscounts = removeResult
-        ? serverCodes.map((c: string) => ({ code: c, amount: 0 }))
-        : discounts.filter(d => d.code !== codeToRemove);
-      setDiscounts(newDiscounts);
-      if (removeResult) {
-        setSubtotal(toFiniteNumber(removeResult.subtotal, subtotal));
-        setShippingCost(toFiniteNumber(removeResult.shipping_cost, shippingCost));
-        setTotal(toFiniteNumber(removeResult.total, total));
-      }
     } catch (err) {
       console.error('Remove discount error:', err);
     }
@@ -132,7 +92,8 @@ const Checkout = () => {
     );
   }
 
-  const displayItems = checkoutItems.length > 0 ? checkoutItems : cartItems;
+  const displayItems = checkoutData?.items?.length ? checkoutData.items : cartItems;
+  const appliedDiscounts = checkoutData?.applied_discounts ?? [];
 
   return (
     <Layout>
@@ -165,25 +126,21 @@ const Checkout = () => {
           <div className="space-y-6">
             <h2 className="text-sm uppercase tracking-button font-medium text-foreground">Jouw bestelling</h2>
             <div className="divide-y divide-border">
-              {displayItems.map(item => {
-                const fallbackPrice = cartItems.find(c => c.id === item.id || c.title === item.title)?.price;
-                const itemPrice = Number(item.price) || Number(fallbackPrice) || 0;
-                return (
-                  <div key={item.id} className="flex gap-4 py-4">
-                    {(item as any).image && (
-                      <div className="w-16 h-20 bg-card overflow-hidden flex-shrink-0">
-                        <img src={(item as any).image} alt={item.title} className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground truncate">{item.title || 'Product'}</p>
-                      {item.variant_title && <p className="text-xs text-muted-foreground">{item.variant_title}</p>}
-                      <p className="text-xs text-muted-foreground">Aantal: {item.quantity}</p>
+              {displayItems.map(item => (
+                <div key={item.id} className="flex gap-4 py-4">
+                  {(item as any).image && (
+                    <div className="w-16 h-20 bg-card overflow-hidden flex-shrink-0">
+                      <img src={(item as any).image} alt={item.title} className="w-full h-full object-cover" />
                     </div>
-                    <p className="text-sm text-foreground font-medium">{formatPrice(itemPrice * item.quantity)}</p>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-foreground truncate">{item.title || 'Product'}</p>
+                    {item.variant_title && <p className="text-xs text-muted-foreground">{item.variant_title}</p>}
+                    <p className="text-xs text-muted-foreground">Aantal: {item.quantity}</p>
                   </div>
-                );
-              })}
+                  <p className="text-sm text-foreground font-medium">{formatPrice(item.price * item.quantity)}</p>
+                </div>
+              ))}
             </div>
 
             <button
@@ -224,7 +181,7 @@ const Checkout = () => {
                 </button>
               </div>
 
-              {discounts.map(d => (
+              {appliedDiscounts.map(d => (
                 <div key={d.code} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-1.5">
                     <Tag className="h-3 w-3 text-primary" />
@@ -240,15 +197,23 @@ const Checkout = () => {
               <div className="space-y-1.5 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotaal</span>
-                  <span className="text-foreground">{formatPrice(subtotal)}</span>
+                  <span className="text-foreground">{formatPrice(checkoutData?.subtotal ?? 0)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Verzending</span>
-                  <span className="text-foreground">{shippingCost > 0 ? formatPrice(shippingCost) : 'Gratis'}</span>
-                </div>
+                {checkoutData?.discount_total != null && checkoutData.discount_total > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Korting</span>
+                    <span className="text-primary">-{formatPrice(checkoutData.discount_total)}</span>
+                  </div>
+                )}
+                {checkoutData?.shipping_cost != null && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Verzending</span>
+                    <span className="text-foreground">{checkoutData.shipping_cost > 0 ? formatPrice(checkoutData.shipping_cost) : 'Gratis'}</span>
+                  </div>
+                )}
                 <div className="border-t border-border pt-2 flex justify-between font-medium">
                   <span>Totaal</span>
-                  <span className="text-lg">{formatPrice(total)}</span>
+                  <span className="text-lg">{formatPrice(checkoutData?.total ?? 0)}</span>
                 </div>
               </div>
             </div>

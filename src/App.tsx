@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -16,6 +16,7 @@ import Cart from "./pages/Cart";
 import FAQ from "./pages/FAQ";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import SizeGuide from "./pages/SizeGuide";
+import { CheckoutProvider } from "@/integrations/sellqo/CheckoutContext";
 import Checkout from "./pages/Checkout";
 import CheckoutAddress from "./pages/CheckoutAddress";
 import CheckoutPayment from "./pages/CheckoutPayment";
@@ -47,9 +48,11 @@ const App = () => (
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/size-guide" element={<SizeGuide />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/checkout/address" element={<CheckoutAddress />} />
-                <Route path="/checkout/payment" element={<CheckoutPayment />} />
+                <Route element={<CheckoutProvider><Outlet /></CheckoutProvider>}>
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/checkout/address" element={<CheckoutAddress />} />
+                  <Route path="/checkout/payment" element={<CheckoutPayment />} />
+                </Route>
                 <Route path="/checkout/success" element={<CheckoutSuccess />} />
                 <Route path="/bedankt" element={<Bedankt />} />
                 <Route path="/login" element={<Login />} />
