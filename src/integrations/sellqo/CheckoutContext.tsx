@@ -55,32 +55,42 @@ interface CheckoutContextType {
 
 const CheckoutContext = createContext<CheckoutContextType | null>(null);
 
-/** Normalize any API response into a CheckoutCartDisplay, merging with previous state */
+/** Normalize any API response into a CheckoutCartDisplay, merging with previous state.
+ *  Pricing fields (total, fee, subtotal, etc.) are ALWAYS overwritten from the response
+ *  when present — the backend is the single source of truth. */
 function normalizeResponse(raw: unknown, prev: CheckoutCartDisplay | null): CheckoutCartDisplay {
-  const data = (raw as any)?.data || raw;
+  // Unwrap { data: ... } wrapper if present
+  const outer = raw as any;
+  const data = (outer && typeof outer === 'object' && 'data' in outer && outer.data && typeof outer.data === 'object')
+    ? outer.data
+    : outer;
   if (!data || typeof data !== 'object') return prev || emptyDisplay();
 
-  // Fee: always overwrite from response (including null = no fee)
-  const fee: number | null | undefined =
-    'fee' in data ? (data.fee != null ? toNum(data.fee, 0) : null)
-    : 'transaction_fee' in data ? (data.transaction_fee != null ? toNum(data.transaction_fee, 0) : null)
-    : prev?.fee;
+  // Resolve fee: check 'fee' first, then 'transaction_fee'
+  let fee: number | null | undefined;
+  if ('fee' in data) {
+    fee = data.fee != null ? toNum(data.fee, 0) : null;
+  } else if ('transaction_fee' in data) {
+    fee = data.transaction_fee != null ? toNum(data.transaction_fee, 0) : null;
+  } else {
+    fee = prev?.fee;
+  }
 
   return {
     order_id: data.order_id ?? prev?.order_id,
-    items: data.items ?? prev?.items ?? [],
+    items: Array.isArray(data.items) ? data.items : (prev?.items ?? []),
     subtotal: 'subtotal' in data ? toNum(data.subtotal, 0) : (prev?.subtotal ?? 0),
     discount_total: 'discount_total' in data ? toNum(data.discount_total, 0) : prev?.discount_total,
-    applied_discounts: data.applied_discounts ?? prev?.applied_discounts,
+    applied_discounts: 'applied_discounts' in data ? data.applied_discounts : prev?.applied_discounts,
     shipping_cost: 'shipping_cost' in data ? toNum(data.shipping_cost, 0) : prev?.shipping_cost,
     fee,
-    fee_label: data.fee_label ?? prev?.fee_label,
+    fee_label: 'fee_label' in data ? data.fee_label : prev?.fee_label,
     total: 'total' in data ? toNum(data.total, 0) : (prev?.total ?? 0),
     currency: data.currency ?? prev?.currency,
-    pass_fee_to_customer: data.pass_fee_to_customer ?? prev?.pass_fee_to_customer,
-    available_payment_methods: data.available_payment_methods ?? prev?.available_payment_methods,
-    available_shipping_methods: data.available_shipping_methods ?? prev?.available_shipping_methods,
-    payment_section_order: data.payment_section_order ?? prev?.payment_section_order,
+    pass_fee_to_customer: 'pass_fee_to_customer' in data ? data.pass_fee_to_customer : prev?.pass_fee_to_customer,
+    available_payment_methods: 'available_payment_methods' in data ? data.available_payment_methods : prev?.available_payment_methods,
+    available_shipping_methods: 'available_shipping_methods' in data ? data.available_shipping_methods : prev?.available_shipping_methods,
+    payment_section_order: 'payment_section_order' in data ? data.payment_section_order : prev?.payment_section_order,
   };
 }
 
