@@ -131,11 +131,10 @@ const CheckoutPayment = () => {
 
   const groupedMethods = useMemo(() => {
     const groups: Record<string, PaymentMethod[]> = {};
-    for (const method of paymentMethods) {
-      const methodId = method.id || method.type;
-      const section = SECTION_MAP[methodId] || 'direct';
+    for (const m of paymentMethods) {
+      const section = m.group || SECTION_MAP[m.method] || 'direct';
       if (!groups[section]) groups[section] = [];
-      groups[section].push(method);
+      groups[section].push(m);
     }
     return groups;
   }, [paymentMethods]);
@@ -184,11 +183,11 @@ const CheckoutPayment = () => {
                 <div key={sectionKey} className="space-y-3">
                   <h3 className="text-xs uppercase tracking-button text-muted-foreground font-medium">{SECTION_LABELS[sectionKey]}</h3>
                   {methods.map(method => {
-                    const methodId = method.id || method.type;
+                    const methodId = method.method;
                     const isSelected = selectedMethod === methodId;
-                    const isDisabled = !!method.reason_unavailable;
+                    const isDisabled = !method.available;
                     const logoSrc = PAYMENT_LOGOS[methodId];
-                    const fee = method.fee ?? 0;
+                    const fee = method.fee_cents ? method.fee_cents / 100 : 0;
                     const isFree = methodId === 'bank_transfer' || methodId === 'qr_transfer';
 
                     return (
