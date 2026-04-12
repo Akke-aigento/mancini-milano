@@ -10,7 +10,7 @@ export interface CheckoutCartDisplay {
     variant_title?: string;
     quantity: number;
     price: number;
-    image?: string;
+    line_total?: number;
   }>;
   subtotal: number;
   discount_total?: number;
