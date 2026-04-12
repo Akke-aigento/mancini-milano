@@ -17,7 +17,7 @@ export interface CheckoutCartDisplay {
   discount_total?: number;
   applied_discounts?: Array<{ code: string; amount: number }>;
   shipping_cost?: number;
-  fee?: number;
+  fee?: number | null;
   fee_label?: string;
   total: number;
   currency?: string;
@@ -60,10 +60,10 @@ function normalizeResponse(raw: unknown, prev: CheckoutCartDisplay | null): Chec
   const data = (raw as any)?.data || raw;
   if (!data || typeof data !== 'object') return prev || emptyDisplay();
 
-  // Fee and total MUST always be overwritten from response (not merged with prev)
-  // to ensure switching payment methods updates correctly
-  const fee = 'fee' in data ? toNum(data.fee, 0)
-    : 'transaction_fee' in data ? toNum(data.transaction_fee, 0)
+  // Fee: always overwrite from response (including null = no fee)
+  const fee: number | null | undefined =
+    'fee' in data ? (data.fee != null ? toNum(data.fee, 0) : null)
+    : 'transaction_fee' in data ? (data.transaction_fee != null ? toNum(data.transaction_fee, 0) : null)
     : prev?.fee;
 
   return {
@@ -98,18 +98,24 @@ export function CheckoutProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
 
   const updateFromResponse = useCallback((response: unknown) => {
-    const updated = normalizeResponse(response, checkoutData);
-    setCheckoutData(updated);
-    return updated;
-  }, [checkoutData]);
+    let result: CheckoutCartDisplay = emptyDisplay();
+    setCheckoutData(prev => {
+      result = normalizeResponse(response, prev);
+      return result;
+    });
+    return result;
+  }, []);
 
   const initCheckout = useCallback(async (cartId: string) => {
     const res = await checkoutAPI.start(cartId);
-    const updated = normalizeResponse(res, checkoutData);
-    setCheckoutData(updated);
+    let result: CheckoutCartDisplay = emptyDisplay();
+    setCheckoutData(prev => {
+      result = normalizeResponse(res, prev);
+      return result;
+    });
     setIsInitialized(true);
-    return updated;
-  }, [checkoutData]);
+    return result;
+  }, []);
 
   return (
     <CheckoutContext.Provider value={{ checkoutData, setCheckoutData, updateFromResponse, isInitialized, initCheckout }}>
