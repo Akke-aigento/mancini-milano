@@ -67,10 +67,7 @@ const CheckoutPayment = () => {
     if (!cartId) return;
     try {
       const res = await checkoutAPI.selectPaymentMethod(cartId, methodId);
-      console.log('[DEBUG] raw API response:', JSON.stringify(res));
-      console.log('[DEBUG] context total BEFORE:', checkoutData?.total, 'fee:', checkoutData?.fee);
-      const updated = updateFromResponse(res);
-      console.log('[DEBUG] updateFromResponse returned:', JSON.stringify({ total: updated.total, fee: updated.fee }));
+      updateFromResponse(res);
     } catch (err) {
       console.error('[CheckoutPayment] Select payment method error:', err);
     }
