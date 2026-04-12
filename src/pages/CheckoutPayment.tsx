@@ -75,10 +75,11 @@ const CheckoutPayment = () => {
   };
 
   const handleCompleteOrder = async () => {
-    if (!selectedMethod) return;
+    console.log('[CheckoutPayment] handleCompleteOrder called, selectedMethod:', selectedMethod);
+    if (!selectedMethod) { console.warn('[CheckoutPayment] No selectedMethod, aborting'); return; }
     setIsProcessing(true);
     const cartId = localStorage.getItem('mancini_cart_id');
-    if (!cartId) return;
+    if (!cartId) { console.warn('[CheckoutPayment] No cartId found'); return; }
 
     try {
       const successUrl = `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
