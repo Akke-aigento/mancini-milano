@@ -192,7 +192,7 @@ const CheckoutPayment = () => {
                         key={methodId}
                         onClick={() => !isDisabled && handleSelectMethod(methodId)}
                         disabled={isDisabled}
-                        title={isDisabled ? method.reason_unavailable : undefined}
+                        title={isDisabled && method.reason_unavailable ? method.reason_unavailable : undefined}
                         className={`w-full flex items-center gap-4 p-4 border transition-colors text-left min-h-[56px] ${
                           isDisabled ? 'opacity-50 cursor-not-allowed border-border'
                             : isSelected ? 'border-primary bg-primary/5'
