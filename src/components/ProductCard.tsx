@@ -22,6 +22,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const hasSecondImage = product.images.length > 1;
+  const allowHoverImage = hasSecondImage && product.slug !== 'the-boss-fragrance-tee';
   const isOutOfStock = product.in_stock === false || product.stock_status === 'out_of_stock';
 
   return (
