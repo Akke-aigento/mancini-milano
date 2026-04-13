@@ -81,22 +81,7 @@ const CheckoutAddress = () => {
     if (!cartId) return;
 
     try {
-      // 1. Save customer
-      const custRes = await checkoutAPI.saveCustomer(cartId, {
-        email: customerForm.email,
-        first_name: customerForm.first_name,
-        last_name: customerForm.last_name,
-        phone: customerForm.phone || undefined,
-      });
-      updateFromResponse(custRes);
-      const custData = custRes as any;
-      if (custData?.error?.code === 'VALIDATION_ERROR' && custData?.error?.fields) {
-        setFieldErrors(custData.error.fields);
-        setIsProcessing(false);
-        return;
-      }
-
-      // 2. Save address
+      // Build address payloads
       const shippingAddr: Record<string, string> = {
         street: `${addressForm.street} ${addressForm.house_number}`.trim(),
         city: addressForm.city,
@@ -116,12 +101,28 @@ const CheckoutAddress = () => {
         if (billingForm.company) billingAddr.company = billingForm.company;
       }
 
-      const addrRes = await checkoutAPI.saveAddress(cartId, {
-        shipping_address: shippingAddr,
-        billing_same_as_shipping: billingSame,
-        billing_address: billingAddr,
-      });
-      updateFromResponse(addrRes);
+      // 1. Save customer + address in parallel (both are independent writes)
+      const [custRes, addrRes] = await Promise.all([
+        checkoutAPI.saveCustomer(cartId, {
+          email: customerForm.email,
+          first_name: customerForm.first_name,
+          last_name: customerForm.last_name,
+          phone: customerForm.phone || undefined,
+        }),
+        checkoutAPI.saveAddress(cartId, {
+          shipping_address: shippingAddr,
+          billing_same_as_shipping: billingSame,
+          billing_address: billingAddr,
+        }),
+      ]);
+
+      // Check for validation errors
+      const custData = custRes as any;
+      if (custData?.error?.code === 'VALIDATION_ERROR' && custData?.error?.fields) {
+        setFieldErrors(custData.error.fields);
+        setIsProcessing(false);
+        return;
+      }
       const addrData = addrRes as any;
       if (addrData?.error?.code === 'VALIDATION_ERROR' && addrData?.error?.fields) {
         setFieldErrors(addrData.error.fields);
@@ -129,9 +130,13 @@ const CheckoutAddress = () => {
         return;
       }
 
-      // 3. Auto-select first shipping method
+      // Update context with latest response
+      updateFromResponse(addrRes);
+
+      // 2. Auto-select first shipping method
       try {
-        const methods = checkoutData?.available_shipping_methods;
+        const normalized = updateFromResponse(addrRes);
+        const methods = normalized?.available_shipping_methods ?? checkoutData?.available_shipping_methods;
         if (methods?.length) {
           const shipRes = await checkoutAPI.selectShipping(cartId, methods[0].id);
           updateFromResponse(shipRes);
