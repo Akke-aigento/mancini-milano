@@ -1,34 +1,32 @@
 
+## Fix: Sort sizes in logical order (S → M → L → XL)
 
-# Fix: No Face hoodie — voorkant tonen op collectiepagina
+### Problem
+Sizes are displayed in whatever order the API returns them. A `Set` preserves insertion order, so if the backend returns variants in a random order, sizes appear jumbled (e.g. L, S, XL, M).
 
-## Probleem
-De "No Face" hoodie toont de achterkant als hoofdafbeelding op de collectiepagina. De SellQo config werkt niet mee om dit via de backend te fixen.
+### Solution
+Add a size sorting map in `ProductDetail.tsx` and sort the sizes array after extracting from the Set.
 
-## Oplossing
-Een simpele slug-based override in de normalizer die voor het product "no-face" de afbeeldingsvolgorde omdraait, zodat de voorkant (met het model / front design) als eerste wordt getoond.
+### Changes — `src/pages/ProductDetail.tsx`
 
-## Aanpak
-
-**Bestand: `src/integrations/sellqo/normalizer.ts`**
-
-Na de bestaande featured_image logica (regel 37), een override toevoegen:
+In the `sizes` useMemo (lines 49-61), after `Array.from(s)`, sort using a predefined order map:
 
 ```typescript
-// Override: No Face hoodie — toon voorkant als hoofdafbeelding
-if ((raw.slug === 'no-face' || raw.handle === 'no-face') && images.length > 1) {
-  // Zoek de afbeelding met het model (voorkant) — typisch index 1
-  // Swap eerste twee afbeeldingen
-  const [back, front, ...rest] = images;
-  images.length = 0;
-  images.push(front, back, ...rest);
-}
+const SIZE_ORDER: Record<string, number> = {
+  'xxs': 0, 'xs': 1, 's': 2, 'm': 3, 'l': 4, 'xl': 5,
+  'xxl': 6, '2xl': 6, 'xxxl': 7, '3xl': 7,
+};
+
+// In the useMemo:
+const sorted = Array.from(s).sort((a, b) => {
+  const aOrder = SIZE_ORDER[a.toLowerCase()] ?? 99;
+  const bOrder = SIZE_ORDER[b.toLowerCase()] ?? 99;
+  return aOrder - bOrder;
+});
+return { items: sorted, label: detectedKey };
 ```
 
-Dit is een minimale, gerichte fix. Zodra de SellQo config later werkt, kan dit blok simpelweg verwijderd worden.
+This covers standard clothing sizes. Numeric sizes (e.g. 38, 40, 42) naturally sort correctly via the fallback `?? 99` since they won't match the map — but if numeric sizes are also used, we can add a numeric parse fallback in the comparator.
 
-## Bestanden
-| Bestand | Wijziging |
-|---|---|
-| `src/integrations/sellqo/normalizer.ts` | Slug-based image swap voor "no-face" |
-
+### Also check: SizeGuide.tsx
+The size guide page already has sizes hardcoded in S → XL order, so no change needed there.
