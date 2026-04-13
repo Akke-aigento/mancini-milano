@@ -1,51 +1,47 @@
 
+## Fix: productkaart springt van juiste hoofdfoto naar andere foto
 
-## Fix: Variant sizes not rendering for "The Midnight Jacket" (and similar products)
+### Waarschijnlijke oorzaak
+Dit lijkt geen probleem met de ingestelde hoofdfoto in SellQo zelf, maar met de frontend-weergave van `ProductCard`.
 
-### Root Cause
+Wat ik in de code zie:
+- De SellQo response voor `the-boss-fragrance-tee` geeft de juiste `featured_image`
+- De normalizer zet die ook al op `images[0]`
+- Maar `src/components/ProductCard.tsx` toont op hover automatisch `images[1]`
 
-The SellQo backend returns variant attribute keys that are set by the store owner. For "The Midnight Jacket", the attribute key is `"Sized"` instead of `"Size"`. After lowercasing in the normalizer, this becomes `"sized"`, which does NOT match any entry in `SIZE_KEYS = ['size', 'maat', 'taille', 'größe']`.
+Daardoor krijg je precies dit gedrag:
+1. eerst laadt de juiste hoofdfoto
+2. daarna, zodra de kaart in hover-state staat, fade/springt de card naar de tweede afbeelding
 
-This means `sizes` is empty, `needsSize` is false, and no size selector is rendered — even though the product has 4 size variants (S, M, L, XL).
+Omdat jij op de collectiepagina zit, is dat de meest logische verklaring voor het “verpringen”.
 
-### Affected Products
+### Fix
+Ik zou dit oplossen in `src/components/ProductCard.tsx`:
 
-From checking the API, only **The Midnight Jacket** currently has this issue (`"Sized"` instead of `"Size"`). Other products with variants (Urban Luxury, Inferno Luxe, Classic T-Shirt, etc.) use `"Size"` and `"Color"` which match correctly.
+1. Een uitzondering toevoegen voor `the-boss-fragrance-tee`
+   - voor dit product géén hover-image gebruiken
+   - altijd de hoofdfoto (`images[0]`) tonen
 
-However, more products could be affected in the future if the store owner uses non-standard option names.
+2. De bestaande hover-swap laten staan voor andere producten
+   - zodat de rest van de shop hetzelfde blijft werken
 
-### Fix — `src/pages/ProductDetail.tsx`
+### Waarom dit de juiste plek is
+- De data uit SellQo lijkt al correct binnen te komen
+- De fout ontstaat pas in de UI-laag
+- `ProductCard` wordt gebruikt op collectiepagina’s en related products, dus één fix pakt alles tegelijk mee
 
-Make the key matching more resilient by using `startsWith` instead of exact matching, and add common variations:
+### Concrete implementatie
+In `src/components/ProductCard.tsx`:
+- bereken iets zoals:
+  - `const allowHoverImage = hasSecondImage && product.slug !== 'the-boss-fragrance-tee';`
+- gebruik `allowHoverImage` i.p.v. `hasSecondImage`:
+  - voor de fade-out class van de eerste image
+  - voor het renderen van de tweede image
 
-**Line 10-11**: Update `SIZE_KEYS` and `COLOR_KEYS` to also match partial/fuzzy keys:
+### Resultaat na de fix
+- “The Boss Fragrance Tee” blijft stabiel op de juiste hoofdfoto staan
+- geen visuele sprong meer op de collectiekaart
+- andere producten behouden hun huidige hover-effect
 
-```typescript
-const SIZE_KEYS = ['size', 'sized', 'maat', 'taille', 'größe'];
-const COLOR_KEYS = ['color', 'colour', 'kleur', 'couleur', 'farbe'];
-```
-
-Additionally, update `getOptionValue` (lines 13-19) to also try `startsWith` matching as a fallback, so keys like `"sizes"`, `"sizing"` etc. would also work:
-
-```typescript
-const getOptionValue = (options: Record<string, string> | undefined, keys: string[]): { value: string; key: string } | null => {
-  if (!options) return null;
-  // Exact match first
-  for (const k of keys) {
-    if (k in options) return { value: options[k], key: k };
-  }
-  // Fallback: startsWith match
-  for (const k of keys) {
-    for (const optKey of Object.keys(options)) {
-      if (optKey.startsWith(k) || k.startsWith(optKey)) {
-        return { value: options[optKey], key: optKey };
-      }
-    }
-  }
-  return null;
-};
-```
-
-### Files to edit
-1. `src/pages/ProductDetail.tsx` — add `'sized'` to SIZE_KEYS and make `getOptionValue` more resilient
-
+### Bestand om aan te passen
+1. `src/components/ProductCard.tsx`
