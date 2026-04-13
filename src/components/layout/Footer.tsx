@@ -82,19 +82,19 @@ const Footer = () => {
                 } finally {
                   setLoading(false);
                 }
-              }} className="flex">
+              }} className="flex flex-col gap-2">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
-                  className="flex-1 bg-background border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+                  className="w-full bg-background border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
                 />
                 <button
                   type="submit"
                   disabled={loading}
-                  className="border border-foreground text-foreground bg-transparent px-4 py-2 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors disabled:opacity-50"
+                  className="w-full border border-foreground text-foreground bg-transparent px-4 py-2 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors disabled:opacity-50"
                 >
                   {loading ? '...' : 'Subscribe'}
                 </button>
