@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { ChevronUp } from 'lucide-react';
 
 const BackToTop = () => {
+  const { pathname } = useLocation();
   const [visible, setVisible] = useState(false);
+
+  const isProductPage = pathname.startsWith('/products/');
 
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 500);
@@ -10,7 +14,7 @@ const BackToTop = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  if (!visible) return null;
+  if (!visible || isProductPage) return null;
 
   return (
     <button

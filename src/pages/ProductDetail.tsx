@@ -420,8 +420,6 @@ const ProductDetail = () => {
                     onClick={() => {
                       if (isSizeOOS) return;
                       setSelectedSize(size);
-                      setShowSizeSelector(false);
-                      handleAddToCart(size);
                     }}
                     className={`min-w-[48px] h-10 px-3 text-xs uppercase tracking-button font-medium border transition-colors ${
                       isSizeOOS
@@ -448,10 +446,11 @@ const ProductDetail = () => {
               disabled={isOutOfStock}
               onClick={() => {
                 if (isOutOfStock) return;
-                if (needsSize) {
+                if (needsSize && !selectedSize) {
                   setShowSizeSelector(true);
                 } else {
                   handleAddToCart();
+                  setShowSizeSelector(false);
                 }
               }}
               className={`px-6 py-3 text-xs uppercase tracking-button font-medium transition-colors flex-shrink-0 min-h-[44px] ${
