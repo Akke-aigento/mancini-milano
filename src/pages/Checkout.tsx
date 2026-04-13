@@ -16,6 +16,7 @@ const Checkout = () => {
 
   const [isInitializing, setIsInitializing] = useState(true);
   const [discountInput, setDiscountInput] = useState('');
+  const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
 
   useEffect(() => {
     const init = async () => {
