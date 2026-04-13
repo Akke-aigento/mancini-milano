@@ -22,6 +22,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const hasSecondImage = product.images.length > 1;
+  const allowHoverImage = hasSecondImage && product.slug !== 'the-boss-fragrance-tee';
   const isOutOfStock = product.in_stock === false || product.stock_status === 'out_of_stock';
 
   return (
@@ -33,13 +34,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
             alt={product.images[0].alt || product.title}
             loading="lazy"
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${
-              hasSecondImage
+              allowHoverImage
                 ? 'group-hover:opacity-0'
                 : 'group-hover:scale-105'
             }`}
           />
         )}
-        {hasSecondImage && (
+        {allowHoverImage && (
           <img
             src={product.images[1].url}
             alt={product.images[1].alt || product.title}
