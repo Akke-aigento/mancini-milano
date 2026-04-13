@@ -404,6 +404,35 @@ const ProductDetail = () => {
       )}
 
       <div className="fixed bottom-0 left-0 right-0 z-30 lg:hidden">
+        {showColorSelector && needsColor && (
+          <div className="bg-card border-t border-border px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs uppercase tracking-button font-medium text-foreground">{colorLabel}</span>
+              <button onClick={() => setShowColorSelector(false)} className="text-xs text-muted-foreground">Close</button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {colors.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => {
+                    setSelectedColor(color);
+                    setShowColorSelector(false);
+                    if (needsSize && !selectedSize) {
+                      setShowSizeSelector(true);
+                    }
+                  }}
+                  className={`min-w-[48px] h-10 px-3 text-xs uppercase tracking-button font-medium border transition-colors ${
+                    selectedColor === color
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
+                  }`}
+                >
+                  {color}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {showSizeSelector && needsSize && (
           <div className="bg-card border-t border-border px-4 py-3">
             <div className="flex items-center justify-between mb-2">
@@ -447,11 +476,16 @@ const ProductDetail = () => {
               disabled={isOutOfStock}
               onClick={() => {
                 if (isOutOfStock) return;
-                if (needsSize && !selectedSize) {
+                if (needsColor && !selectedColor) {
+                  setShowColorSelector(true);
+                  setShowSizeSelector(false);
+                } else if (needsSize && !selectedSize) {
                   setShowSizeSelector(true);
+                  setShowColorSelector(false);
                 } else {
                   handleAddToCart();
                   setShowSizeSelector(false);
+                  setShowColorSelector(false);
                 }
               }}
               className={`px-6 py-3 text-xs uppercase tracking-button font-medium transition-colors flex-shrink-0 min-h-[44px] ${
@@ -464,7 +498,15 @@ const ProductDetail = () => {
                       : 'border border-foreground text-foreground'
               }`}
             >
-              {isOutOfStock ? 'Sold Out' : addedToCart ? '✓ Added' : canAddToCart ? `Add to Cart – ${selectedSize}` : 'Select Size'}
+              {isOutOfStock
+                ? 'Sold Out'
+                : addedToCart
+                  ? '✓ Added'
+                  : canAddToCart
+                    ? `Add to Cart${selectedColor || selectedSize ? ' – ' : ''}${[selectedColor, selectedSize].filter(Boolean).join(' / ')}`
+                    : needsColor && !selectedColor
+                      ? 'Select Color'
+                      : 'Select Size'}
             </button>
           </div>
         </div>
