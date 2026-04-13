@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
@@ -7,6 +7,7 @@ import { useCheckout } from '@/integrations/sellqo/CheckoutContext';
 import { checkoutAPI } from '@/integrations/sellqo/api';
 import { formatPrice } from '@/components/ProductCard';
 import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface PaymentMethod {
   method: string;
@@ -36,18 +37,23 @@ const SECTION_LABELS: Record<string, string> = {
   direct: 'Direct betalen', later: 'Achteraf betalen', transfer: 'Overschrijving',
 };
 
-
+const DEBOUNCE_MS = 300;
 
 const CheckoutPayment = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { clearCart } = useSellQoCart();
-  const { checkoutData, initCheckout, updateFromResponse } = useCheckout();
+  const { checkoutData, setCheckoutData, initCheckout, updateFromResponse } = useCheckout();
   const isCancelled = searchParams.get('cancelled') === 'true';
 
   const [isLoading, setIsLoading] = useState(!checkoutData);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState('');
+
+  // Debounce refs
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestMethodRef = useRef('');
+  const prevCheckoutDataRef = useRef(checkoutData);
 
   useEffect(() => {
     const cartId = localStorage.getItem('mancini_cart_id');
@@ -61,23 +67,88 @@ const CheckoutPayment = () => {
     }
   }, []);
 
-  const handleSelectMethod = async (methodId: string) => {
-    setSelectedMethod(methodId);
+  const paymentMethods: PaymentMethod[] = checkoutData?.available_payment_methods ?? [];
+  const sectionOrder = checkoutData?.payment_section_order ?? ['direct', 'later', 'transfer'];
+  const passFeeToCustomer = checkoutData?.pass_fee_to_customer ?? false;
+  const feeLabel = checkoutData?.fee_label ?? 'Transactiekosten';
+
+  // Persist selection to backend (debounced)
+  const persistSelection = useCallback(async (methodId: string, rollbackData: typeof checkoutData) => {
     const cartId = localStorage.getItem('mancini_cart_id');
     if (!cartId) return;
     try {
       const res = await checkoutAPI.selectPaymentMethod(cartId, methodId);
-      updateFromResponse(res);
+      // Only reconcile if this is still the latest selection
+      if (latestMethodRef.current === methodId) {
+        updateFromResponse(res);
+      }
     } catch (err) {
       console.error('[CheckoutPayment] Select payment method error:', err);
+      // Revert optimistic update if this is still the latest selection
+      if (latestMethodRef.current === methodId && rollbackData) {
+        setCheckoutData(rollbackData);
+        setSelectedMethod(rollbackData.payment_method || '');
+      }
+      toast.error('Kon betaalmethode niet opslaan');
     }
-  };
+  }, [updateFromResponse, setCheckoutData]);
+
+  const handleSelectMethod = useCallback((methodId: string) => {
+    // 1. Optimistic: update UI immediately
+    const method = paymentMethods.find(m => m.method === methodId);
+    const snapshot = checkoutData ? { ...checkoutData } : null;
+
+    if (method && checkoutData) {
+      const feeCents = method.fee_cents ?? 0;
+      const feeAmount = feeCents / 100;
+      const optimisticFee = feeCents > 0 ? feeAmount : null;
+      const optimisticTotal =
+        (checkoutData.subtotal ?? 0)
+        - (checkoutData.discount_total ?? 0)
+        + (checkoutData.shipping_cost ?? 0)
+        + feeAmount;
+
+      setCheckoutData({
+        ...checkoutData,
+        payment_method: methodId,
+        fee: optimisticFee,
+        total: optimisticTotal,
+      });
+    }
+
+    setSelectedMethod(methodId);
+    latestMethodRef.current = methodId;
+
+    // 2. Debounce API call
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      persistSelection(methodId, snapshot);
+    }, DEBOUNCE_MS);
+  }, [paymentMethods, checkoutData, setCheckoutData, persistSelection]);
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, []);
 
   const handleCompleteOrder = async () => {
     if (!selectedMethod) return;
     setIsProcessing(true);
     const cartId = localStorage.getItem('mancini_cart_id');
     if (!cartId) return;
+
+    // Flush any pending debounced selection
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+      debounceTimer.current = null;
+      // Ensure the latest method is persisted before completing
+      try {
+        const res = await checkoutAPI.selectPaymentMethod(cartId, selectedMethod);
+        updateFromResponse(res);
+      } catch { /* proceed anyway — complete will use the method param */ }
+    }
 
     try {
       const successUrl = `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
@@ -122,11 +193,6 @@ const CheckoutPayment = () => {
     }
   };
 
-  const paymentMethods: PaymentMethod[] = checkoutData?.available_payment_methods ?? [];
-  const sectionOrder = checkoutData?.payment_section_order ?? ['direct', 'later', 'transfer'];
-  const passFeeToCustomer = checkoutData?.pass_fee_to_customer ?? false;
-  const feeLabel = checkoutData?.fee_label ?? 'Transactiekosten';
-
   const groupedMethods = useMemo(() => {
     const groups: Record<string, PaymentMethod[]> = {};
     for (const m of paymentMethods) {
@@ -140,8 +206,28 @@ const CheckoutPayment = () => {
   if (isLoading) {
     return (
       <Layout>
-        <section className="max-w-5xl mx-auto px-4 lg:px-8 py-20 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <section className="max-w-5xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
+          <Skeleton className="h-9 w-48 mx-auto mb-8" />
+          <div className="flex items-center justify-center gap-2 mb-10">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="flex items-center gap-2">
+                <Skeleton className="w-8 h-8 rounded-full" />
+                <Skeleton className="w-16 h-3 hidden sm:block" />
+                {i < 3 && <Skeleton className="w-8 h-px" />}
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10">
+            <div className="space-y-4">
+              <Skeleton className="h-4 w-32 mb-4" />
+              {[1, 2, 3, 4].map(i => (
+                <Skeleton key={i} className="h-14 w-full" />
+              ))}
+            </div>
+            <div className="order-first lg:order-last">
+              <Skeleton className="h-48 w-full" />
+            </div>
+          </div>
         </section>
       </Layout>
     );
