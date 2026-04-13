@@ -466,6 +466,22 @@ const ProductDetail = () => {
             </div>
           </div>
         )}
+        {(selectedColor || selectedSize) && !showColorSelector && !showSizeSelector && (
+          <div className="flex gap-2 px-4 pt-3 bg-card border-t border-border">
+            {selectedColor && needsColor && (
+              <button onClick={() => { setShowColorSelector(true); setShowSizeSelector(false); }}
+                className="text-xs uppercase tracking-button border border-foreground px-3 py-1.5 bg-transparent text-foreground">
+                {colorLabel}: {selectedColor} ✎
+              </button>
+            )}
+            {selectedSize && needsSize && (
+              <button onClick={() => { setShowSizeSelector(true); setShowColorSelector(false); }}
+                className="text-xs uppercase tracking-button border border-foreground px-3 py-1.5 bg-transparent text-foreground">
+                {sizeLabel}: {selectedSize} ✎
+              </button>
+            )}
+          </div>
+        )}
         <div className="bg-card border-t border-border p-4">
           <div className="flex items-center gap-3">
             <div className="flex-1 min-w-0">
