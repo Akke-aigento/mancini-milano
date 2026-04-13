@@ -7,13 +7,22 @@ import ProductCard, { formatPrice } from '@/components/ProductCard';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useProduct, useRelatedProducts } from '@/integrations/sellqo/hooks';
 
-const SIZE_KEYS = ['size', 'maat', 'taille', 'größe'];
+const SIZE_KEYS = ['size', 'sized', 'maat', 'taille', 'größe'];
 const COLOR_KEYS = ['color', 'colour', 'kleur', 'couleur', 'farbe'];
 
 const getOptionValue = (options: Record<string, string> | undefined, keys: string[]): { value: string; key: string } | null => {
   if (!options) return null;
+  // Exact match first
   for (const k of keys) {
     if (k in options) return { value: options[k], key: k };
+  }
+  // Fallback: startsWith match (handles "sizes", "sizing", etc.)
+  for (const k of keys) {
+    for (const optKey of Object.keys(options)) {
+      if (optKey.startsWith(k) || k.startsWith(optKey)) {
+        return { value: options[optKey], key: optKey };
+      }
+    }
   }
   return null;
 };
