@@ -1,35 +1,51 @@
 
 
-## Fix: Preserve checkout state on page refresh
+## Fix: Variant sizes not rendering for "The Midnight Jacket" (and similar products)
 
-### Problem
-When refreshing any checkout page (`/checkout`, `/checkout/address`, `/checkout/payment`), shipping cost drops to €0 because:
+### Root Cause
 
-1. **Checkout.tsx & CheckoutAddress.tsx** guard on `cartItems.length === 0` — on refresh, React cart state is empty, so they redirect to `/cart` instead of re-fetching from the backend
-2. **Checkout.tsx** always auto-selects the first shipping method after `initCheckout`, potentially overwriting a previously selected method
-3. The backend already returns the correct shipping_cost via `buildCartResponse()` — the frontend just needs to use it
+The SellQo backend returns variant attribute keys that are set by the store owner. For "The Midnight Jacket", the attribute key is `"Sized"` instead of `"Size"`. After lowercasing in the normalizer, this becomes `"sized"`, which does NOT match any entry in `SIZE_KEYS = ['size', 'maat', 'taille', 'größe']`.
 
-### Fix
+This means `sizes` is empty, `needsSize` is false, and no size selector is rendered — even though the product has 4 size variants (S, M, L, XL).
 
-**File: `src/pages/Checkout.tsx`** (useEffect, lines 21-48)
-- Remove the `cartItems.length === 0` guard — don't redirect based on React state
-- Only redirect if no `cart_id` in localStorage
-- After `initCheckout`, only auto-select shipping if the response does NOT already have a shipping method set (i.e. `shipping_cost` is null/undefined)
+### Affected Products
 
-**File: `src/pages/CheckoutAddress.tsx`** (useEffect, lines 34-43)
-- Remove the `cartItems.length === 0` guard
-- Only redirect if no `cart_id` in localStorage
-- Keep the existing `if (!checkoutData) initCheckout(cartId)` logic — this is correct
+From checking the API, only **The Midnight Jacket** currently has this issue (`"Sized"` instead of `"Size"`). Other products with variants (Urban Luxury, Inferno Luxe, Classic T-Shirt, etc.) use `"Size"` and `"Color"` which match correctly.
 
-**File: `src/pages/CheckoutPayment.tsx`** — no changes needed, already handles refresh correctly
+However, more products could be affected in the future if the store owner uses non-standard option names.
 
-### Technical detail
+### Fix — `src/pages/ProductDetail.tsx`
 
-The key insight: on refresh, `cartItems` (from React Query/context) is empty, but `mancini_cart_id` in localStorage is still valid. The backend's `checkout_start` returns the full cart state including shipping. The frontend should trust the backend response rather than checking local React state.
+Make the key matching more resilient by using `startsWith` instead of exact matching, and add common variations:
 
-For the auto-shipping in Checkout.tsx, the check changes from "always select first" to "only select if backend response shows no shipping selected yet" (check `data.shipping_cost == null`).
+**Line 10-11**: Update `SIZE_KEYS` and `COLOR_KEYS` to also match partial/fuzzy keys:
+
+```typescript
+const SIZE_KEYS = ['size', 'sized', 'maat', 'taille', 'größe'];
+const COLOR_KEYS = ['color', 'colour', 'kleur', 'couleur', 'farbe'];
+```
+
+Additionally, update `getOptionValue` (lines 13-19) to also try `startsWith` matching as a fallback, so keys like `"sizes"`, `"sizing"` etc. would also work:
+
+```typescript
+const getOptionValue = (options: Record<string, string> | undefined, keys: string[]): { value: string; key: string } | null => {
+  if (!options) return null;
+  // Exact match first
+  for (const k of keys) {
+    if (k in options) return { value: options[k], key: k };
+  }
+  // Fallback: startsWith match
+  for (const k of keys) {
+    for (const optKey of Object.keys(options)) {
+      if (optKey.startsWith(k) || k.startsWith(optKey)) {
+        return { value: options[optKey], key: optKey };
+      }
+    }
+  }
+  return null;
+};
+```
 
 ### Files to edit
-1. `src/pages/Checkout.tsx` — remove cartItems guard, conditional auto-shipping
-2. `src/pages/CheckoutAddress.tsx` — remove cartItems guard
+1. `src/pages/ProductDetail.tsx` — add `'sized'` to SIZE_KEYS and make `getOptionValue` more resilient
 
