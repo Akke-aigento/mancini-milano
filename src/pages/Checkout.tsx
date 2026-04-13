@@ -56,6 +56,7 @@ const Checkout = () => {
       toast.error('Deze kortingscode is al toegepast');
       return;
     }
+    setIsApplyingDiscount(true);
     try {
       await cartAPI.applyDiscount(cartId, code);
       try {
@@ -66,6 +67,8 @@ const Checkout = () => {
       toast.success('Kortingscode toegepast!');
     } catch (err: any) {
       toast.error(err?.message || 'Ongeldige kortingscode');
+    } finally {
+      setIsApplyingDiscount(false);
     }
   };
 
