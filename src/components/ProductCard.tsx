@@ -34,13 +34,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
             alt={product.images[0].alt || product.title}
             loading="lazy"
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${
-              hasSecondImage
+              allowHoverImage
                 ? 'group-hover:opacity-0'
                 : 'group-hover:scale-105'
             }`}
           />
         )}
-        {hasSecondImage && (
+        {allowHoverImage && (
           <img
             src={product.images[1].url}
             alt={product.images[1].alt || product.title}
