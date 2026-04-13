@@ -110,7 +110,7 @@ export function useCategories() {
 // === CART HOOKS ===
 const CART_STORAGE_KEY = 'mancini_cart_id';
 
-export function getStoredCartId(): string | null {
+function getStoredCartId(): string | null {
   try {
     const id = localStorage.getItem(CART_STORAGE_KEY);
     if (!id || id === 'undefined' || id === 'null' || id.trim() === '') {
