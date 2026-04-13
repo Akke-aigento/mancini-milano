@@ -1,47 +1,39 @@
 
 
-## Fix: Product page overflow on smaller desktop screens
-
-### Problem
-At the `lg` breakpoint (1024px), the product detail grid uses `lg:grid-cols-[55%_45%]` with `lg:gap-12` (3rem). The percentages + gap exceed 100% of the container width, causing the right column (size buttons, "SIZE GUIDE" link, "SELECT A SIZE" button) to extend beyond the viewport edge.
+## Bug: Cart badge count not updating after QR/bank transfer payment
 
 ### Root cause
-`55% + 45% + 3rem gap = 100% + 3rem` → overflow. The `overflow-x: hidden` on body hides the scrollbar but clips the content.
 
-### Fix — `src/pages/ProductDetail.tsx`
+Two issues in `clearCart()` in `CartContext.tsx`:
 
-**Line 217** — Change the grid template to use `fr` units instead of percentages. `fr` units respect the gap automatically:
+1. **Wrong query key**: `clearCart` calls `queryClient.setQueryData(['cart'], undefined)` but the actual cart query key is `sellqoKeys.cart(cartId)` = `['sellqo', 'cart', '<cart-id>']`. The `setQueryData` call does nothing because the key doesn't match.
 
-```typescript
-// BEFORE:
-<div className="grid grid-cols-1 lg:grid-cols-[55%_45%] gap-8 lg:gap-12">
+2. **Non-reactive cartId**: `useCartQuery` reads `cartId` from localStorage at hook initialization (`const cartId = getStoredCartId()`). Even after `localStorage.removeItem(CART_STORAGE_KEY)`, the hook still has the old `cartId` cached and the query stays `enabled: true` with stale data. `invalidateQueries` then re-fetches the old cart (which may still exist on the backend), restoring the stale item count.
 
-// AFTER:
-<div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12">
-```
+The result: localStorage is cleared, but the React Query cache still holds the old cart data, so `itemCount` stays > 0 until a full page refresh.
 
-This gives the image column ~55% and the info column ~45% of the *available* space (after the gap is subtracted), preventing any overflow.
+### Fix — `src/integrations/sellqo/CartContext.tsx`
 
-Also apply the same fix to the **loading skeleton grid** on **line 154**:
-```typescript
-// BEFORE:
-<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-
-// AFTER (match the product grid ratio):
-<div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12">
-```
-
-### Additional: add `min-w-0` to right column
-On line 258, add `min-w-0` to the info column to prevent any child (like long product titles or buttons) from forcing the column wider than its grid track:
+Replace `clearCart` with a version that:
+1. Reads the current cartId from localStorage **before** removing it
+2. Uses the correct query key (`sellqoKeys.cart(cartId)`) to clear cached data
+3. Removes **all** cart-related queries from the cache instead of invalidating (which would re-fetch)
 
 ```typescript
-// BEFORE:
-<div className="lg:sticky lg:top-32 lg:self-start">
-
-// AFTER:
-<div className="lg:sticky lg:top-32 lg:self-start min-w-0">
+const clearCart = useCallback(() => {
+  const cartId = getStoredCartId();
+  try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
+  // Clear with correct query key
+  if (cartId) {
+    queryClient.setQueryData(sellqoKeys.cart(cartId), undefined);
+  }
+  // Remove all cart queries from cache entirely (don't invalidate = don't re-fetch)
+  queryClient.removeQueries({ queryKey: ['sellqo', 'cart'] });
+}, [queryClient]);
 ```
+
+This requires importing `getStoredCartId` and `sellqoKeys` (already available in the module).
 
 ### Result
-Content stays within viewport at all desktop widths (1024px and up). No visual change at larger screens.
+After QR/bank transfer payment, the cart badge in the navbar immediately shows 0 (no badge) without needing a page refresh.
 
