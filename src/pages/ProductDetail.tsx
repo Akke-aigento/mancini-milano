@@ -151,7 +151,7 @@ const ProductDetail = () => {
     return (
       <Layout>
         <div className="max-w-site mx-auto px-4 lg:px-8 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12">
             <div className="aspect-[3/4] bg-card animate-pulse" />
             <div className="space-y-4">
               <div className="h-4 bg-card w-1/2 animate-pulse" />
@@ -214,7 +214,7 @@ const ProductDetail = () => {
           <span className="text-foreground truncate">{product.title}</span>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[55%_45%] gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12">
           <div>
             <div className="aspect-[3/4] overflow-hidden bg-card mb-3">
               {product.images?.[selectedImage] && (
@@ -255,7 +255,7 @@ const ProductDetail = () => {
             )}
           </div>
 
-          <div className="lg:sticky lg:top-32 lg:self-start">
+          <div className="lg:sticky lg:top-32 lg:self-start min-w-0">
             <h1 className="font-heading text-2xl lg:text-[32px] tracking-heading uppercase text-foreground mb-3">
               {product.title}
             </h1>
