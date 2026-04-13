@@ -21,14 +21,14 @@ const Checkout = () => {
   useEffect(() => {
     const init = async () => {
       const cartId = localStorage.getItem('mancini_cart_id');
-      if (!cartId || cartItems.length === 0) {
+      if (!cartId) {
         navigate('/cart');
         return;
       }
       try {
         const data = await initCheckout(cartId);
-        // Auto-select first shipping
-        if (data.available_shipping_methods?.length) {
+        // Only auto-select shipping if none is set yet
+        if (data.shipping_cost == null && data.available_shipping_methods?.length) {
           try {
             const shipRes = await checkoutAPI.selectShipping(cartId, data.available_shipping_methods[0].id);
             updateFromResponse(shipRes);
