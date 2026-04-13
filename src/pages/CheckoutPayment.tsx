@@ -99,9 +99,10 @@ const CheckoutPayment = () => {
     const snapshot = checkoutData ? { ...checkoutData } : null;
 
     if (method && checkoutData) {
-      const feeCents = method.fee_cents ?? 0;
+      // Only apply fee to total when pass_fee_to_customer is enabled
+      const feeCents = passFeeToCustomer ? (method.fee_cents ?? 0) : 0;
       const feeAmount = feeCents / 100;
-      const optimisticFee = feeCents > 0 ? feeAmount : null;
+      const optimisticFee = passFeeToCustomer && feeCents > 0 ? feeAmount : null;
       const optimisticTotal =
         (checkoutData.subtotal ?? 0)
         - (checkoutData.discount_total ?? 0)
@@ -124,7 +125,7 @@ const CheckoutPayment = () => {
     debounceTimer.current = setTimeout(() => {
       persistSelection(methodId, snapshot);
     }, DEBOUNCE_MS);
-  }, [paymentMethods, checkoutData, setCheckoutData, persistSelection]);
+  }, [paymentMethods, checkoutData, setCheckoutData, persistSelection, passFeeToCustomer]);
 
   // Cleanup debounce on unmount
   useEffect(() => {
