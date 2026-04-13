@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useCallback, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCartQuery, useAddToCart, useUpdateCartItem, useRemoveCartItem, useApplyDiscount, useCreateCheckout, CART_STORAGE_KEY } from './hooks';
+import { useCartQuery, useAddToCart, useUpdateCartItem, useRemoveCartItem, useApplyDiscount, useCreateCheckout, CART_STORAGE_KEY, getStoredCartId, sellqoKeys } from './hooks';
 import type { Cart, CartItem } from './types';
 
 interface CartContextType {
@@ -88,9 +88,12 @@ export function SellQoCartProvider({ children }: { children: React.ReactNode }) 
   }, [createCheckout]);
 
   const clearCart = useCallback(() => {
+    const cartId = getStoredCartId();
     try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
-    queryClient.setQueryData(['cart'], undefined);
-    queryClient.invalidateQueries({ queryKey: ['cart'] });
+    if (cartId) {
+      queryClient.setQueryData(sellqoKeys.cart(cartId), undefined);
+    }
+    queryClient.removeQueries({ queryKey: ['sellqo', 'cart'] });
   }, [queryClient]);
 
   const items = cart?.items || [];
