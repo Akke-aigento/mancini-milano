@@ -1,58 +1,36 @@
 
 
-## Fix: Two mobile/tablet bugs on product pages
+## Fix: Newsletter subscribe button overflows viewport in footer
 
-### Bug 1 — Size selector dismisses immediately on tap
+### Problem
+The newsletter form in the footer uses `flex` with `flex-1` on the input and a fixed-width button. On smaller screens or the 4-column footer layout, the parent column is narrow enough that the button text "SUBSCRIBE" (with `px-4` padding and uppercase tracking) pushes beyond the container edge.
 
-**Current behavior:** Tapping a size in the floating footer size selector immediately closes the selector AND adds to cart in one action. The user never sees which size they picked.
+### Fix — `src/components/layout/Footer.tsx`
 
-**Desired behavior:** Tapping a size highlights it and keeps the selector open. The main button text changes to "Add to Cart – M" (or whichever size). The user then taps that button to confirm.
+**Line 85**: Change the form from `flex` (single row) to a stacked layout so the input and button each take full width of the column:
 
-**Fix in `src/pages/ProductDetail.tsx` (lines 417-425):**
-- Remove `setShowSizeSelector(false)` and `handleAddToCart(size)` from the size button's onClick
-- Only call `setSelectedSize(size)` so the size highlights and the button updates
-- The existing main button (line 447-468) already handles the rest: once `selectedSize` is set, it shows "Add to Cart – M" and calls `handleAddToCart()` on tap
+```html
+<!-- BEFORE -->
+<form ... className="flex">
 
-```typescript
-// Size button onClick becomes:
-onClick={() => {
-  if (isSizeOOS) return;
-  setSelectedSize(size);
-  // Selector stays open, user confirms via the main button below
-}}
+<!-- AFTER -->
+<form ... className="flex flex-col gap-2">
 ```
 
-The main button (line 447) already works correctly: when `needsSize && !selectedSize` it shows "Select Size" and opens the selector; when `selectedSize` is set it shows "Add to Cart – {size}" and calls `handleAddToCart()`. So the flow becomes: open selector → tap size → size highlights → tap "Add to Cart – M" → adds to cart and closes selector.
+**Line 92**: Remove `flex-1` from the input (no longer needed when stacked) and add `w-full`:
 
-Additionally, close the size selector after successful add-to-cart by adding `setShowSizeSelector(false)` inside the main button's click handler (after `handleAddToCart()`).
-
-### Bug 2 — "Back to Top" button overlaps floating footer
-
-**Current behavior:** The BackToTop button is fixed at `bottom-6 right-6` with `z-40`, sitting on top of the product page's floating footer (`z-30`). It's unnecessary and obstructive on product pages that already have the sticky footer.
-
-**Fix in `src/components/BackToTop.tsx`:**
-- Accept an optional `hidden` prop or use route detection
-- Simplest approach: use `useLocation()` to detect if we're on a product detail page (`/products/*`) and return `null`
-- Alternative: raise the button position when on a product page — but hiding is cleaner since the floating footer already scrolls back to the product info area
-
-```typescript
-import { useLocation } from 'react-router-dom';
-
-const BackToTop = () => {
-  const { pathname } = useLocation();
-  const [visible, setVisible] = useState(false);
-
-  // Hide on product pages where the floating footer is shown
-  const isProductPage = pathname.startsWith('/products/');
-
-  useEffect(() => { /* existing scroll listener */ }, []);
-
-  if (!visible || isProductPage) return null;
-  // ... rest unchanged
-};
 ```
+className="w-full bg-background border border-border px-3 py-2 text-sm ..."
+```
+
+**Line 97**: Add `w-full` to the button so it spans the column width:
+
+```
+className="w-full border border-foreground ... px-4 py-2 text-xs uppercase ..."
+```
+
+This ensures the newsletter form never overflows regardless of column width. The stacked layout also looks cleaner in the footer's 4-column grid.
 
 ### Files to edit
-1. `src/pages/ProductDetail.tsx` — size selector onClick behavior
-2. `src/components/BackToTop.tsx` — hide on product pages
+1. `src/components/layout/Footer.tsx` — 3 small class changes on lines 85, 92, 97
 
