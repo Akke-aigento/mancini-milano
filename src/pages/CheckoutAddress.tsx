@@ -33,7 +33,7 @@ const CheckoutAddress = () => {
   // Ensure checkout is initialized
   useEffect(() => {
     const cartId = localStorage.getItem('mancini_cart_id');
-    if (!cartId || cartItems.length === 0) {
+    if (!cartId) {
       navigate('/cart');
       return;
     }
