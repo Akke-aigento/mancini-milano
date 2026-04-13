@@ -123,13 +123,12 @@ const CartDrawer = () => {
                 {isLoading ? 'Processing...' : `Checkout — ${formatPrice(total)}`}
               </button>
 
-              <Link
-                to="/cart"
+              <button
                 onClick={closeCart}
-                className="block text-center text-xs uppercase tracking-button text-muted-foreground hover:text-foreground transition-colors"
+                className="block w-full text-center text-xs uppercase tracking-button text-muted-foreground hover:text-foreground transition-colors"
               >
-                View Cart
-              </Link>
+                Continue Shopping
+              </button>
             </div>
           </>
         )}
