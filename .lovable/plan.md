@@ -1,39 +1,58 @@
 
 
-## Bug: Cart badge count not updating after QR/bank transfer payment
+## Fix: Two mobile/tablet bugs on product pages
 
-### Root cause
+### Bug 1 — Size selector dismisses immediately on tap
 
-Two issues in `clearCart()` in `CartContext.tsx`:
+**Current behavior:** Tapping a size in the floating footer size selector immediately closes the selector AND adds to cart in one action. The user never sees which size they picked.
 
-1. **Wrong query key**: `clearCart` calls `queryClient.setQueryData(['cart'], undefined)` but the actual cart query key is `sellqoKeys.cart(cartId)` = `['sellqo', 'cart', '<cart-id>']`. The `setQueryData` call does nothing because the key doesn't match.
+**Desired behavior:** Tapping a size highlights it and keeps the selector open. The main button text changes to "Add to Cart – M" (or whichever size). The user then taps that button to confirm.
 
-2. **Non-reactive cartId**: `useCartQuery` reads `cartId` from localStorage at hook initialization (`const cartId = getStoredCartId()`). Even after `localStorage.removeItem(CART_STORAGE_KEY)`, the hook still has the old `cartId` cached and the query stays `enabled: true` with stale data. `invalidateQueries` then re-fetches the old cart (which may still exist on the backend), restoring the stale item count.
-
-The result: localStorage is cleared, but the React Query cache still holds the old cart data, so `itemCount` stays > 0 until a full page refresh.
-
-### Fix — `src/integrations/sellqo/CartContext.tsx`
-
-Replace `clearCart` with a version that:
-1. Reads the current cartId from localStorage **before** removing it
-2. Uses the correct query key (`sellqoKeys.cart(cartId)`) to clear cached data
-3. Removes **all** cart-related queries from the cache instead of invalidating (which would re-fetch)
+**Fix in `src/pages/ProductDetail.tsx` (lines 417-425):**
+- Remove `setShowSizeSelector(false)` and `handleAddToCart(size)` from the size button's onClick
+- Only call `setSelectedSize(size)` so the size highlights and the button updates
+- The existing main button (line 447-468) already handles the rest: once `selectedSize` is set, it shows "Add to Cart – M" and calls `handleAddToCart()` on tap
 
 ```typescript
-const clearCart = useCallback(() => {
-  const cartId = getStoredCartId();
-  try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
-  // Clear with correct query key
-  if (cartId) {
-    queryClient.setQueryData(sellqoKeys.cart(cartId), undefined);
-  }
-  // Remove all cart queries from cache entirely (don't invalidate = don't re-fetch)
-  queryClient.removeQueries({ queryKey: ['sellqo', 'cart'] });
-}, [queryClient]);
+// Size button onClick becomes:
+onClick={() => {
+  if (isSizeOOS) return;
+  setSelectedSize(size);
+  // Selector stays open, user confirms via the main button below
+}}
 ```
 
-This requires importing `getStoredCartId` and `sellqoKeys` (already available in the module).
+The main button (line 447) already works correctly: when `needsSize && !selectedSize` it shows "Select Size" and opens the selector; when `selectedSize` is set it shows "Add to Cart – {size}" and calls `handleAddToCart()`. So the flow becomes: open selector → tap size → size highlights → tap "Add to Cart – M" → adds to cart and closes selector.
 
-### Result
-After QR/bank transfer payment, the cart badge in the navbar immediately shows 0 (no badge) without needing a page refresh.
+Additionally, close the size selector after successful add-to-cart by adding `setShowSizeSelector(false)` inside the main button's click handler (after `handleAddToCart()`).
+
+### Bug 2 — "Back to Top" button overlaps floating footer
+
+**Current behavior:** The BackToTop button is fixed at `bottom-6 right-6` with `z-40`, sitting on top of the product page's floating footer (`z-30`). It's unnecessary and obstructive on product pages that already have the sticky footer.
+
+**Fix in `src/components/BackToTop.tsx`:**
+- Accept an optional `hidden` prop or use route detection
+- Simplest approach: use `useLocation()` to detect if we're on a product detail page (`/products/*`) and return `null`
+- Alternative: raise the button position when on a product page — but hiding is cleaner since the floating footer already scrolls back to the product info area
+
+```typescript
+import { useLocation } from 'react-router-dom';
+
+const BackToTop = () => {
+  const { pathname } = useLocation();
+  const [visible, setVisible] = useState(false);
+
+  // Hide on product pages where the floating footer is shown
+  const isProductPage = pathname.startsWith('/products/');
+
+  useEffect(() => { /* existing scroll listener */ }, []);
+
+  if (!visible || isProductPage) return null;
+  // ... rest unchanged
+};
+```
+
+### Files to edit
+1. `src/pages/ProductDetail.tsx` — size selector onClick behavior
+2. `src/components/BackToTop.tsx` — hide on product pages
 
