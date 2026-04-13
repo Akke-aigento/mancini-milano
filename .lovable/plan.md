@@ -1,17 +1,19 @@
 
 
-## Fix: Change "View Cart" to "Continue Shopping" in cart drawer
+## Add loading spinner to discount code button
 
 ### Problem
-The cart drawer shows a "View Cart" link at the bottom, but the user is already viewing the cart contents. This is confusing — it should say "Continue Shopping" and close the drawer so the user can keep browsing.
+When applying a discount code, there's no visual feedback that the request is being processed. The button just sits there, making it unclear whether the code was registered.
 
-### Fix — `src/components/CartDrawer.tsx`
+### Fix — `src/pages/Checkout.tsx`
 
-**Line 127-132**: Change the link destination and text:
-- Text: `View Cart` → `Continue Shopping`  
-- Instead of navigating to `/cart`, simply close the drawer (the user stays on the current page)
-- Change `<Link to="/cart">` to a `<button>` that calls `closeCart()`
+1. **Add `isApplyingDiscount` state** (boolean, default false)
+2. **Wrap `handleApplyDiscount` logic** with `setIsApplyingDiscount(true)` at the start and `false` in a `finally` block
+3. **Update the "Toepassen" button** (line 175-181):
+   - Disable when `isApplyingDiscount` is true (in addition to empty input)
+   - Show `<Loader2 className="h-3 w-3 animate-spin" />` instead of "Toepassen" text while loading
+4. **Disable the input** during loading to prevent double-submission
 
 ### Files to edit
-1. `src/components/CartDrawer.tsx` — one small change on lines 126-132
+1. `src/pages/Checkout.tsx` — add state + spinner to discount button
 
