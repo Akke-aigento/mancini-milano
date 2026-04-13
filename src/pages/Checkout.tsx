@@ -210,10 +210,14 @@ const Checkout = () => {
                     <span className="text-primary">-{formatPrice(checkoutData.discount_total)}</span>
                   </div>
                 )}
-                {checkoutData?.shipping_cost != null && (
+                {checkoutData?.shipping_display_state && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Verzending</span>
-                    <span className="text-foreground">{checkoutData.shipping_cost > 0 ? formatPrice(checkoutData.shipping_cost) : 'Gratis'}</span>
+                    <span className="text-foreground">
+                      {checkoutData.shipping_display_state === 'not_calculated' && 'Wordt berekend'}
+                      {checkoutData.shipping_display_state === 'free' && 'Gratis'}
+                      {checkoutData.shipping_display_state === 'charged' && formatPrice(checkoutData.shipping_cost ?? 0)}
+                    </span>
                   </div>
                 )}
                 <div className="border-t border-border pt-2 flex justify-between font-medium">

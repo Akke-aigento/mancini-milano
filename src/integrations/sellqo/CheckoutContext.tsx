@@ -16,14 +16,15 @@ export interface CheckoutCartDisplay {
   subtotal: number;
   discount_total?: number;
   applied_discounts?: Array<{ code: string; amount: number }>;
-  shipping_cost?: number;
-  fee?: number | null;
-  fee_label?: string;
-  total: number;
-  payment_method?: string | null;
-  currency?: string;
-  pass_fee_to_customer?: boolean;
-  available_payment_methods?: Array<{
+    shipping_cost?: number;
+    shipping_display_state?: 'not_calculated' | 'free' | 'charged';
+    fee?: number | null;
+    fee_label?: string;
+    total: number;
+    payment_method?: string | null;
+    currency?: string;
+    pass_fee_to_customer?: boolean;
+    available_payment_methods?: Array<{
     method: string;
     group: 'direct' | 'later' | 'transfer';
     name: string;
@@ -99,6 +100,7 @@ function normalizeResponse(raw: unknown, prev: CheckoutCartDisplay | null): Chec
     discount_total: 'discount_total' in data ? toNum(data.discount_total, 0) : prev?.discount_total,
     applied_discounts: 'applied_discounts' in data ? data.applied_discounts : prev?.applied_discounts,
     shipping_cost: 'shipping_cost' in data ? toNum(data.shipping_cost, 0) : prev?.shipping_cost,
+    shipping_display_state: 'shipping_display_state' in data ? data.shipping_display_state : prev?.shipping_display_state,
     fee,
     fee_label: 'fee_label' in data ? data.fee_label : prev?.fee_label,
     total: 'total' in data ? toNum(data.total, 0) : (prev?.total ?? 0),

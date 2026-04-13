@@ -350,10 +350,14 @@ const CheckoutPayment = () => {
                     <span className="text-primary">-{formatPrice(checkoutData.discount_total)}</span>
                   </div>
                 )}
-                {checkoutData?.shipping_cost != null && (
+                {checkoutData?.shipping_display_state && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Verzending</span>
-                    <span className="text-foreground">{checkoutData.shipping_cost > 0 ? formatPrice(checkoutData.shipping_cost) : 'Gratis'}</span>
+                    <span className="text-foreground">
+                      {checkoutData.shipping_display_state === 'not_calculated' && 'Wordt berekend'}
+                      {checkoutData.shipping_display_state === 'free' && 'Gratis'}
+                      {checkoutData.shipping_display_state === 'charged' && formatPrice(checkoutData.shipping_cost ?? 0)}
+                    </span>
                   </div>
                 )}
                 {passFeeToCustomer && selectedMethod && checkoutData?.fee != null && checkoutData.fee > 0 && (
