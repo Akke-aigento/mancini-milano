@@ -1,43 +1,42 @@
 
 
-## Fix: Add color selector to mobile floating footer
+## Fix: Allow re-selecting color and size in floating footer
 
 ### Problem
-The floating footer on mobile/tablet only shows a size selector. Products with color options (like this t-shirt) require a color to be selected before adding to cart, but there's no way to pick a color in the floating footer. The main "Select Size" button also doesn't account for needing a color.
+Once color and size are selected, tapping the main button goes straight to "Add to Cart". There's no way to change your selection — the color/size selector panels can't be reopened.
 
 ### Fix — `src/pages/ProductDetail.tsx`
 
-**Add a color selector panel** above the size selector in the floating footer (around line 406):
+**Show selected color/size as tappable chips** between the selectors and the bottom bar (around line 469). Tapping a chip reopens that selector.
 
-1. Add a `showColorSelector` state variable
-2. When `needsColor && !selectedColor`, tapping the main button opens the color selector first
-3. After picking a color, if `needsSize`, open the size selector next
-4. The flow becomes: tap button → pick color → pick size → tap "Add to Cart – M"
+**Changes to the bottom bar area (line 469-511):**
 
-**Floating footer structure (lines 405-470):**
+Add a row of selected-option chips above the action button area:
 
+```tsx
+{/* Selected options — tap to change */}
+{(selectedColor || selectedSize) && !showColorSelector && !showSizeSelector && (
+  <div className="flex gap-2 px-4 pt-3 bg-card border-t border-border">
+    {selectedColor && needsColor && (
+      <button onClick={() => { setShowColorSelector(true); setShowSizeSelector(false); }}
+        className="text-xs uppercase tracking-button border border-foreground px-3 py-1.5">
+        {colorLabel}: {selectedColor} ✎
+      </button>
+    )}
+    {selectedSize && needsSize && (
+      <button onClick={() => { setShowSizeSelector(true); setShowColorSelector(false); }}
+        className="text-xs uppercase tracking-button border border-foreground px-3 py-1.5">
+        {sizeLabel}: {selectedSize} ✎
+      </button>
+    )}
+  </div>
+)}
 ```
-<div fixed bottom-0>
-  {showColorSelector && needsColor && (
-    <div> <!-- color buttons, same style as size selector --> </div>
-  )}
-  {showSizeSelector && needsSize && (
-    <div> <!-- existing size buttons --> </div>
-  )}
-  <div> <!-- bottom bar with title, price, action button --> </div>
-</div>
-```
 
-**Main button logic update (line 447-454):**
-- If `needsColor && !selectedColor` → open color selector
-- Else if `needsSize && !selectedSize` → open size selector  
-- Else → add to cart and close selectors
+This row appears only when at least one option is selected and neither selector panel is open. Tapping a chip opens the corresponding selector so the user can change their choice.
 
-**Button text update (line 466):**
-- Show "Select Color" when color is needed but not selected
-- Show "Select Size" when size is needed but not selected
-- Show `Add to Cart – ${selectedColor} / ${selectedSize}` when both are set
+The existing color/size selector panels and button logic remain unchanged — they already handle re-selection correctly (tapping a different option updates the state).
 
 ### Files to edit
-1. `src/pages/ProductDetail.tsx` — add color selector panel + update button logic in floating footer
+1. `src/pages/ProductDetail.tsx` — add tappable selection chips row before the action bar
 
