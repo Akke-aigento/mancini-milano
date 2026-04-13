@@ -1,36 +1,43 @@
 
 
-## Fix: Newsletter subscribe button overflows viewport in footer
+## Fix: Add color selector to mobile floating footer
 
 ### Problem
-The newsletter form in the footer uses `flex` with `flex-1` on the input and a fixed-width button. On smaller screens or the 4-column footer layout, the parent column is narrow enough that the button text "SUBSCRIBE" (with `px-4` padding and uppercase tracking) pushes beyond the container edge.
+The floating footer on mobile/tablet only shows a size selector. Products with color options (like this t-shirt) require a color to be selected before adding to cart, but there's no way to pick a color in the floating footer. The main "Select Size" button also doesn't account for needing a color.
 
-### Fix — `src/components/layout/Footer.tsx`
+### Fix — `src/pages/ProductDetail.tsx`
 
-**Line 85**: Change the form from `flex` (single row) to a stacked layout so the input and button each take full width of the column:
+**Add a color selector panel** above the size selector in the floating footer (around line 406):
 
-```html
-<!-- BEFORE -->
-<form ... className="flex">
+1. Add a `showColorSelector` state variable
+2. When `needsColor && !selectedColor`, tapping the main button opens the color selector first
+3. After picking a color, if `needsSize`, open the size selector next
+4. The flow becomes: tap button → pick color → pick size → tap "Add to Cart – M"
 
-<!-- AFTER -->
-<form ... className="flex flex-col gap-2">
-```
-
-**Line 92**: Remove `flex-1` from the input (no longer needed when stacked) and add `w-full`:
+**Floating footer structure (lines 405-470):**
 
 ```
-className="w-full bg-background border border-border px-3 py-2 text-sm ..."
+<div fixed bottom-0>
+  {showColorSelector && needsColor && (
+    <div> <!-- color buttons, same style as size selector --> </div>
+  )}
+  {showSizeSelector && needsSize && (
+    <div> <!-- existing size buttons --> </div>
+  )}
+  <div> <!-- bottom bar with title, price, action button --> </div>
+</div>
 ```
 
-**Line 97**: Add `w-full` to the button so it spans the column width:
+**Main button logic update (line 447-454):**
+- If `needsColor && !selectedColor` → open color selector
+- Else if `needsSize && !selectedSize` → open size selector  
+- Else → add to cart and close selectors
 
-```
-className="w-full border border-foreground ... px-4 py-2 text-xs uppercase ..."
-```
-
-This ensures the newsletter form never overflows regardless of column width. The stacked layout also looks cleaner in the footer's 4-column grid.
+**Button text update (line 466):**
+- Show "Select Color" when color is needed but not selected
+- Show "Select Size" when size is needed but not selected
+- Show `Add to Cart – ${selectedColor} / ${selectedSize}` when both are set
 
 ### Files to edit
-1. `src/components/layout/Footer.tsx` — 3 small class changes on lines 85, 92, 97
+1. `src/pages/ProductDetail.tsx` — add color selector panel + update button logic in floating footer
 
