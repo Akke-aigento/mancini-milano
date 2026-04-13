@@ -175,13 +175,14 @@ const Checkout = () => {
                   onChange={e => setDiscountInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleApplyDiscount()}
                   className="text-sm"
+                  disabled={isApplyingDiscount}
                 />
                 <button
                   onClick={handleApplyDiscount}
-                  disabled={!discountInput.trim()}
-                  className="px-4 border border-foreground text-foreground text-xs uppercase tracking-button hover:bg-foreground hover:text-background transition-colors disabled:opacity-50"
+                  disabled={!discountInput.trim() || isApplyingDiscount}
+                  className="px-4 border border-foreground text-foreground text-xs uppercase tracking-button hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 min-w-[100px] flex items-center justify-center"
                 >
-                  Toepassen
+                  {isApplyingDiscount ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Toepassen'}
                 </button>
               </div>
 
