@@ -16,6 +16,7 @@ const Checkout = () => {
 
   const [isInitializing, setIsInitializing] = useState(true);
   const [discountInput, setDiscountInput] = useState('');
+  const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -55,6 +56,7 @@ const Checkout = () => {
       toast.error('Deze kortingscode is al toegepast');
       return;
     }
+    setIsApplyingDiscount(true);
     try {
       await cartAPI.applyDiscount(cartId, code);
       try {
@@ -65,6 +67,8 @@ const Checkout = () => {
       toast.success('Kortingscode toegepast!');
     } catch (err: any) {
       toast.error(err?.message || 'Ongeldige kortingscode');
+    } finally {
+      setIsApplyingDiscount(false);
     }
   };
 
@@ -171,13 +175,14 @@ const Checkout = () => {
                   onChange={e => setDiscountInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleApplyDiscount()}
                   className="text-sm"
+                  disabled={isApplyingDiscount}
                 />
                 <button
                   onClick={handleApplyDiscount}
-                  disabled={!discountInput.trim()}
-                  className="px-4 border border-foreground text-foreground text-xs uppercase tracking-button hover:bg-foreground hover:text-background transition-colors disabled:opacity-50"
+                  disabled={!discountInput.trim() || isApplyingDiscount}
+                  className="px-4 border border-foreground text-foreground text-xs uppercase tracking-button hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 min-w-[100px] flex items-center justify-center"
                 >
-                  Toepassen
+                  {isApplyingDiscount ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Toepassen'}
                 </button>
               </div>
 
