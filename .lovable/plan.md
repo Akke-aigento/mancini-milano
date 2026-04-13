@@ -1,32 +1,47 @@
 
-## Fix: Sort sizes in logical order (S → M → L → XL)
+
+## Fix: Product page overflow on smaller desktop screens
 
 ### Problem
-Sizes are displayed in whatever order the API returns them. A `Set` preserves insertion order, so if the backend returns variants in a random order, sizes appear jumbled (e.g. L, S, XL, M).
+At the `lg` breakpoint (1024px), the product detail grid uses `lg:grid-cols-[55%_45%]` with `lg:gap-12` (3rem). The percentages + gap exceed 100% of the container width, causing the right column (size buttons, "SIZE GUIDE" link, "SELECT A SIZE" button) to extend beyond the viewport edge.
 
-### Solution
-Add a size sorting map in `ProductDetail.tsx` and sort the sizes array after extracting from the Set.
+### Root cause
+`55% + 45% + 3rem gap = 100% + 3rem` → overflow. The `overflow-x: hidden` on body hides the scrollbar but clips the content.
 
-### Changes — `src/pages/ProductDetail.tsx`
+### Fix — `src/pages/ProductDetail.tsx`
 
-In the `sizes` useMemo (lines 49-61), after `Array.from(s)`, sort using a predefined order map:
+**Line 217** — Change the grid template to use `fr` units instead of percentages. `fr` units respect the gap automatically:
 
 ```typescript
-const SIZE_ORDER: Record<string, number> = {
-  'xxs': 0, 'xs': 1, 's': 2, 'm': 3, 'l': 4, 'xl': 5,
-  'xxl': 6, '2xl': 6, 'xxxl': 7, '3xl': 7,
-};
+// BEFORE:
+<div className="grid grid-cols-1 lg:grid-cols-[55%_45%] gap-8 lg:gap-12">
 
-// In the useMemo:
-const sorted = Array.from(s).sort((a, b) => {
-  const aOrder = SIZE_ORDER[a.toLowerCase()] ?? 99;
-  const bOrder = SIZE_ORDER[b.toLowerCase()] ?? 99;
-  return aOrder - bOrder;
-});
-return { items: sorted, label: detectedKey };
+// AFTER:
+<div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12">
 ```
 
-This covers standard clothing sizes. Numeric sizes (e.g. 38, 40, 42) naturally sort correctly via the fallback `?? 99` since they won't match the map — but if numeric sizes are also used, we can add a numeric parse fallback in the comparator.
+This gives the image column ~55% and the info column ~45% of the *available* space (after the gap is subtracted), preventing any overflow.
 
-### Also check: SizeGuide.tsx
-The size guide page already has sizes hardcoded in S → XL order, so no change needed there.
+Also apply the same fix to the **loading skeleton grid** on **line 154**:
+```typescript
+// BEFORE:
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+
+// AFTER (match the product grid ratio):
+<div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12">
+```
+
+### Additional: add `min-w-0` to right column
+On line 258, add `min-w-0` to the info column to prevent any child (like long product titles or buttons) from forcing the column wider than its grid track:
+
+```typescript
+// BEFORE:
+<div className="lg:sticky lg:top-32 lg:self-start">
+
+// AFTER:
+<div className="lg:sticky lg:top-32 lg:self-start min-w-0">
+```
+
+### Result
+Content stays within viewport at all desktop widths (1024px and up). No visual change at larger screens.
+
