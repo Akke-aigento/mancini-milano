@@ -29,7 +29,7 @@ const Collection = () => {
   // Primary fetch: gender category when filter active, otherwise the slug
   const primarySlug = genderFilter || slug;
   const { data: primaryProducts = [], isLoading: primaryLoading } = useProducts(
-    !isParent && primarySlug ? { category_slug: primarySlug } : undefined
+    primarySlug ? { category_slug: primarySlug } : undefined
   );
 
   // Secondary fetch: subcategory slug, only when gender filter is active
@@ -93,23 +93,6 @@ const Collection = () => {
     : undefined;
 
   // Parent category page: show category grid
-  if (slug === 'women' || genderFilter === 'women') {
-    return (
-      <Layout>
-        <SEO title="For Her" description="Coming soon — our women's collection at Mancini Milano." />
-        <section className="max-w-site mx-auto px-4 lg:px-8 pt-20 pb-32 text-center">
-          <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-4">
-            For Her
-          </h1>
-          <p className="text-lg text-muted-foreground mb-2">Coming Soon</p>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            We're working on our women's collection. Stay tuned.
-          </p>
-        </section>
-      </Layout>
-    );
-  }
-
   if (isParent) {
     return (
       <Layout>
@@ -125,33 +108,67 @@ const Collection = () => {
 
         <section className="max-w-site mx-auto px-4 lg:px-8 pb-20 lg:pb-28">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-            {subcategoryCards.map((cat) => (
-              <Link
-                key={cat.slug}
-                to={`/collections/${cat.slug}?gender=${slug}`}
-                className="group block"
-              >
-                <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
-                  {cat.image ? (
-                    <img
-                      src={cat.image}
-                      alt={cat.label}
-                      loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                      <span className="text-muted-foreground text-sm uppercase tracking-widest">{cat.label}</span>
+            {subcategoryCards.map((cat) => {
+              // Check if this subcategory has products for this gender
+              const hasProducts = primaryProducts.some((p: any) =>
+                p.categories?.some((c: any) => c.slug === cat.slug)
+              );
+              
+              if (!hasProducts) {
+                return (
+                  <div key={cat.slug} className="block opacity-60">
+                    <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
+                      {cat.image ? (
+                        <img
+                          src={cat.image}
+                          alt={cat.label}
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover grayscale"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                          <span className="text-muted-foreground text-sm uppercase tracking-widest">{cat.label}</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-background/40 flex items-center justify-center">
+                        <span className="text-xs uppercase tracking-widest font-medium text-foreground/80">Coming Soon</span>
+                      </div>
                     </div>
-                  )}
-                  <div className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-colors" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-foreground uppercase tracking-wide">{cat.label}</h3>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                </div>
-              </Link>
-            ))}
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{cat.label}</h3>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={cat.slug}
+                  to={`/collections/${cat.slug}?gender=${slug}`}
+                  className="group block"
+                >
+                  <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
+                    {cat.image ? (
+                      <img
+                        src={cat.image}
+                        alt={cat.label}
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                        <span className="text-muted-foreground text-sm uppercase tracking-widest">{cat.label}</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-colors" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-medium text-foreground uppercase tracking-wide">{cat.label}</h3>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
       </Layout>
@@ -222,7 +239,16 @@ const Collection = () => {
           </div>
         ) : sortedProducts.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-muted-foreground text-lg">No products found in this collection.</p>
+            {genderFilter ? (
+              <>
+                <p className="text-lg text-muted-foreground mb-2">Coming Soon</p>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  We're working on this collection. Stay tuned.
+                </p>
+              </>
+            ) : (
+              <p className="text-muted-foreground text-lg">No products found in this collection.</p>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
