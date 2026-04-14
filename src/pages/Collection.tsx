@@ -117,7 +117,7 @@ const Collection = () => {
               if (!hasProducts) {
                 return (
                   <div key={cat.slug} className="block opacity-60">
-                    <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
+                    <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-background">
                       {cat.image ? (
                         <img
                           src={cat.image}
@@ -147,7 +147,7 @@ const Collection = () => {
                   to={`/collections/${cat.slug}?gender=${slug}`}
                   className="group block"
                 >
-                  <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
+                  <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-background">
                     {cat.image ? (
                       <img
                         src={cat.image}
@@ -231,9 +231,9 @@ const Collection = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="aspect-[3/4] bg-card mb-3" />
-                <div className="h-4 bg-card w-3/4 mb-2" />
-                <div className="h-4 bg-card w-1/4" />
+                <div className="aspect-[3/4] bg-background mb-3" />
+                <div className="h-4 bg-background w-3/4 mb-2" />
+                <div className="h-4 bg-background w-1/4" />
               </div>
             ))}
           </div>
