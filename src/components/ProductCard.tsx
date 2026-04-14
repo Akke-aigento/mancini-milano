@@ -31,10 +31,10 @@ const ProductCard = ({ product, preferredImageIndex }: ProductCardProps) => {
   return (
     <Link to={`/products/${product.slug}`} className="group block">
       <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
-        {product.images?.[0] && (
+        {product.images?.[primaryIndex] && (
           <img
-            src={product.images[0].url}
-            alt={product.images[0].alt || product.title}
+            src={product.images[primaryIndex].url}
+            alt={product.images[primaryIndex].alt || product.title}
             loading="lazy"
             className={`absolute inset-0 w-full h-full object-contain transition-all duration-700 ${
               allowHoverImage
@@ -45,8 +45,8 @@ const ProductCard = ({ product, preferredImageIndex }: ProductCardProps) => {
         )}
         {allowHoverImage && (
           <img
-            src={product.images[1].url}
-            alt={product.images[1].alt || product.title}
+            src={product.images[secondaryIndex].url}
+            alt={product.images[secondaryIndex].alt || product.title}
             loading="lazy"
             className="absolute inset-0 w-full h-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-700"
           />
