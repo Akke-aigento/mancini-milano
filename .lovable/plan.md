@@ -1,31 +1,26 @@
 
 
-## Handmatige afbeeldingswissel voor "BLUE STORM" LUXE TEE op t-shirts pagina
+## Fix: hover-image uitzetten voor Blue Storm op t-shirts pagina
 
 ### Probleem
-Op de t-shirts categoriepagina toont de "BLUE STORM" LUXE TEE de modelfoto als hoofdfoto. De klant wil daar de productfoto (zonder model) zien — maar alleen op de t-shirts categoriepagina, niet op homepage of andere plekken.
+Wanneer `preferredImageIndex` wordt meegegeven, wordt de "originele" afbeelding (index 0, modelfoto) nog steeds als hover-image gerenderd. Die is weliswaar `opacity-0`, maar is zichtbaar in de DOM en kan er doorheen schemeren.
 
-### Aanpak
-1. **`ProductCard.tsx`** — voeg een optionele `preferredImageIndex` prop toe. Wanneer deze is meegegeven, gebruik die als primaire afbeelding in plaats van `images[0]`.
+### Oplossing
+In `ProductCard.tsx`: als `preferredImageIndex` is meegegeven (dus niet `undefined`), schakel het hover-effect uit — net als bij de Boss Fragrance Tee.
 
-2. **`Collection.tsx`** — op de t-shirts pagina (`slug === 't-shirts'`), geef voor het product met slug `blue-storm-luxe-tee` (of wat de exacte slug is) een `preferredImageIndex={1}` mee, zodat `images[1]` (de flat-lay foto) als hoofdfoto wordt getoond.
+### Wijziging — `src/components/ProductCard.tsx`
 
-### Concrete wijzigingen
+Regel 28 aanpassen:
+```typescript
+// Was:
+const allowHoverImage = hasSecondImage && product.slug !== 'the-boss-fragrance-tee';
 
-**`src/components/ProductCard.tsx`**
-- Interface uitbreiden met `preferredImageIndex?: number`
-- De primaire image source wordt `product.images[preferredImageIndex ?? 0]`
-- Hover image wordt de andere afbeelding
+// Wordt:
+const allowHoverImage = hasSecondImage && product.slug !== 'the-boss-fragrance-tee' && preferredImageIndex == null;
+```
 
-**`src/pages/Collection.tsx`**
-- Map van slug → imageIndex override, alleen actief wanneer de huidige categorie `t-shirts` is
-- Meegeven als prop: `<ProductCard product={product} preferredImageIndex={...} />`
+Dat is alles — één conditie toevoegen. Wanneer een `preferredImageIndex` is meegegeven, geen hover-swap, alleen de subtiele scale-105 zoom.
 
-### Resultaat
-- T-shirts categoriepagina: BLUE STORM toont productfoto zonder model
-- Homepage, related products, andere pagina's: ongewijzigd
-
-### Bestanden
-1. `src/components/ProductCard.tsx`
-2. `src/pages/Collection.tsx`
+### Bestand
+1. `src/components/ProductCard.tsx` (1 regel)
 
