@@ -25,7 +25,7 @@ const ProductCard = ({ product, preferredImageIndex }: ProductCardProps) => {
   const primaryIndex = preferredImageIndex ?? 0;
   const secondaryIndex = primaryIndex === 0 ? 1 : 0;
   const hasSecondImage = product.images.length > 1;
-  const allowHoverImage = hasSecondImage && product.slug !== 'the-boss-fragrance-tee';
+  const allowHoverImage = hasSecondImage && product.slug !== 'the-boss-fragrance-tee' && preferredImageIndex == null;
   const isOutOfStock = product.in_stock === false || product.stock_status === 'out_of_stock';
 
   return (
