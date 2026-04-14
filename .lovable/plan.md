@@ -1,29 +1,31 @@
 
 
-## Fix: Productafbeeldingen worden afgekapt/ingezoomd
+## Handmatige afbeeldingswissel voor "BLUE STORM" LUXE TEE op t-shirts pagina
 
 ### Probleem
-Dit is een **frontend probleem**, niet SellQo. Alle productafbeeldingen gebruiken `object-cover`, wat de afbeelding bijsnijdt om de container te vullen. Als de foto een andere verhouding heeft dan de container (`aspect-[3/4]`), worden delen van het product afgesneden.
+Op de t-shirts categoriepagina toont de "BLUE STORM" LUXE TEE de modelfoto als hoofdfoto. De klant wil daar de productfoto (zonder model) zien — maar alleen op de t-shirts categoriepagina, niet op homepage of andere plekken.
 
-### Oplossing
-Verander `object-cover` naar `object-contain` op de relevante plekken. Dit toont de volledige afbeelding binnen de container zonder bijsnijden.
+### Aanpak
+1. **`ProductCard.tsx`** — voeg een optionele `preferredImageIndex` prop toe. Wanneer deze is meegegeven, gebruik die als primaire afbeelding in plaats van `images[0]`.
 
-### Bestanden en wijzigingen
+2. **`Collection.tsx`** — op de t-shirts pagina (`slug === 't-shirts'`), geef voor het product met slug `blue-storm-luxe-tee` (of wat de exacte slug is) een `preferredImageIndex={1}` mee, zodat `images[1]` (de flat-lay foto) als hoofdfoto wordt getoond.
 
-**1. `src/components/ProductCard.tsx`** (collectiepagina's, related products)
-- Beide `<img>` tags: `object-cover` → `object-contain`
-- De `bg-card` achtergrondkleur op de container zorgt voor een nette achtergrond waar de afbeelding niet vult
+### Concrete wijzigingen
 
-**2. `src/pages/ProductDetail.tsx`** (productdetailpagina)
-- Hoofdafbeelding (regel 234): `object-cover` → `object-contain`
-- Thumbnails (regel 248): deze kunnen `object-cover` behouden (kleine previews mogen gecropped)
+**`src/components/ProductCard.tsx`**
+- Interface uitbreiden met `preferredImageIndex?: number`
+- De primaire image source wordt `product.images[preferredImageIndex ?? 0]`
+- Hover image wordt de andere afbeelding
 
-### Wat er niet verandert
-- Hero banners, lookbook, categorie-afbeeldingen → blijven `object-cover` (dat is gewenst voor sfeerbeelden)
-- Cart/checkout thumbnails → blijven `object-cover` (kleine previews)
+**`src/pages/Collection.tsx`**
+- Map van slug → imageIndex override, alleen actief wanneer de huidige categorie `t-shirts` is
+- Meegeven als prop: `<ProductCard product={product} preferredImageIndex={...} />`
 
 ### Resultaat
-- Volledige productfoto's zichtbaar op collectiepagina en detailpagina
-- Geen afgesneden details meer
-- Nette achtergrondkleur waar de afbeelding niet vult
+- T-shirts categoriepagina: BLUE STORM toont productfoto zonder model
+- Homepage, related products, andere pagina's: ongewijzigd
+
+### Bestanden
+1. `src/components/ProductCard.tsx`
+2. `src/pages/Collection.tsx`
 
