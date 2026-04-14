@@ -1,33 +1,22 @@
 
 
-## Fix: Grijze placeholders overal vervangen
+## Fix: Grijze categorie-kaarten op parent pagina's
 
 ### Probleem
-Op meerdere plekken verschijnen grijze vlakken (`bg-muted`, `bg-background`) als er geen afbeelding beschikbaar is. De gebruiker wil dit nergens meer zien.
-
-### Locaties met grijze placeholders (buiten UI-componenten)
-
-| # | Bestand | Waar | Wat |
-|---|---------|------|-----|
-| 1 | `Collection.tsx` r120 | Parent categorie-kaarten (men/women) | `bg-muted` fallback als `cat.image` leeg is |
-| 2 | `Collection.tsx` r194 | Loading skeleton producten | `bg-background` blokken |
-| 3 | `ProductDetail.tsx` r165-169 | Loading skeleton productpagina | `bg-background` blokken |
-| 4 | `ProductCard.tsx` r30 | Product kaart wrapper | `bg-background` als geen afbeelding |
-| 5 | `CartDrawer.tsx` r58 | Cart item afbeelding | `bg-background` container |
-| 6 | `SearchOverlay.tsx` r92 | Zoekresultaten loading | `bg-card` blokken |
+Op `/collections/women` (en `/collections/men`) zijn de subcategorie-kaarten zonder afbeelding nog steeds zichtbaar als donkergrijze vlakken. Dit komt doordat:
+- Regel 111: `bg-background` op de container (puur zwart, maar de fallback-div erbinnen is `bg-foreground/5` = licht grijs)
+- De combinatie van het zwarte vlak + de lichte overlay maakt het zichtbaar als een grijs blok
 
 ### Oplossing
-- **Categorie-kaarten zonder afbeelding** (Collection.tsx): vervang de grijze `bg-muted` fallback door een stijlvolle donkere achtergrond (`bg-card` of `bg-foreground/5`) met subtiele styling passend bij het merk
-- **Loading skeletons** (Collection.tsx, ProductDetail.tsx, SearchOverlay.tsx): gebruik `bg-card` of `bg-secondary/30` i.p.v. kale `bg-background` zodat ze subtiel zichtbaar zijn maar niet grijs opvallen
-- **ProductCard & CartDrawer**: verander `bg-background` naar `bg-card` voor een meer geïntegreerde look
+Verwijder de grijze fallback-achtergrond volledig. Maak de kaarten zonder afbeelding **transparant** met alleen de tekst en een subtiele border, zodat ze naadloos opgaan in de zwarte pagina-achtergrond.
 
-### Technisch detail
-Alle wijzigingen zijn puur CSS-klasse aanpassingen — geen logica-wijzigingen. De `bg-muted` en kale `bg-background` worden vervangen door donkerdere, merk-passende kleuren die aansluiten bij het zwarte thema van de site.
+### Wijziging
 
-### Bestanden
-- `src/pages/Collection.tsx`
-- `src/pages/ProductDetail.tsx`
-- `src/components/ProductCard.tsx`
-- `src/components/CartDrawer.tsx`
-- `src/components/SearchOverlay.tsx`
+**`src/pages/Collection.tsx`** (regels 111-125):
+- Container: vervang `bg-background` door geen achtergrond, voeg een subtiele `border border-border` toe
+- Fallback (geen afbeelding): verwijder `bg-foreground/5`, maak het volledig transparant — alleen de label-tekst blijft zichtbaar
+- Hover-overlay: verwijder de `bg-background/10` hover zodat er geen grijze tint verschijnt
+
+### Resultaat
+Categorie-kaarten zonder afbeelding zijn volledig zwart met alleen een subtiele border en de categorienaam — geen grijze vlakken meer.
 
