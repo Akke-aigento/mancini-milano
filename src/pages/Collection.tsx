@@ -108,7 +108,7 @@ const Collection = () => {
                 to={`/collections/${cat.slug}`}
                 className="group block"
               >
-                <div className="relative aspect-[3/4] overflow-hidden mb-3 border border-border">
+                <div className="relative aspect-[3/4] overflow-hidden mb-3">
                   {cat.image ? (
                     <img
                       src={cat.image}
