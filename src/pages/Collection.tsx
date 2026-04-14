@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { ChevronDown, ArrowRight } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
@@ -8,7 +8,7 @@ import { useProducts, useCategories } from '@/integrations/sellqo/hooks';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
-const SUBCATEGORIES = [
+const MEN_SUBCATEGORIES = [
   { label: 'Jackets', slug: 'jackets' },
   { label: 'Hoodies', slug: 'hoodies' },
   { label: 'T-Shirts', slug: 't-shirts' },
@@ -18,38 +18,31 @@ const SUBCATEGORIES = [
   { label: 'Accessories', slug: 'accessories' },
 ];
 
+const WOMEN_SUBCATEGORIES = [
+  { label: 'Jackets', slug: 'jackets-women' },
+  { label: 'Hoodies', slug: 'hoodies-women' },
+  { label: 'T-Shirts', slug: 't-shirts-women' },
+  { label: 'Pants', slug: 'pants-women' },
+  { label: 'Tracksuits', slug: 'tracksuits-women' },
+  { label: 'Bags', slug: 'bags-women' },
+  { label: 'Accessories', slug: 'accessories-women' },
+];
+
 const Collection = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [searchParams] = useSearchParams();
-  const genderFilter = searchParams.get('gender');
 
   const parentCategories = ['men', 'women'];
   const isParent = slug ? parentCategories.includes(slug) : false;
 
-  // Primary fetch: gender category when filter active, otherwise the slug
-  const primarySlug = genderFilter || slug;
-  const { data: primaryProducts = [], isLoading: primaryLoading } = useProducts(
-    primarySlug ? { category_slug: primarySlug } : undefined
-  );
-
-  // Secondary fetch: subcategory slug, only when gender filter is active
-  const { data: subcategoryProducts = [], isLoading: subcategoryLoading } = useProducts(
-    genderFilter && slug ? { category_slug: slug } : undefined
+  const { data: products = [], isLoading: loading } = useProducts(
+    slug ? { category_slug: slug } : undefined
   );
 
   const { data: categories = [] } = useCategories();
   const [sort, setSort] = useState<SortOption>('featured');
-  const loading = primaryLoading || (genderFilter ? subcategoryLoading : false);
-
-  // Intersect gender + subcategory products when both are fetched
-  const genderFilteredProducts = useMemo(() => {
-    if (!genderFilter || !slug) return primaryProducts;
-    const genderIds = new Set(primaryProducts.map(p => p.id));
-    return subcategoryProducts.filter(p => genderIds.has(p.id));
-  }, [primaryProducts, subcategoryProducts, genderFilter, slug]);
 
   const sortedProducts = useMemo(() => {
-    const sorted = [...genderFilteredProducts];
+    const sorted = [...products];
     switch (sort) {
       case 'price-asc':
         return sorted.sort((a, b) => a.price - b.price);
@@ -60,15 +53,16 @@ const Collection = () => {
       default:
         return sorted;
     }
-  }, [genderFilteredProducts, sort]);
+  }, [products, sort]);
 
   const collection = categories.find((c: any) => c.slug === slug);
   const baseTitle = collection?.name || slug?.replace(/-/g, ' ') || '';
-  const title = baseTitle;
+  // Strip gender suffix from title display
+  const title = baseTitle.replace(/\s*-?\s*women$/i, '').replace(/\s*\(women\)$/i, '');
 
-  // Build subcategory cards for parent pages using API category images
   const subcategoryCards = useMemo(() => {
-    return SUBCATEGORIES.map((sub) => {
+    const subs = slug === 'women' ? WOMEN_SUBCATEGORIES : MEN_SUBCATEGORIES;
+    return subs.map((sub) => {
       const apiCat = categories.find((c: any) => c.slug === sub.slug);
       return {
         label: sub.label,
@@ -76,7 +70,7 @@ const Collection = () => {
         image: apiCat?.image || '',
       };
     });
-  }, [categories]);
+  }, [categories, slug]);
 
   // For non-parent pages, build subcategory pills
   const pills = !isParent && slug
@@ -109,8 +103,7 @@ const Collection = () => {
         <section className="max-w-site mx-auto px-4 lg:px-8 pb-20 lg:pb-28">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
             {subcategoryCards.map((cat) => {
-              // Check if this subcategory has products for this gender
-              const hasProducts = primaryProducts.some((p: any) =>
+              const hasProducts = products.some((p: any) =>
                 p.categories?.some((c: any) => c.slug === cat.slug)
               );
               
@@ -144,7 +137,7 @@ const Collection = () => {
               return (
                 <Link
                   key={cat.slug}
-                  to={`/collections/${cat.slug}?gender=${slug}`}
+                  to={`/collections/${cat.slug}`}
                   className="group block"
                 >
                   <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-background">
@@ -184,7 +177,7 @@ const Collection = () => {
           {title}
         </h1>
         <p className="text-sm text-muted-foreground text-center">
-          {genderFilteredProducts.length} {genderFilteredProducts.length === 1 ? 'product' : 'products'}
+          {products.length} {products.length === 1 ? 'product' : 'products'}
         </p>
       </section>
 
@@ -195,7 +188,7 @@ const Collection = () => {
               {pills.map((pill) => (
                 <Link
                   key={pill.slug}
-                  to={`/collections/${pill.slug}${genderFilter ? `?gender=${genderFilter}` : ''}`}
+                  to={`/collections/${pill.slug}`}
                   className={`px-4 py-1.5 text-xs uppercase tracking-button font-medium border transition-colors ${
                     slug === pill.slug
                       ? 'border-primary text-primary'
@@ -239,16 +232,10 @@ const Collection = () => {
           </div>
         ) : sortedProducts.length === 0 ? (
           <div className="text-center py-20">
-            {genderFilter ? (
-              <>
-                <p className="text-lg text-muted-foreground mb-2">Coming Soon</p>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                  We're working on this collection. Stay tuned.
-                </p>
-              </>
-            ) : (
-              <p className="text-muted-foreground text-lg">No products found in this collection.</p>
-            )}
+            <p className="text-lg text-muted-foreground mb-2">Coming Soon</p>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              We're working on this collection. Stay tuned.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
