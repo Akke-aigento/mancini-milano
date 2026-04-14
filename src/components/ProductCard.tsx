@@ -18,9 +18,12 @@ interface ProductCardProps {
     in_stock?: boolean;
     stock_status?: string;
   };
+  preferredImageIndex?: number;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, preferredImageIndex }: ProductCardProps) => {
+  const primaryIndex = preferredImageIndex ?? 0;
+  const secondaryIndex = primaryIndex === 0 ? 1 : 0;
   const hasSecondImage = product.images.length > 1;
   const allowHoverImage = hasSecondImage && product.slug !== 'the-boss-fragrance-tee';
   const isOutOfStock = product.in_stock === false || product.stock_status === 'out_of_stock';
@@ -28,10 +31,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
   return (
     <Link to={`/products/${product.slug}`} className="group block">
       <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
-        {product.images?.[0] && (
+        {product.images?.[primaryIndex] && (
           <img
-            src={product.images[0].url}
-            alt={product.images[0].alt || product.title}
+            src={product.images[primaryIndex].url}
+            alt={product.images[primaryIndex].alt || product.title}
             loading="lazy"
             className={`absolute inset-0 w-full h-full object-contain transition-all duration-700 ${
               allowHoverImage
@@ -42,8 +45,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
         )}
         {allowHoverImage && (
           <img
-            src={product.images[1].url}
-            alt={product.images[1].alt || product.title}
+            src={product.images[secondaryIndex].url}
+            alt={product.images[secondaryIndex].alt || product.title}
             loading="lazy"
             className="absolute inset-0 w-full h-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-700"
           />
