@@ -1,21 +1,19 @@
 
 
-## Fix: Overal `bg-card` → `bg-background` voor afbeelding-containers
+## Fix: Homepage categorieën tonen alleen mannenproducten
 
 ### Probleem
-Op de productdetailpagina en collectiepagina hebben afbeelding-containers nog `bg-card` (donkergrijs), waardoor er een zichtbaar kleurverschil is rond `object-contain` afbeeldingen.
+De homepage linkt naar bijv. `/collections/t-shirts` zonder gender-filter. Hierdoor worden zowel mannen- als vrouwenproducten getoond.
 
-### Wijzigingen
+### Oplossing
+Voeg `?gender=men` toe aan de homepage categorie-links zodat alleen mannenproducten worden getoond.
 
-**1. `src/pages/ProductDetail.tsx`**
-- Regel 229: `bg-card` → `bg-background` (hoofdafbeelding container)
-
-**2. `src/pages/Collection.tsx`**
-- Regel 120: `bg-card` → `bg-background` (Coming Soon categorie-afbeelding)
-- Regel 150: `bg-card` → `bg-background` (actieve categorie-afbeelding)
-- Regels 234-236: `bg-card` → `bg-background` (loading skeleton placeholders)
-
-### Niet aanraken
-- Formulier-inputs (`bg-card` op Contact, select dropdowns) — dat zijn geen afbeelding-containers
-- UI-componenten (avatar, chart, etc.)
+### Bestand
+**`src/pages/Index.tsx`** — regel 157:
+```tsx
+// Van:
+to={`/collections/${cat.slug}`}
+// Naar:
+to={`/collections/${cat.slug}?gender=men`}
+```
 
