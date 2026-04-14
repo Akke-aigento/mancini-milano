@@ -27,7 +27,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <Link to={`/products/${product.slug}`} className="group block">
-      <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-background">
+      <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
         {product.images?.[0] && (
           <img
             src={product.images[0].url}

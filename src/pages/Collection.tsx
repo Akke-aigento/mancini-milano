@@ -117,7 +117,7 @@ const Collection = () => {
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                    <div className="absolute inset-0 flex items-center justify-center bg-foreground/5">
                       <span className="text-muted-foreground text-sm uppercase tracking-widest">{cat.label}</span>
                     </div>
                   )}
@@ -191,9 +191,9 @@ const Collection = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="aspect-[3/4] bg-background mb-3" />
-                <div className="h-4 bg-background w-3/4 mb-2" />
-                <div className="h-4 bg-background w-1/4" />
+                <div className="aspect-[3/4] bg-card mb-3" />
+                <div className="h-4 bg-card w-3/4 mb-2" />
+                <div className="h-4 bg-card w-1/4" />
               </div>
             ))}
           </div>
