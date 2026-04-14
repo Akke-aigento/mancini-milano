@@ -108,7 +108,7 @@ const Collection = () => {
                 to={`/collections/${cat.slug}`}
                 className="group block"
               >
-                <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-background">
+                <div className="relative aspect-[3/4] overflow-hidden mb-3 border border-border">
                   {cat.image ? (
                     <img
                       src={cat.image}
@@ -117,11 +117,10 @@ const Collection = () => {
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-foreground/5">
+                    <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-muted-foreground text-sm uppercase tracking-widest">{cat.label}</span>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-colors" />
                 </div>
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-medium text-foreground uppercase tracking-wide">{cat.label}</h3>
