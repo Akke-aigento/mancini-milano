@@ -89,10 +89,10 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
           <div className="space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="flex gap-4 animate-pulse">
-                <div className="w-16 h-20 bg-card" />
+                <div className="w-16 h-20 bg-secondary/30" />
                 <div className="flex-1 space-y-2 py-2">
-                  <div className="h-4 bg-card w-3/4" />
-                  <div className="h-3 bg-card w-1/4" />
+                  <div className="h-4 bg-secondary/30 w-3/4" />
+                  <div className="h-3 bg-secondary/30 w-1/4" />
                 </div>
               </div>
             ))}
@@ -112,7 +112,7 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
                 onClick={onClose}
                 className="flex items-center gap-4 p-3 hover:bg-card transition-colors group"
               >
-                <div className="w-14 h-[70px] flex-shrink-0 bg-card overflow-hidden">
+                <div className="w-14 h-[70px] flex-shrink-0 overflow-hidden">
                   {product.images?.[0] && (
                     <img src={product.images[0].url} alt={product.title} className="w-full h-full object-cover" />
                   )}

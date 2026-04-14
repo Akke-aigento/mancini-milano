@@ -133,7 +133,7 @@ const Checkout = () => {
               {displayItems.map(item => (
                 <div key={item.id} className="flex gap-4 py-4">
                   {(item as any).image && (
-                    <div className="w-16 h-20 bg-card overflow-hidden flex-shrink-0">
+                    <div className="w-16 h-20 overflow-hidden flex-shrink-0">
                       <img src={(item as any).image} alt={item.title} className="w-full h-full object-cover" />
                     </div>
                   )}

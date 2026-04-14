@@ -226,7 +226,7 @@ const ProductDetail = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12">
           <div>
-            <div className="aspect-[3/4] overflow-hidden bg-background mb-3">
+            <div className="aspect-[3/4] overflow-hidden mb-3">
               {product.images?.[selectedImage] && (
                 <img
                   src={product.images[selectedImage].url}

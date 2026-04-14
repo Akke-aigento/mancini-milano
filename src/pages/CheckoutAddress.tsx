@@ -324,7 +324,7 @@ const CheckoutAddress = () => {
                 {displayItems.map(item => (
                   <div key={item.id} className="flex gap-3 py-3 first:pt-0">
                     {(item as any).image && (
-                      <div className="w-14 h-18 bg-card overflow-hidden flex-shrink-0">
+                      <div className="w-14 h-18 overflow-hidden flex-shrink-0">
                         <img src={(item as any).image} alt={item.title} className="w-full h-full object-cover" />
                       </div>
                     )}
