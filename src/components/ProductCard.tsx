@@ -33,7 +33,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
             src={product.images[0].url}
             alt={product.images[0].alt || product.title}
             loading="lazy"
-            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${
+            className={`absolute inset-0 w-full h-full object-contain transition-all duration-700 ${
               allowHoverImage
                 ? 'group-hover:opacity-0'
                 : 'group-hover:scale-105'
@@ -45,7 +45,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
             src={product.images[1].url}
             alt={product.images[1].alt || product.title}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+            className="absolute inset-0 w-full h-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-700"
           />
         )}
         {isOutOfStock && (

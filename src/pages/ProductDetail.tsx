@@ -231,7 +231,7 @@ const ProductDetail = () => {
                 <img
                   src={product.images[selectedImage].url}
                   alt={product.images[selectedImage].alt || product.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               )}
             </div>
