@@ -154,7 +154,7 @@ to="/collections/women"
             {featuredCategories.map((cat: any) => (
               <Link
                 key={cat.id}
-                to={`/collections/${cat.slug}`}
+                to={`/collections/${cat.slug}?gender=men`}
                 className="group relative aspect-[3/4] overflow-hidden block"
               >
                 <img
