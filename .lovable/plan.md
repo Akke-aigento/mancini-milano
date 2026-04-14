@@ -1,19 +1,22 @@
 
 
-## Fix: Rand rond categorie-kaarten verwijderen
+## Fix: Categorie-afbeelding gecropped
+
+### Probleem
+De categorie-kaart afbeeldingen gebruiken `object-cover` (regel 117), wat de afbeelding bijsnijdt om het hele `aspect-[3/4]` vlak te vullen. Bij afbeeldingen die niet exact 3:4 zijn (zoals jackets-women), wordt een deel afgesneden.
+
+### Oplossing
+Verander `object-cover` naar `object-contain` zodat de volledige afbeelding zichtbaar is zonder cropping. De afbeelding wordt dan proportioneel geschaald binnen het kader.
 
 ### Wijziging
-**`src/pages/Collection.tsx`** regel 111: verwijder `border border-border` van de subcategorie-kaart container.
-
-Van:
+**`src/pages/Collection.tsx`** regel 117:
 ```tsx
-<div className="relative aspect-[3/4] overflow-hidden mb-3 border border-border">
-```
-Naar:
-```tsx
-<div className="relative aspect-[3/4] overflow-hidden mb-3">
+// Van:
+className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+// Naar:
+className="absolute inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
 ```
 
 ### Resultaat
-Categorie-kaarten op `/collections/men` en `/collections/women` hebben geen zichtbare rand meer — ze vallen naadloos weg tegen de zwarte achtergrond.
+Categorie-afbeeldingen worden volledig getoond zonder afsnijding.
 
