@@ -1,47 +1,22 @@
 
 
-## Plan: Categoriestructuur vereenvoudigen met directe slugs
+## Fix: Vrouwen subcategorieën onterecht "Coming Soon"
 
-### Wat verandert
-De `?gender=men/women` intersectie-filter is niet meer nodig. Elke subcategorie heeft nu een unieke slug in de API, dus we kunnen direct op slug fetchen.
+### Probleem
+Op de parent-pagina (`/collections/women`) wordt `useProducts({ category_slug: 'women' })` aangeroepen. De `hasProducts` check zoekt dan of producten uit die fetch een subcategorie-slug zoals `jackets-women` in hun `categories` array hebben. Als de API die subcategorie-tags niet meelevert bij parent-producten, toont alles "Coming Soon" — ook categorieën die wél producten bevatten.
 
-### Wijzigingen
+### Oplossing
+Verwijder de `hasProducts`-check op basis van parent-producten. In plaats daarvan: maak **alle subcategorieën klikbaar** op de parent-pagina. De "Coming Soon" state wordt al correct afgehandeld op de subcategorie-pagina zelf (als er geen producten zijn). Dit maakt de parent-pagina puur een navigatie-overzicht.
 
-**1. `src/pages/Collection.tsx`**
-- Verwijder de dubbele fetch + intersectie-logica (primaryProducts / subcategoryProducts)
-- Gebruik gewoon één `useProducts({ category_slug: slug })` call
-- Op parent-pagina's (`men`/`women`): toon subcategorie-kaarten met de juiste slugs
-- Introduceer twee aparte lijsten: `MEN_SUBCATEGORIES` en `WOMEN_SUBCATEGORIES` met de correcte slugs
-- Verwijder de `?gender=` query parameter logica volledig
+### Wijziging
 
-**2. `src/components/layout/Navbar.tsx`**
-- `forHimLinks`: slugs blijven `jackets`, `hoodies`, etc.
-- `forHerLinks`: slugs worden `jackets-women`, `hoodies-women`, etc.
-- Verwijder `linkPrefix` / `?gender=` uit de dropdown-links — directe slug-links volstaan
-
-**3. `src/pages/Index.tsx`**
-- Homepage categorie-links: verwijder `?gender=men` — link direct naar de slug (bijv. `/collections/jackets`)
-
-**4. `src/components/layout/Footer.tsx`**
-- Controleer of footer-links nog correct zijn (For Him → `/collections/men`, For Her → `/collections/women`)
-
-### Technisch detail
-
-```text
-Oud:  /collections/hoodies?gender=men   → 2 API calls + intersectie
-Nieuw: /collections/hoodies             → 1 API call (heren)
-       /collections/hoodies-women       → 1 API call (dames)
-```
-
-Subcategorie-mapping:
-```text
-MEN:   jackets, hoodies, t-shirts, pants, tracksuits, bags, accessories
-WOMEN: jackets-women, hoodies-women, t-shirts-women, pants-women, tracksuits-women, bags-women, accessories-women
-```
+**`src/pages/Collection.tsx`** (regels 104-145):
+- Verwijder de `hasProducts` check en het "Coming Soon" blok
+- Render alle subcategorieën als klikbare `<Link>`-kaarten
+- Elke subcategorie is altijd bereikbaar; lege categorieën tonen hun eigen "Coming Soon" op de subcategorie-pagina
 
 ### Resultaat
-- Simpelere code, één fetch per pagina
-- Geen gender-filter query params meer nodig
-- Navbar "For Her" linkt direct naar de juiste women-slugs
-- Parent-pagina's tonen de correcte subcategorie-kaarten per gender
+- `jackets-women` (en alle andere subcategorieën met producten) zijn direct klikbaar
+- Geen afhankelijkheid meer van de parent-fetch om beschikbaarheid te bepalen
+- Simpelere, betrouwbaardere code
 
