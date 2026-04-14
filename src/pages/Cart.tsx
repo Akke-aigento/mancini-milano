@@ -42,7 +42,7 @@ const Cart = () => {
                 {items.map((item) => (
                   <div key={item.id} className="py-6 grid grid-cols-1 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-4 items-center">
                     <div className="flex gap-4">
-                      <div className="w-20 h-[100px] flex-shrink-0 bg-card overflow-hidden">
+                      <div className="w-20 h-[100px] flex-shrink-0 overflow-hidden">
                         {item.image && (
                           <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                         )}

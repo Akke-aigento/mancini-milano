@@ -162,11 +162,11 @@ const ProductDetail = () => {
       <Layout>
         <div className="max-w-site mx-auto px-4 lg:px-8 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12">
-            <div className="aspect-[3/4] bg-card animate-pulse" />
+            <div className="aspect-[3/4] bg-secondary/30 animate-pulse" />
             <div className="space-y-4">
-              <div className="h-4 bg-card w-1/2 animate-pulse" />
-              <div className="h-8 bg-card w-3/4 animate-pulse" />
-              <div className="h-6 bg-card w-1/4 animate-pulse" />
+              <div className="h-4 bg-secondary/30 w-1/2 animate-pulse" />
+              <div className="h-8 bg-secondary/30 w-3/4 animate-pulse" />
+              <div className="h-6 bg-secondary/30 w-1/4 animate-pulse" />
             </div>
           </div>
         </div>
@@ -226,7 +226,7 @@ const ProductDetail = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12">
           <div>
-            <div className="aspect-[3/4] overflow-hidden bg-background mb-3">
+            <div className="aspect-[3/4] overflow-hidden mb-3">
               {product.images?.[selectedImage] && (
                 <img
                   src={product.images[selectedImage].url}
