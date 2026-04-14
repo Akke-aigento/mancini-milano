@@ -1,26 +1,29 @@
 
 
-## Fix: hover-image uitzetten voor Blue Storm op t-shirts pagina
+## Fix: Productafbeeldingen worden afgekapt/ingezoomd
 
 ### Probleem
-Wanneer `preferredImageIndex` wordt meegegeven, wordt de "originele" afbeelding (index 0, modelfoto) nog steeds als hover-image gerenderd. Die is weliswaar `opacity-0`, maar is zichtbaar in de DOM en kan er doorheen schemeren.
+Dit is een **frontend probleem**, niet SellQo. Alle productafbeeldingen gebruiken `object-cover`, wat de afbeelding bijsnijdt om de container te vullen. Als de foto een andere verhouding heeft dan de container (`aspect-[3/4]`), worden delen van het product afgesneden.
 
 ### Oplossing
-In `ProductCard.tsx`: als `preferredImageIndex` is meegegeven (dus niet `undefined`), schakel het hover-effect uit — net als bij de Boss Fragrance Tee.
+Verander `object-cover` naar `object-contain` op de relevante plekken. Dit toont de volledige afbeelding binnen de container zonder bijsnijden.
 
-### Wijziging — `src/components/ProductCard.tsx`
+### Bestanden en wijzigingen
 
-Regel 28 aanpassen:
-```typescript
-// Was:
-const allowHoverImage = hasSecondImage && product.slug !== 'the-boss-fragrance-tee';
+**1. `src/components/ProductCard.tsx`** (collectiepagina's, related products)
+- Beide `<img>` tags: `object-cover` → `object-contain`
+- De `bg-card` achtergrondkleur op de container zorgt voor een nette achtergrond waar de afbeelding niet vult
 
-// Wordt:
-const allowHoverImage = hasSecondImage && product.slug !== 'the-boss-fragrance-tee' && preferredImageIndex == null;
-```
+**2. `src/pages/ProductDetail.tsx`** (productdetailpagina)
+- Hoofdafbeelding (regel 234): `object-cover` → `object-contain`
+- Thumbnails (regel 248): deze kunnen `object-cover` behouden (kleine previews mogen gecropped)
 
-Dat is alles — één conditie toevoegen. Wanneer een `preferredImageIndex` is meegegeven, geen hover-swap, alleen de subtiele scale-105 zoom.
+### Wat er niet verandert
+- Hero banners, lookbook, categorie-afbeeldingen → blijven `object-cover` (dat is gewenst voor sfeerbeelden)
+- Cart/checkout thumbnails → blijven `object-cover` (kleine previews)
 
-### Bestand
-1. `src/components/ProductCard.tsx` (1 regel)
+### Resultaat
+- Volledige productfoto's zichtbaar op collectiepagina en detailpagina
+- Geen afgesneden details meer
+- Nette achtergrondkleur waar de afbeelding niet vult
 

@@ -252,10 +252,9 @@ const Collection = () => {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-            {sortedProducts.map((product) => {
-              const preferredIndex = slug === 't-shirts' && product.slug?.includes('blue-storm') ? 1 : undefined;
-              return <ProductCard key={product.id} product={product} preferredImageIndex={preferredIndex} />;
-            })}
+            {sortedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
         )}
       </section>
