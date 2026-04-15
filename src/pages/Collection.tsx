@@ -114,7 +114,7 @@ const Collection = () => {
                       src={cat.image}
                       alt={cat.label}
                       loading="lazy"
-                      className="absolute inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
