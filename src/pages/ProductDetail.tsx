@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { sortSizes } from '@/lib/size-utils';
 import { useParams, Link } from 'react-router-dom';
 import { Truck, ChevronRight, Plus, Minus } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
@@ -56,11 +57,6 @@ const ProductDetail = () => {
     setAddedToCart(false);
   }
 
-  const SIZE_ORDER: Record<string, number> = {
-    'xxs': 0, 'xs': 1, 's': 2, 'm': 3, 'l': 4, 'xl': 5,
-    'xxl': 6, '2xl': 6, 'xxxl': 7, '3xl': 7,
-  };
-
   const { items: sizes, label: sizeLabel } = useMemo(() => {
     if (!product?.variants?.length) return { items: [] as string[], label: 'Size' };
     const s = new Set<string>();
@@ -72,12 +68,7 @@ const ProductDetail = () => {
         detectedKey = match.key.charAt(0).toUpperCase() + match.key.slice(1);
       }
     });
-    const sorted = Array.from(s).sort((a, b) => {
-      const aOrder = SIZE_ORDER[a.toLowerCase()] ?? 99;
-      const bOrder = SIZE_ORDER[b.toLowerCase()] ?? 99;
-      return aOrder - bOrder;
-    });
-    return { items: sorted, label: detectedKey };
+    return { items: sortSizes(Array.from(s)), label: detectedKey };
   }, [product]);
 
   const { items: colors, label: colorLabel } = useMemo(() => {
