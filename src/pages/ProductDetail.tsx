@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { sortSizes } from '@/lib/size-utils';
 import { useParams, Link } from 'react-router-dom';
 import { Truck, ChevronRight, Plus, Minus } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
