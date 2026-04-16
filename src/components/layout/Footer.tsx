@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { newsletterAPI } from '@/integrations/sellqo/api';
 import { toast } from 'sonner';
+import { Check } from 'lucide-react';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
@@ -68,7 +69,15 @@ const Footer = () => {
             </div>
             <p className="text-sm text-muted-foreground mb-3">Subscribe to our newsletter</p>
             {submitted ? (
-              <p className="text-sm text-foreground">Welcome to the movement. You're in. ✓</p>
+              <div className="border-l-2 border-primary bg-primary/5 p-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <div className="flex items-center gap-3">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Je bent ingeschreven!</p>
+                    <p className="text-xs text-muted-foreground mt-1">Verwacht exclusieve drops en updates in je inbox.</p>
+                  </div>
+                </div>
+              </div>
             ) : (
               <form onSubmit={async (e) => {
                 e.preventDefault();
@@ -77,6 +86,9 @@ const Footer = () => {
                 try {
                   await newsletterAPI.subscribe(email);
                   setSubmitted(true);
+                  toast.success('Welcome to the movement!', {
+                    description: 'Je ontvangt binnenkort exclusieve drops en updates.',
+                  });
                 } catch {
                   toast.error('Something went wrong. Please try again.');
                 } finally {
@@ -96,7 +108,7 @@ const Footer = () => {
                   disabled={loading}
                   className="w-full border border-foreground text-foreground bg-transparent px-4 py-2 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors disabled:opacity-50"
                 >
-                  {loading ? '...' : 'Subscribe'}
+                  {loading ? 'Subscribing...' : 'Subscribe'}
                 </button>
               </form>
             )}
