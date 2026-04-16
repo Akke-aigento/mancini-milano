@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { newsletterAPI } from '@/integrations/sellqo/api';
 import { toast } from 'sonner';
+import { Check } from 'lucide-react';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
