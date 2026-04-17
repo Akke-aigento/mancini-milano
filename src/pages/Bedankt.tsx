@@ -69,6 +69,7 @@ const Bedankt = () => {
 
   return (
     <Layout>
+      <SEO title="Bedankt — Bestelling Bevestigd" noindex />
       <section className="max-w-2xl mx-auto px-4 lg:px-8 py-20 lg:py-32">
         <div className="text-center mb-12">
           <CheckCircle className="h-16 w-16 text-primary mx-auto mb-6" />

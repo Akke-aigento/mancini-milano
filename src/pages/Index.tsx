@@ -72,7 +72,9 @@ const Index = () => {
         <div className="w-full overflow-hidden">
           <img
             src={lookbookBanner}
-            alt="Mancini Milano Collection"
+            alt="Mancini Milano Collection lookbook"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-auto"
           />
         </div>
@@ -129,6 +131,8 @@ to="/collections/women"
           <img
             src={heroDoberman}
             alt="Mancini Milano — Italian luxury streetwear brand illustration featuring signature Doberman design"
+            fetchPriority="high"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover object-top"
           />
           <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent" />

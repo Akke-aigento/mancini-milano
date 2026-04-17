@@ -12,6 +12,7 @@ const Cart = () => {
 
   return (
     <Layout>
+      <SEO title="Your Cart" description="Review the items in your Mancini Milano shopping cart." noindex />
       <section className="max-w-site mx-auto px-4 lg:px-8 py-12 lg:py-16">
         <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-10 text-center">
           Shopping Cart

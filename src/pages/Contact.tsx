@@ -25,6 +25,10 @@ const Contact = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Contact"
+        description="Get in touch with Mancini Milano. For wholesale inquiries, press, or customer support."
+      />
       <section className="max-w-site mx-auto px-4 lg:px-8 py-16 lg:py-24">
         <h1 className="font-heading text-3xl lg:text-[42px] tracking-heading uppercase text-foreground mb-12 text-center">
           Get in Touch
