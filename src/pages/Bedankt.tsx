@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CheckCircle, Copy, Check } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 import { formatPrice } from '@/components/ProductCard';
 
 const Bedankt = () => {

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { checkoutAPI } from '@/integrations/sellqo/api';
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Loader2, Tag, X, ChevronLeft } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCheckout } from '@/integrations/sellqo/CheckoutContext';
 import { checkoutAPI, cartAPI } from '@/integrations/sellqo/api';

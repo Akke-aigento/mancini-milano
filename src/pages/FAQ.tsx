@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 
 const faqs = [
   {

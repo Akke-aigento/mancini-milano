@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Mail, Clock } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 import { contactAPI } from '@/integrations/sellqo/api';
 
 const Contact = () => {

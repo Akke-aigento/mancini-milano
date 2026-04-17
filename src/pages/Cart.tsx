@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { formatPrice } from '@/components/ProductCard';
 
