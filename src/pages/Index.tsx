@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import heroDoberman from '@/assets/hero-doberman.png';
 import brandBanner from '@/assets/brand-banner.png';
 import lookbookBanner from '@/assets/lookbook-banner.jpg';
@@ -52,8 +53,12 @@ const Index = () => {
       await newsletterMutation.mutateAsync({ email });
       setNewsletterStatus('success');
       setEmail('');
+      toast.success('Je bent ingeschreven!', {
+        description: 'Welcome to the movement. Verwacht exclusieve drops en updates.',
+      });
     } catch {
       setNewsletterStatus('error');
+      toast.error('Er ging iets mis. Probeer het opnieuw.');
     }
   };
 
@@ -324,27 +329,35 @@ to="/collections/women"
           <p className="text-muted-foreground text-sm mb-8 max-w-md mx-auto">
             Be the first to know about new drops, exclusive offers, and behind-the-scenes content.
           </p>
-          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email address"
-              required
-              className="flex-1 bg-card border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-            />
-            <button
-              type="submit"
-              className="border border-foreground text-foreground bg-transparent px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
-            >
-              Subscribe
-            </button>
-          </form>
-          {newsletterStatus === 'success' && (
-            <p className="text-primary text-sm mt-4">Welcome to the movement. You're in.</p>
-          )}
-          {newsletterStatus === 'error' && (
-            <p className="text-destructive text-sm mt-4">Something went wrong. Please try again.</p>
+          {newsletterStatus === 'success' ? (
+            <div className="max-w-md mx-auto border-l-2 border-primary bg-primary/5 p-4 animate-in fade-in slide-in-from-bottom-2 duration-500 text-left">
+              <div className="flex items-center gap-3">
+                <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">Je bent ingeschreven!</p>
+                  <p className="text-xs text-muted-foreground mt-1">Verwacht exclusieve drops en updates in je inbox.</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
+                required
+                disabled={newsletterMutation.isPending}
+                className="flex-1 bg-card border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors disabled:opacity-50"
+              />
+              <button
+                type="submit"
+                disabled={newsletterMutation.isPending}
+                className="border border-foreground text-foreground bg-transparent px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {newsletterMutation.isPending ? 'Subscribing...' : 'Subscribe'}
+              </button>
+            </form>
           )}
         </div>
       </section>
