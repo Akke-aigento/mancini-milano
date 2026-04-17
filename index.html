@@ -53,6 +53,55 @@
     <meta name="apple-mobile-web-app-title" content="Mancini Milano" />
     <meta name="application-name" content="Mancini Milano" />
     <meta name="msapplication-TileColor" content="#000000" />
+
+    <!-- Structured Data: Organization, WebSite, Store -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://mancinimilano.com/#organization",
+          "name": "Mancini Milano",
+          "url": "https://mancinimilano.com",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://mancinimilano.com/favicon.png"
+          },
+          "description": "Luxury streetwear brand from Milan. Italian heritage meets contemporary street design.",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Milan",
+            "addressCountry": "IT"
+          },
+          "sameAs": [
+            "https://www.instagram.com/mancinimilanostore"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://mancinimilano.com/#website",
+          "url": "https://mancinimilano.com",
+          "name": "Mancini Milano",
+          "publisher": { "@id": "https://mancinimilano.com/#organization" },
+          "inLanguage": "en"
+        },
+        {
+          "@type": "Store",
+          "@id": "https://mancinimilano.com/#store",
+          "name": "Mancini Milano",
+          "image": "https://mancinimilano.com/og-image.png",
+          "url": "https://mancinimilano.com",
+          "priceRange": "€€€",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Milan",
+            "addressCountry": "IT"
+          }
+        }
+      ]
+    }
+    </script>
   </head>
 
   <body>
