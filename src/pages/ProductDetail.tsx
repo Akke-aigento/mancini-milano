@@ -183,7 +183,7 @@ const ProductDetail = () => {
     <Layout>
       <SEO
         title={product.title}
-        description={product.description}
+        description={product.description?.slice(0, 160) || `${product.title} — Mancini Milano luxury streetwear from Milan.`}
         image={product.images?.[0]?.url}
         type="product"
         jsonLd={{
@@ -192,11 +192,18 @@ const ProductDetail = () => {
           name: product.title,
           description: product.description,
           image: product.images?.map((i: any) => i.url),
+          sku: (product as any).sku || product.id,
+          brand: {
+            '@type': 'Brand',
+            name: 'Mancini Milano',
+          },
           offers: {
             '@type': 'Offer',
+            url: `https://mancinimilano.com/products/${product.slug}`,
             price: displayPrice,
             priceCurrency: product.currency || 'EUR',
             availability: product.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            itemCondition: 'https://schema.org/NewCondition',
           },
         }}
       />
