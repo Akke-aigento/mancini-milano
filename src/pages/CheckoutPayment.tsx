@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCheckout } from '@/integrations/sellqo/CheckoutContext';
 import { checkoutAPI } from '@/integrations/sellqo/api';
@@ -236,6 +237,7 @@ const CheckoutPayment = () => {
 
   return (
     <Layout>
+      <SEO title="Checkout — Payment" noindex />
       <section className="max-w-5xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
         <h1 className="font-heading text-3xl tracking-heading uppercase text-foreground mb-8 text-center">Checkout</h1>
 

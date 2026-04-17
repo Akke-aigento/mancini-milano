@@ -1,4 +1,5 @@
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 
 const sizes = [
   { size: 'S', chest: '88-92', waist: '72-76', hips: '88-92', length: '68' },
@@ -9,6 +10,10 @@ const sizes = [
 
 const SizeGuide = () => (
   <Layout>
+    <SEO
+      title="Size Guide"
+      description="Find your perfect fit. Detailed measurements for all Mancini Milano luxury streetwear pieces."
+    />
     <section className="max-w-site mx-auto px-4 lg:px-8 py-16 lg:py-24">
       <h1 className="font-heading text-3xl lg:text-[42px] tracking-heading uppercase text-foreground mb-4 text-center">
         Size Guide

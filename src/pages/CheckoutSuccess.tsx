@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import SEO from '@/components/SEO';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { checkoutAPI } from '@/integrations/sellqo/api';
 
@@ -145,8 +146,8 @@ const CheckoutSuccess = () => {
 
   return (
     <Layout>
+      <SEO title="Order Confirmed" noindex />
       <section className="max-w-site mx-auto px-4 lg:px-8 py-20 lg:py-32 text-center">
-        <CheckCircle className="h-16 w-16 text-primary mx-auto mb-6" />
         <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-4">
           Bedankt voor je bestelling
         </h1>

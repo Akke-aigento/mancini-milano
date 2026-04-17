@@ -1,14 +1,19 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+
+# Block commerce flows
+Disallow: /cart
+Disallow: /checkout
+Disallow: /checkout/address
+Disallow: /checkout/payment
+Disallow: /checkout/success
+Disallow: /bedankt
+Disallow: /account
+Disallow: /login
+Disallow: /api
+Disallow: /_*
+
+# Block URL parameters (filters, sessions)
+Disallow: /*?*
+
+Sitemap: https://mancinimilano.com/sitemap.xml
