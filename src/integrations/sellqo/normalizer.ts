@@ -4,13 +4,13 @@ import type { Product, ProductImage, ProductVariant, Collection, Cart, CartItem,
 export function normalizeProduct(raw: any): Product {
   if (!raw) return raw;
 
-  // Normalize images
+  // Normalize images — trust SellQo's ordering (featured_image is already images[0])
   let rawImages = raw.images || [];
-  if ((!Array.isArray(rawImages) || rawImages.length === 0) && raw.image) {
-    rawImages = [raw.image];
-  }
   if ((!Array.isArray(rawImages) || rawImages.length === 0) && raw.featured_image) {
     rawImages = [raw.featured_image];
+  }
+  if ((!Array.isArray(rawImages) || rawImages.length === 0) && raw.image) {
+    rawImages = [raw.image];
   }
   const images: ProductImage[] = (Array.isArray(rawImages) ? rawImages : []).map(
     (img: string | ProductImage, i: number) => {
@@ -19,29 +19,7 @@ export function normalizeProduct(raw: any): Product {
       }
       return { id: img.id || `img-${i}`, url: img.url, alt: img.alt || '', position: img.position ?? i };
     }
-  ).sort((a, b) => a.position - b.position);
-
-  // Prioriteer featured_image/image als hoofdafbeelding
-  const featuredUrl = typeof raw.featured_image === 'string'
-    ? raw.featured_image
-    : (typeof raw.image === 'string' ? raw.image : null);
-
-  if (featuredUrl && images.length > 0) {
-    const featuredIdx = images.findIndex(img => img.url === featuredUrl);
-    if (featuredIdx > 0) {
-      const [featured] = images.splice(featuredIdx, 1);
-      images.unshift(featured);
-    } else if (featuredIdx === -1) {
-      images.unshift({ id: 'featured', url: featuredUrl, alt: raw.name || raw.title || '', position: -1 });
-    }
-  }
-
-  // Override: No Face hoodie — toon voorkant als hoofdafbeelding
-  if ((raw.slug === 'no-face' || raw.handle === 'no-face') && images.length > 1) {
-    const [back, front, ...rest] = images;
-    images.length = 0;
-    images.push(front, back, ...rest);
-  }
+  );
 
   // Normalize variants
   const rawVariants = raw.variants || [];
