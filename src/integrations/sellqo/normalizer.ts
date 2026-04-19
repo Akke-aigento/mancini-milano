@@ -4,7 +4,9 @@ import type { Product, ProductImage, ProductVariant, Collection, Cart, CartItem,
 export function normalizeProduct(raw: any): Product {
   if (!raw) return raw;
 
-  // Normalize images — trust SellQo's ordering (featured_image is already images[0])
+  // Normalize images. SellQo's storefront API returns images[] in upload order,
+  // NOT prioritised by featured_image. We must explicitly hoist featured_image to index 0
+  // so the merchant-selected hoofdfoto appears first everywhere on the site.
   let rawImages = raw.images || [];
   if ((!Array.isArray(rawImages) || rawImages.length === 0) && raw.featured_image) {
     rawImages = [raw.featured_image];
@@ -20,6 +22,28 @@ export function normalizeProduct(raw: any): Product {
       return { id: img.id || `img-${i}`, url: img.url, alt: img.alt || '', position: img.position ?? i };
     }
   );
+
+  // Hoist featured_image to position 0 if SellQo specified one.
+  const featuredUrl: string | undefined =
+    typeof raw.featured_image === 'string'
+      ? raw.featured_image
+      : raw.featured_image?.url;
+  if (featuredUrl && images.length > 0) {
+    const idx = images.findIndex((img) => img.url === featuredUrl);
+    if (idx > 0) {
+      const [featured] = images.splice(idx, 1);
+      images.unshift(featured);
+    } else if (idx === -1) {
+      images.unshift({
+        id: 'featured',
+        url: featuredUrl,
+        alt: raw.name || raw.title || '',
+        position: 0,
+      });
+    }
+    // Re-assign positions to reflect new ordering
+    images.forEach((img, i) => { img.position = i; });
+  }
 
   // Normalize variants
   const rawVariants = raw.variants || [];
