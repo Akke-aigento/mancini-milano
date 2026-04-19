@@ -410,6 +410,7 @@ const ProductDetail = () => {
         </section>
       )}
 
+      {!isOutOfStock && (
       <div className="fixed bottom-0 left-0 right-0 z-30 lg:hidden">
         {showColorSelector && needsColor && (
           <div className="bg-card border-t border-border px-4 py-3">
