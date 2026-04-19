@@ -331,11 +331,6 @@ const ProductDetail = () => {
               </div>
             )}
 
-            {isOutOfStock && (
-              <div className="mb-4 border border-border bg-card px-4 py-3 text-center">
-                <span className="text-sm font-medium text-muted-foreground uppercase tracking-button">Sold Out</span>
-              </div>
-            )}
             {!isOutOfStock && isLowStock && canAddToCart && (
               <p className="text-xs text-amber-500 uppercase tracking-button font-medium mb-2">Low Stock – Order Soon</p>
             )}
