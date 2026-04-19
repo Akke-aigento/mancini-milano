@@ -1,25 +1,31 @@
 
 
 ## Probleem
-Op productpagina (mobile) staat "SOLD OUT" twee keer:
-1. De grote knop in de hoofdcontent
-2. De sticky footer onderaan
+Op de productpagina staan bij een sold out product **twee** "SOLD OUT" elementen direct boven elkaar in de hoofdcontent (zie screenshots desktop + mobile):
 
-Op desktop is dit minder storend, maar op mobile (zoals in screenshot) overlappen ze visueel direct boven elkaar.
+1. **Regel 334-338 in `src/pages/ProductDetail.tsx`** — een aparte info-badge die alleen bij `isOutOfStock` getoond wordt:
+   ```tsx
+   {isOutOfStock && (
+     <div className="mb-4 border border-border bg-card px-4 py-3 text-center">
+       <span>Sold Out</span>
+     </div>
+   )}
+   ```
 
-## Onderzoek nodig
-Ik moet eerst `src/pages/ProductDetail.tsx` bekijken om te zien hoe de sticky footer wordt gerenderd en of er al een conditie is voor mobile vs desktop.
+2. **Regel 342-364** — de Add to Cart knop, die zijn label vervangt door "Sold Out" wanneer het product niet op voorraad is.
+
+Beide zien er visueel identiek uit (border + bg-card + zelfde tekststijl) → vandaar het dubbel-effect.
 
 ## Oplossing
-Wanneer een product **sold out** is, de sticky mobile footer verbergen (de hoofdknop in de content blijft zichtbaar — die is groot en duidelijk genoeg).
+De redundante info-badge (regel 334-338) **volledig verwijderen**. De disabled knop daaronder communiceert al duidelijk dat het product uitverkocht is, en is consistent met de rest van de UI flow.
+
+De `isLowStock` waarschuwing (regel 339-341) blijft staan, want die geeft andere informatie.
 
 ### Wijziging
-**`src/pages/ProductDetail.tsx`** — sticky footer:
-- Voeg conditie toe: `{!isOutOfStock && <div className="sticky-footer">...</div>}`
-- Of: render de sticky footer alleen wanneer er een actie mogelijk is (in stock)
+**`src/pages/ProductDetail.tsx`** — regels 334-338 verwijderen.
 
 ### Resultaat
-- Sold out producten: alleen de grote SOLD OUT knop in de content (1x)
-- In stock producten: sticky footer blijft werken zoals nu (snelle add-to-cart)
-- Geen layout shift, geen dubbele info
+- Sold out producten: **1x** SOLD OUT label (de disabled knop)
+- In stock producten: ongewijzigd
+- Layout blijft schoon, zowel mobile als desktop
 
