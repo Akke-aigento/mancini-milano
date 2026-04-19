@@ -535,7 +535,8 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
-      <div className="h-20 lg:hidden" />
+      )}
+      {!isOutOfStock && <div className="h-20 lg:hidden" />}
     </Layout>
   );
 };
