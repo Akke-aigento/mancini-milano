@@ -202,10 +202,11 @@ Deno.serve(async (req) => {
       },
     });
   } catch (error) {
+    const request_id = crypto.randomUUID();
     const msg = error instanceof Error ? error.message : typeof error === 'object' ? JSON.stringify(error) : String(error);
-    console.error("[proxy-v3] error:", msg);
+    console.error("[proxy-v3] error:", { request_id, message: msg, error });
     return new Response(
-      JSON.stringify({ error: "Proxy request failed", details: msg }),
+      JSON.stringify({ error: "Proxy request failed", details: "Internal server error", request_id }),
       { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
