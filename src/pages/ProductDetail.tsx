@@ -5,6 +5,7 @@ import { Truck, ChevronRight, Plus, Minus } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ProductCard, { formatPrice } from '@/components/ProductCard';
+import { SafeHtml } from '@/components/SafeHtml';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useProduct, useRelatedProducts } from '@/integrations/sellqo/hooks';
 
@@ -379,7 +380,7 @@ const ProductDetail = () => {
                   {openAccordion === key && (
                     <div className="pb-4 text-sm text-muted-foreground leading-relaxed">
                       {key === 'description' ? (
-                        <div dangerouslySetInnerHTML={{ __html: content }} className="prose prose-sm prose-invert max-w-none" />
+                        <SafeHtml html={content} className="prose prose-sm prose-invert max-w-none" />
                       ) : (
                         content
                       )}

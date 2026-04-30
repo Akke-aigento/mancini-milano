@@ -55,9 +55,10 @@ Deno.serve(async (req: Request) => {
       },
     });
   } catch (error) {
-    console.error('SellQo customer proxy error:', error);
+    const request_id = crypto.randomUUID();
+    console.error('SellQo customer proxy error:', { request_id, error });
     return new Response(
-      JSON.stringify({ success: false, error: 'Proxy request failed', details: error.message }),
+      JSON.stringify({ success: false, error: 'Proxy request failed', details: 'Internal server error', request_id }),
       { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
