@@ -116,7 +116,11 @@ const Footer = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full border border-foreground text-foreground bg-transparent px-4 py-2 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors disabled:opacity-50"
+                  className={
+                    isClassic
+                      ? 'w-full border border-classic-gold text-classic-gold bg-transparent px-4 py-2 text-xs uppercase tracking-button font-medium hover:bg-classic-gold hover:text-background transition-colors disabled:opacity-50'
+                      : 'w-full border border-foreground text-foreground bg-transparent px-4 py-2 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors disabled:opacity-50'
+                  }
                 >
                   {loading ? 'Subscribing...' : 'Subscribe'}
                 </button>
