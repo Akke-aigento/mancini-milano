@@ -168,7 +168,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile right: world switch + cart */}
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-0.5 lg:hidden">
             <WorldSwitch variant="mobile" />
             <button
               onClick={openCart}

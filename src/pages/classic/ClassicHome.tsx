@@ -16,14 +16,8 @@ const ClassicHome = () => {
 
       {/* Hero — full-bleed editorial campaign image with code-rendered overlay */}
       <section className="relative w-full overflow-hidden bg-secondary">
-        {/* Thin top gold rule + eyebrow */}
-        <div className="max-w-site mx-auto px-6 lg:px-12 pt-8 pb-4 flex items-center gap-4">
-          <span aria-hidden className="block h-px flex-1 bg-classic-gold/40" />
-          <span className="text-[10px] lg:text-[11px] uppercase tracking-[0.5em] text-classic-gold whitespace-nowrap">
-            Mancini Milano Classic — FW 26
-          </span>
-          <span aria-hidden className="block h-px flex-1 bg-classic-gold/40" />
-        </div>
+
+
 
         {/* Hero image + overlay */}
         <div className="relative w-full">
