@@ -167,16 +167,9 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Mobile right: world switch + account + cart */}
-          <div className="flex items-center gap-1 lg:hidden">
-            <WorldSwitch variant="mobile" className="mr-1" />
-            <Link
-              to={isAuthenticated ? "/account" : "/login"}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Account"
-            >
-              <User className="h-5 w-5" />
-            </Link>
+          {/* Mobile right: world switch + cart */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <WorldSwitch variant="mobile" />
             <button
               onClick={openCart}
               className="relative min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
