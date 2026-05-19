@@ -35,7 +35,7 @@ const ClassicHome = () => {
           </div>
           <div className="order-1 lg:order-2 w-full aspect-[4/5] overflow-hidden bg-background">
             <img
-              src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=1400&q=80"
+              src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=1400&q=80"
               alt="Mancini Milano Classic — refined Italian tailoring"
               className="w-full h-full object-cover"
               loading="eager"
