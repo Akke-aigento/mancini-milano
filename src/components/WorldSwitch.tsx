@@ -66,7 +66,7 @@ const MobileSwap = ({ className, onSwitch }: { className: string; onSwitch?: () 
           'rounded-full',
           isClassic
             ? 'border-classic-gold/60 text-classic-gold hover:bg-classic-gold hover:text-background'
-            : 'border-accent/70 text-accent hover:bg-accent hover:text-foreground',
+            : 'border-foreground/40 text-foreground hover:bg-foreground hover:text-background',
         ].join(' ')}
       >
         <WorldIcon world={target} size={15} />
@@ -81,7 +81,7 @@ const MobileSwap = ({ className, onSwitch }: { className: string; onSwitch?: () 
             'text-[10px] uppercase tracking-[0.2em] whitespace-nowrap',
             'bg-background border pointer-events-none',
             'animate-fade-in',
-            isClassic ? 'border-classic-gold/60 text-classic-gold' : 'border-accent/70 text-accent',
+            isClassic ? 'border-classic-gold/60 text-classic-gold' : 'border-foreground/40 text-foreground',
           ].join(' ')}
         >
           Switch to {labels[target]}
