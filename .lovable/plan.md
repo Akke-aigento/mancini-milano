@@ -1,88 +1,66 @@
 ## Doel
 
-Op mobiel meer ademruimte maken voor de world-toggle door het account- en zoekicoon weg te halen uit de top action-bar en te verplaatsen naar het hamburger-menu. Tegelijk de toggle zelf verfijnen — kleiner, eleganter, minder bombastisch.
+De geüploade campagnefoto wordt de nieuwe hero op `/classic`, maar de heading, body en CTA-knop worden **door ons in code gerenderd** als overlay — niet ingebakken in de afbeelding. Zo blijven tekst, vertaling, knoplink en typografie volledig editable en passen ze bij het design system (`font-classic`, `text-classic-gold`, etc.).
+
+## Probleem met de aangeleverde afbeelding
+
+De upload heeft de tekst **"TIMELESS STYLE. MADE TO LAST."** + body + "SHOP COLLECTION"-knop **al ingebakken** in de linkerhelft. Als we daar onze eigen tekst overheen leggen, krijgen we dubbele tekst.
+
+**Oplossing:** met `imagegen--edit_image` een schone versie maken waar de tekst en knop verwijderd zijn — alleen de marmeren trap met de producten (tas, pet, t-shirt, jeans) aan de rechterkant blijft, en links blijft de zachte marmeren achtergrond leeg zodat onze overlay daar ademruimte krijgt.
+
+Bestand wordt opgeslagen als `src/assets/classic-hero-clean.jpg` (vervangt `classic-hero.png` in de import).
 
 ## Aanpak
 
-### 1. Mobiele top-bar opschonen — `src/components/layout/Navbar.tsx`
+### 1. Schone hero-afbeelding genereren
+- `imagegen--edit_image` op `user-uploads://image-75.png`
+- Prompt: verwijder alle tekst en de zwarte knop aan de linkerkant, behoud de marmeren textuur en producten exact zoals ze zijn.
+- Aspect ratio 16:9, opslaan als `src/assets/classic-hero-clean.jpg`.
 
-**Links (huidige hamburger + search cluster, lijn 139–154):** alleen de hamburger laten staan. De search-knop verdwijnt hier.
+### 2. `src/pages/classic/ClassicHome.tsx` — hero herschrijven
 
-**Rechts (huidige toggle + account + cart cluster, lijn 177–198):** account-link verdwijnt hier. Alleen `WorldSwitch` + cart blijven.
-
-Resultaat:
-
-```text
-MOBIEL NAVBAR (voor)
-[☰] [🔍]      MANCINI MILANO      [👟│👔] [👤] [🛍]
-
-MOBIEL NAVBAR (na)
-[☰]           MANCINI MILANO            [👟│👔] [🛍]
-```
-
-Hierdoor ontstaat aan beide kanten zichtbare ruimte naast het gecentreerde logo, en de toggle valt op zonder geduwd te zitten.
-
-### 2. Search & Account in het hamburger-paneel — zelfde bestand
-
-Het mobiel menu-paneel (lijn 231+) krijgt bovenaan, vlak onder de header van het paneel, een rij met twee inline acties:
+Vervang het huidige hero-blok (lijn 17–59) door één full-bleed sectie met de schone foto als achtergrond en een tekstoverlay links:
 
 ```text
-┌─────────────────────────────┐
-│ 🔍  Search products         │
-│ 👤  Account / Inloggen      │
-├─────────────────────────────┤
-│ Home                        │
-│ For Him            ⌄        │
-│ ...                          │
+┌──────────────────────────────────────────────────────────┐
+│ ─── MANCINI MILANO CLASSIC — FW 26 ───                   │
+│                                                          │
+│   TIMELESS STYLE.        [ producten op marmer ]         │
+│   MADE TO LAST.                                          │
+│   ─                                                      │
+│   Refined essentials crafted                             │
+│   with premium materials…                                │
+│                                                          │
+│   [ SHOP COLLECTION ]                                    │
+└──────────────────────────────────────────────────────────┘
 ```
 
-- **Search-rij**: opent dezelfde `SearchOverlay` via een lokale handler `(setSearchOpen(true); closeMobile())`.
-- **Account-rij**: linkt naar `/account` of `/login` afhankelijk van `isAuthenticated`, met label "My Account" of "Sign In".
+**Structuur:**
+- `<section className="relative w-full overflow-hidden bg-secondary">`
+- Gouden eyebrow-rule blijft bovenaan (zoals nu).
+- Daaronder: `<div className="relative">` met `<img>` als full-width achtergrond (`w-full h-auto`, `object-cover` op desktop met vaste `aspect-[16/9]` of `min-h-[80vh]`).
+- Daarbovenop een `absolute inset-0` overlay-container met `max-w-site mx-auto px-6 lg:px-12 flex items-center`:
+  - **Heading** in `font-classic` (Playfair), uppercase variant niet — gebruik exact dezelfde Playfair-look als de afbeelding had: `text-4xl lg:text-6xl font-light text-foreground leading-[1.05]`. Eerste regel "Timeless Style." in `text-foreground`, tweede regel "Made To Last." in `text-classic-gold`.
+  - Kleine gouden divider (`w-10 h-px bg-classic-gold`).
+  - Body `text-sm lg:text-base text-muted-foreground max-w-sm`.
+  - CTA: `<Link to="/classic/collections/all">` met `bg-foreground text-background px-10 py-4 text-[11px] uppercase tracking-[0.25em] hover:bg-classic-gold hover:text-background transition-colors`.
+- Subtiele witte/cream gradient links over de foto (`bg-gradient-to-r from-secondary/85 via-secondary/40 to-transparent`) om de tekst leesbaar te houden op alle viewports.
 
-De bestaande "Mijn Account / Inloggen"-link onderaan in de utility-blok mag dan verdwijnen om duplicatie te vermijden (de visueel prominente versie bovenaan vervangt 'm).
+**Mobiel (<lg):**
+- Foto behoudt natuurlijke aspect ratio.
+- Overlay wordt onderaan/centered geplaatst met sterkere gradient van onder (`from-secondary via-secondary/70 to-transparent`) zodat tekst leesbaar blijft over de producten. Alternatief: tekst onder de foto stacken in plaats van overlay als de leesbaarheid eronder lijdt — beslissen tijdens implementatie na visuele check.
 
-### 3. World-switch verfijnen op mobiel — `src/components/WorldSwitch.tsx`
+### 3. Oude CTA-bar verwijderen
+De aparte CTA-balk onder de afbeelding (lijn 47–58) vervalt — body + knop zitten nu in de overlay.
 
-De `mobile` variant wordt eleganter:
-
-- Hoogte van `h-8` → `h-7` (28px). Nog steeds tapbaar samen met breedte.
-- Icoongrootte van 16px → 14px.
-- Padding `px-3` → `px-3.5` (iets meer ademruimte links/rechts van het icoon binnen elke helft).
-- Border-thickness: `border` blijft, maar krijgt een subtiele `border-classic-gold/50` (was `/70`) zodat de pill rustiger oogt naast het cartlogo.
-- Actieve helft behoudt gouden fill — maar met een dunner accent: een 1px inset shadow vervangt later eventueel de full fill. Voor nu: gouden fill blijft (consistent met desktop).
-
-Desktop- en full-varianten blijven exact zoals nu.
-
-## Visueel resultaat
-
-```text
-MOBIEL (390px)
-┌────────────────────────────────────────────┐
-│  ☰         MANCINI MILANO       [👟│👔] 🛍 │
-└────────────────────────────────────────────┘
-
-MOBIEL MENU PANEEL
-┌────────────────────────────────────────────┐
-│   MANCINI MILANO                         ✕ │
-├────────────────────────────────────────────┤
-│ 🔍  Search products                        │
-│ 👤  My Account                             │
-├────────────────────────────────────────────┤
-│ Home                                       │
-│ For Him                                  ⌄ │
-│ For Her                                  ⌄ │
-│ Fragrances                                 │
-│ Contact                                    │
-├────────────────────────────────────────────┤
-│ About Us · FAQ · Size Guide                │
-├────────────────────────────────────────────┤
-│ Shop                                       │
-│ [    👟 STREETWEAR    │    👔 CLASSIC    ] │
-└────────────────────────────────────────────┘
-```
+### 4. Oude asset
+`src/assets/classic-hero.png` blijft staan (geen delete) tot bevestigd dat alles werkt; import wordt vervangen door `classic-hero-clean.jpg`.
 
 ## Niet aanpassen
 
-- Desktop-navbar blijft volledig identiek (search/account/cart staan daar prima).
-- `WorldContext`, `Layout.tsx`, en alle pagina's blijven ongemoeid.
-- Het hamburger-menu zelf qua structuur (accordions, sections) blijft hetzelfde, alleen 1 rij erbij bovenaan en 1 dubbele link weg onderaan.
+- Eyebrow-rule, value-props strip, brand story, "Signature Details" band, launch teaser → alles ongemoeid.
+- Geen wijzigingen aan Streetwear-home, routing, of design tokens.
+
+## Vraag
+
+Akkoord dat ik de geüploade foto eerst laat retoucheren (tekst + knop weghalen) zodat onze eigen overlay zuiver toont? Indien je liever een eigen schone versie aanlevert, upload die dan en ik gebruik 'm direct.
