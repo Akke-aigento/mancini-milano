@@ -61,16 +61,17 @@ const MobileSwap = ({ className, onSwitch }: { className: string; onSwitch?: () 
         }}
         aria-label={`Switch to ${labels[target]}`}
         className={[
-          'h-9 w-9 flex items-center justify-center',
+          'h-8 w-8 flex items-center justify-center',
           'border transition-all duration-200',
           'rounded-full',
           isClassic
-            ? 'border-classic-gold/60 text-classic-gold hover:bg-classic-gold hover:text-background'
-            : 'border-foreground/40 text-foreground hover:bg-foreground hover:text-background',
+            ? 'border-classic-gold/50 text-classic-gold hover:bg-classic-gold hover:text-background'
+            : 'border-foreground/30 text-foreground hover:bg-foreground hover:text-background',
         ].join(' ')}
       >
-        <WorldIcon world={target} size={15} />
+        <WorldIcon world={target} size={13} />
       </button>
+
 
       {/* Discovery hint — appears once per session */}
       {showHint && (
