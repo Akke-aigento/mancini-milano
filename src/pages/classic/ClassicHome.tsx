@@ -34,7 +34,7 @@ const ClassicHome = () => {
             loading="eager"
           />
 
-          {/* Readability gradient — stronger on the left where text sits */}
+          {/* Desktop readability gradient — stronger on the left where text sits */}
           <div
             aria-hidden
             className="absolute inset-0 pointer-events-none hidden lg:block"
@@ -43,17 +43,8 @@ const ClassicHome = () => {
                 'linear-gradient(to right, hsl(var(--secondary) / 0.85) 0%, hsl(var(--secondary) / 0.45) 35%, transparent 60%)',
             }}
           />
-          {/* Mobile gradient — bottom-up so text below the products stays legible */}
-          <div
-            aria-hidden
-            className="absolute inset-0 pointer-events-none lg:hidden"
-            style={{
-              background:
-                'linear-gradient(to top, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.75) 25%, transparent 55%)',
-            }}
-          />
 
-          {/* Soft fade into the cream background at the bottom */}
+          {/* Soft fade into the cream background at the bottom (seamless handoff to mobile text block) */}
           <div
             aria-hidden
             className="absolute inset-x-0 bottom-0 h-24 pointer-events-none"
@@ -63,11 +54,11 @@ const ClassicHome = () => {
             }}
           />
 
-          {/* Overlay content — left-aligned on desktop, bottom on mobile */}
-          <div className="absolute inset-0 flex items-end lg:items-center">
-            <div className="max-w-site mx-auto w-full px-6 lg:px-12 pb-8 lg:pb-0">
+          {/* Desktop overlay — left-aligned over marble */}
+          <div className="absolute inset-0 hidden lg:flex items-center">
+            <div className="max-w-site mx-auto w-full px-6 lg:px-12">
               <div className="max-w-md">
-                <h1 className="font-classic font-light leading-[1.05] text-foreground text-3xl sm:text-4xl lg:text-6xl">
+                <h1 className="font-classic font-light leading-[1.05] text-foreground text-4xl lg:text-6xl">
                   <span className="block">Timeless Style.</span>
                   <span className="block text-classic-gold">Made To Last.</span>
                 </h1>
@@ -85,7 +76,26 @@ const ClassicHome = () => {
             </div>
           </div>
         </div>
+
+        {/* Mobile text block — stacked under the image */}
+        <div className="lg:hidden max-w-site mx-auto px-6 pt-8 pb-12">
+          <h1 className="font-classic font-light leading-[1.05] text-foreground text-3xl sm:text-4xl">
+            <span className="block">Timeless Style.</span>
+            <span className="block text-classic-gold">Made To Last.</span>
+          </h1>
+          <span aria-hidden className="block w-10 h-px bg-classic-gold mt-5 mb-4" />
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+            Refined essentials crafted with premium materials and elevated by gold details. Designed in Italy. Worn everywhere.
+          </p>
+          <Link
+            to="/classic/collections/all"
+            className="inline-block mt-7 bg-foreground text-background px-10 py-4 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors duration-300"
+          >
+            Shop Collection
+          </Link>
+        </div>
       </section>
+
 
 
 
