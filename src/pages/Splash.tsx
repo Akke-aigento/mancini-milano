@@ -63,7 +63,7 @@ const Splash = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/35 group-hover:from-black/40 transition-all duration-700" />
 
-            <div className="relative z-10 flex flex-col items-center text-center px-6">
+            <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center text-center px-6 pb-10 lg:pb-14">
               <h2 className="font-heading text-foreground text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem] leading-none">
                 Classic
               </h2>
