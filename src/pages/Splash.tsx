@@ -52,10 +52,10 @@ const Splash = () => {
             <img
               src={splashStreetwear}
               alt="Mancini Milano Streetwear — elevated essentials with luxury attitude"
-              className="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:opacity-70 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
+              className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
               loading="eager"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30 group-hover:from-black/65 transition-all duration-700" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-black/20 group-hover:from-black/40 transition-all duration-700" />
             <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-lg">
               <span className="text-[10px] lg:text-xs uppercase tracking-[0.4em] text-foreground/70 mb-5 lg:mb-7">
                 The Movement
