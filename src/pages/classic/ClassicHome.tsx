@@ -33,12 +33,21 @@ const ClassicHome = () => {
               Discover the Collection
             </Link>
           </div>
-          <div className="order-1 lg:order-2 w-full aspect-[4/5] overflow-hidden bg-background">
+          <div className="order-1 lg:order-2 relative w-full aspect-[4/5] overflow-hidden bg-secondary">
             <img
               src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=1400&q=80"
               alt="Mancini Milano Classic — refined Italian tailoring"
-              className="w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
               loading="eager"
+            />
+            {/* Soft fade into the light background on all edges */}
+            <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  'linear-gradient(to bottom, hsl(var(--secondary)) 0%, transparent 18%, transparent 82%, hsl(var(--secondary)) 100%), linear-gradient(to right, hsl(var(--secondary)) 0%, transparent 14%, transparent 86%, hsl(var(--secondary)) 100%)',
+              }}
             />
           </div>
         </div>
