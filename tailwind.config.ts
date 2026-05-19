@@ -56,6 +56,10 @@ export default {
           DEFAULT: "hsl(var(--gold))",
           hover: "hsl(var(--gold-hover))",
         },
+        "classic-gold": {
+          DEFAULT: "hsl(var(--classic-gold))",
+          soft: "hsl(var(--classic-gold-soft))",
+        },
         surface: {
           DEFAULT: "hsl(var(--surface))",
           hover: "hsl(var(--surface-hover))",
