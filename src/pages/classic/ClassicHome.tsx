@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Gem, ShieldCheck, Shirt, Truck } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ClassicNewsletter from '@/components/classic/ClassicNewsletter';
