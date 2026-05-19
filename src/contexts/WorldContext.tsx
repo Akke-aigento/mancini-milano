@@ -5,6 +5,8 @@ export type World = 'streetwear' | 'classic';
 
 interface WorldContextValue {
   currentWorld: World | null;
+  lastActiveWorld: World | null;
+  homeHref: string;
   getOtherWorld: () => World | null;
   isInWorld: (world: World) => boolean;
   switchWorld: () => void;
