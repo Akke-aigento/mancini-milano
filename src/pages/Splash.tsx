@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
-import logoDoberman from '@/assets/logo-doberman.png';
 import splashClassic from '@/assets/splash-classic.jpg';
 import splashStreetwear from '@/assets/splash-streetwear.jpg';
 
