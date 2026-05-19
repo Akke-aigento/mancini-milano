@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import logoDoberman from '@/assets/logo-doberman.png';
+import splashClassic from '@/assets/splash-classic.jpg';
+import splashStreetwear from '@/assets/splash-streetwear.jpg';
 
 const Splash = () => {
   return (
@@ -29,7 +31,7 @@ const Splash = () => {
             aria-label="Discover Classic — Mancini Milano luxury"
           >
             <img
-              src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=1600&q=80"
+              src={splashClassic}
               alt="Mancini Milano Classic — timeless Italian luxury tailoring in black and white"
               className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
               loading="eager"
@@ -58,7 +60,7 @@ const Splash = () => {
             aria-label="Discover Streetwear — Mancini Milano elevated essentials"
           >
             <img
-              src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=1600&q=80"
+              src={splashStreetwear}
               alt="Mancini Milano Streetwear — elevated essentials with luxury attitude"
               className="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:opacity-70 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
               loading="eager"
