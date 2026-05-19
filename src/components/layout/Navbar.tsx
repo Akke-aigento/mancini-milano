@@ -155,11 +155,7 @@ const Navbar = () => {
 
           {/* Logo — centered on mobile, left on desktop */}
           <Link to={homeHref} className="absolute left-1/2 -translate-x-1/2 lg:relative lg:left-auto lg:translate-x-0 h-10 flex items-center">
-            <img
-              src={logoDoberman}
-              alt="Mancini Milano"
-              className="h-9 w-auto object-contain"
-            />
+            <BrandMark />
           </Link>
 
           {/* Desktop nav links */}
