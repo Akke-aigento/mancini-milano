@@ -51,15 +51,28 @@ const SplashScreen = () => {
       >
         <X className="h-6 w-6" />
       </button>
-      <img
-        src={logoDoberman}
-        alt="Mancini Milano"
-        className="h-32 md:h-48 w-auto transition-all duration-1000 ease-out"
-        style={{
-          transform: phase === 'in' ? 'scale(0.95)' : phase === 'out' ? 'scale(0.97)' : 'scale(1)',
-          opacity: phase === 'in' ? 0 : phase === 'out' ? 0 : 1,
-        }}
-      />
+      {isClassic ? (
+        <div
+          className="font-classic text-foreground uppercase text-3xl md:text-5xl transition-all duration-1000 ease-out"
+          style={{
+            letterSpacing: '0.32em',
+            transform: phase === 'in' ? 'scale(0.96)' : phase === 'out' ? 'scale(0.98)' : 'scale(1)',
+            opacity: phase === 'in' ? 0 : phase === 'out' ? 0 : 1,
+          }}
+        >
+          Mancini Milano
+        </div>
+      ) : (
+        <img
+          src={logoDoberman}
+          alt="Mancini Milano"
+          className="h-32 md:h-48 w-auto transition-all duration-1000 ease-out"
+          style={{
+            transform: phase === 'in' ? 'scale(0.95)' : phase === 'out' ? 'scale(0.97)' : 'scale(1)',
+            opacity: phase === 'in' ? 0 : phase === 'out' ? 0 : 1,
+          }}
+        />
+      )}
     </div>
   );
 };
