@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export type World = 'streetwear' | 'classic';
@@ -21,11 +21,22 @@ function detectWorld(pathname: string): World | null {
 }
 
 const storageKey = (world: World) => `lastPath:${world}`;
+const LAST_ACTIVE_WORLD_KEY = 'lastActiveWorld';
 
 export const WorldProvider = ({ children }: { children: ReactNode }) => {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const currentWorld = detectWorld(pathname);
+
+  const [lastActiveWorld, setLastActiveWorld] = useState<World | null>(() => {
+    try {
+      const stored = sessionStorage.getItem(LAST_ACTIVE_WORLD_KEY);
+      if (stored === 'streetwear' || stored === 'classic') return stored;
+    } catch {
+      /* ignore */
+    }
+    return null;
+  });
 
   // Reflect current world on <html> for CSS theming
   useEffect(() => {
@@ -43,6 +54,24 @@ export const WorldProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [currentWorld, pathname, search]);
 
+  // Update lastActiveWorld whenever we enter a world page, but NOT on splash or world-agnostic pages
+  useEffect(() => {
+    if (currentWorld) {
+      setLastActiveWorld(currentWorld);
+      try {
+        sessionStorage.setItem(LAST_ACTIVE_WORLD_KEY, currentWorld);
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [currentWorld]);
+
+  const homeHref = useMemo(() => {
+    if (currentWorld) return `/${currentWorld}`;
+    if (lastActiveWorld) return `/${lastActiveWorld}`;
+    return '/streetwear';
+  }, [currentWorld, lastActiveWorld]);
+
   const value = useMemo<WorldContextValue>(() => {
     const getOtherWorld = (): World | null => {
       if (currentWorld === 'streetwear') return 'classic';
@@ -52,6 +81,8 @@ export const WorldProvider = ({ children }: { children: ReactNode }) => {
 
     return {
       currentWorld,
+      lastActiveWorld,
+      homeHref,
       getOtherWorld,
       isInWorld: (world: World) => currentWorld === world,
       switchWorld: () => {
@@ -67,7 +98,7 @@ export const WorldProvider = ({ children }: { children: ReactNode }) => {
         navigate(target);
       },
     };
-  }, [currentWorld, navigate]);
+  }, [currentWorld, lastActiveWorld, homeHref, navigate]);
 
   return <WorldContext.Provider value={value}>{children}</WorldContext.Provider>;
 };
