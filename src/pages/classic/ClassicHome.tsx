@@ -96,10 +96,33 @@ const ClassicHome = () => {
 
         {/* Mobile text block — stacked under the image */}
         <div className="lg:hidden max-w-site mx-auto px-6 pt-8 pb-12">
-          <h1 className="font-classic font-light leading-[1.05] text-foreground text-3xl sm:text-4xl">
-            <span className="block">Timeless Style.</span>
-            <span className="block text-classic-gold">Made To Last.</span>
+          <h1 className="leading-none">
+            <span
+              className="font-classic font-semibold block text-[56px] sm:text-[72px] leading-[0.95]"
+              style={{
+                color: '#C8A75A',
+                letterSpacing: '0.04em',
+                textShadow:
+                  '0 1px 0 rgba(255,220,150,0.35), 0 2px 4px rgba(0,0,0,0.25), 0 -1px 0 rgba(120,80,20,0.4)',
+              }}
+            >
+              MANCINI
+            </span>
+            <span
+              className="block mt-1.5 text-[12px] sm:text-[14px] font-medium"
+              style={{
+                color: '#C8A75A',
+                letterSpacing: '0.55em',
+                textShadow: '0 1px 1px rgba(0,0,0,0.15)',
+              }}
+            >
+              MILANO
+            </span>
           </h1>
+          <p className="font-classic italic text-foreground/80 text-base sm:text-lg mt-4">
+            Timeless style. Made to last.
+          </p>
+
           <span aria-hidden className="block w-10 h-px bg-classic-gold mt-5 mb-4" />
           <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
             Refined essentials crafted with premium materials and elevated by gold details. Designed in Italy. Worn everywhere.
