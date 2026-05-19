@@ -4,6 +4,7 @@ import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCustomerAuth } from '@/integrations/sellqo/CustomerAuthContext';
 import { useCategories } from '@/integrations/sellqo/hooks';
+import { useWorld } from '@/contexts/WorldContext';
 import SearchOverlay from '@/components/SearchOverlay';
 import logoDoberman from '@/assets/logo-doberman.png';
 
