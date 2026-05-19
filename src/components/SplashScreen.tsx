@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import logoDoberman from '@/assets/logo-doberman.png';
+import { useWorld } from '@/contexts/WorldContext';
 
 const SplashScreen = () => {
+  const { currentWorld } = useWorld();
+  const isClassic = currentWorld === 'classic';
+
   const [phase, setPhase] = useState<'in' | 'hold' | 'out' | 'done'>('in');
 
   useEffect(() => {
