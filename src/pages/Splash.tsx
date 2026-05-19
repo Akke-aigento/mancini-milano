@@ -12,14 +12,7 @@ const Splash = () => {
         canonical="https://mancinimilano.com/"
       />
       <div className="min-h-screen bg-background flex flex-col">
-        {/* Header */}
-        <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center pt-8 lg:pt-10 pointer-events-none">
-          <img
-            src={logoDoberman}
-            alt="Mancini Milano"
-            className="h-12 lg:h-14 w-auto object-contain"
-          />
-        </header>
+        {/* Two halves */}
 
         {/* Two halves */}
         <main className="flex-1 flex flex-col lg:flex-row">
