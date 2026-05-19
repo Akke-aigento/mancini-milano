@@ -24,7 +24,7 @@ const Cart = () => {
             <h2 className="font-heading text-xl tracking-heading uppercase text-foreground mb-3">Your cart is empty</h2>
             <p className="text-sm text-muted-foreground mb-8">Discover our collections and find something you love.</p>
             <Link
-              to="/collections/for-him"
+              to="/streetwear/collections/for-him"
               className="inline-block border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Continue Shopping

@@ -17,7 +17,7 @@ function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string;
       onMouseLeave={() => setOpen(false)}
     >
       <Link
-        to={`/collections/${slug}`}
+        to={`/streetwear/collections/${slug}`}
         className="flex items-center gap-1 text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors"
       >
         {label}
@@ -29,7 +29,7 @@ function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string;
             {links.map(link => (
               <Link
                 key={link.slug}
-                to={`/collections/${link.slug}`}
+                to={`/streetwear/collections/${link.slug}`}
                 className="block px-5 py-2.5 text-xs uppercase tracking-button text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
                 onClick={() => setOpen(false)}
               >
@@ -60,7 +60,7 @@ function MobileAccordion({ label, slug, links, onClose }: { label: string; slug:
           {links.map(l => (
             <Link
               key={l.slug}
-              to={`/collections/${l.slug}`}
+              to={`/streetwear/collections/${l.slug}`}
               onClick={onClose}
               className="block py-2.5 text-sm uppercase tracking-button text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center"
             >
@@ -154,7 +154,7 @@ const Navbar = () => {
             </Link>
             <DropdownMenu label="For Him" links={forHimLinks} slug="men" scrolled={scrolled} isHome={isHome} />
             <DropdownMenu label="For Her" links={forHerLinks} slug="women" scrolled={scrolled} isHome={isHome} />
-            <Link to="/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/streetwear/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Fragrances
             </Link>
             <Link to="/contact" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
@@ -237,7 +237,7 @@ const Navbar = () => {
             </Link>
             <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} />
             <MobileAccordion label="For Her" slug="women" links={forHerLinks} onClose={closeMobile} />
-            <Link to="/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+            <Link to="/streetwear/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
               Fragrances
             </Link>
             <Link to="/contact" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">

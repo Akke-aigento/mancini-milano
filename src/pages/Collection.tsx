@@ -105,7 +105,7 @@ const Collection = () => {
             {subcategoryCards.map((cat) => (
               <Link
                 key={cat.slug}
-                to={`/collections/${cat.slug}`}
+                to={`/streetwear/collections/${cat.slug}`}
                 className="group block"
               >
                 <div className="relative aspect-[3/4] overflow-hidden mb-3">
@@ -154,7 +154,7 @@ const Collection = () => {
               {pills.map((pill) => (
                 <Link
                   key={pill.slug}
-                  to={`/collections/${pill.slug}`}
+                  to={`/streetwear/collections/${pill.slug}`}
                   className={`px-4 py-1.5 text-xs uppercase tracking-button font-medium border transition-colors ${
                     slug === pill.slug
                       ? 'border-primary text-primary'

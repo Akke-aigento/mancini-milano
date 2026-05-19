@@ -214,7 +214,7 @@ const ProductDetail = () => {
           <ChevronRight className="h-3 w-3" />
           {product.category && (
             <>
-              <Link to={`/collections/${product.category.slug}`} className="hover:text-foreground transition-colors">
+              <Link to={`/streetwear/collections/${product.category.slug}`} className="hover:text-foreground transition-colors">
                 {product.category.name}
               </Link>
               <ChevronRight className="h-3 w-3" />
