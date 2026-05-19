@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         heading: ['"Playfair Display"', 'serif'],
         body: ['"Inter"', 'sans-serif'],
+        classic: ['"Cormorant Garamond"', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -54,6 +55,10 @@ export default {
         gold: {
           DEFAULT: "hsl(var(--gold))",
           hover: "hsl(var(--gold-hover))",
+        },
+        "classic-gold": {
+          DEFAULT: "hsl(var(--classic-gold))",
+          soft: "hsl(var(--classic-gold-soft))",
         },
         surface: {
           DEFAULT: "hsl(var(--surface))",

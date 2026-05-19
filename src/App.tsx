@@ -27,6 +27,8 @@ import Bedankt from "./pages/Bedankt";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
+import ClassicHome from "./pages/classic/ClassicHome";
+import ClassicPlaceholder from "./pages/classic/ClassicPlaceholder";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +66,11 @@ const App = () => (
                   <Route path="/streetwear" element={<Index />} />
                   <Route path="/streetwear/collections/:slug" element={<Collection />} />
                   <Route path="/streetwear/products/:slug" element={<ProductDetail />} />
+
+                  {/* Classic world (placeholder pages — Phase 2) */}
+                  <Route path="/classic" element={<ClassicHome />} />
+                  <Route path="/classic/collections/:slug" element={<ClassicPlaceholder kind="collection" />} />
+                  <Route path="/classic/products/:slug" element={<ClassicPlaceholder kind="product" />} />
 
                   {/* 301-equivalent redirects from legacy paths */}
                   <Route path="/collections/:slug" element={<RedirectCollection />} />
