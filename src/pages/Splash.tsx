@@ -13,8 +13,6 @@ const Splash = () => {
       />
       <div className="min-h-screen bg-background flex flex-col">
         {/* Two halves */}
-
-        {/* Two halves */}
         <main className="flex-1 flex flex-col lg:flex-row">
           {/* CLASSIC */}
           <Link
