@@ -12,62 +12,64 @@ const Splash = () => {
         canonical="https://mancinimilano.com/"
       />
       <div className="min-h-screen bg-background flex flex-col">
-        {/* Two halves */}
         <main className="flex-1 flex flex-col lg:flex-row">
-          {/* CLASSIC */}
-          <Link
-            to="/classic"
-            className="group relative flex-1 min-h-[50vh] lg:min-h-screen overflow-hidden flex items-center justify-center bg-[#0a0a0a] border-b lg:border-b-0 lg:border-r border-border/40"
-            aria-label="Discover Classic — Mancini Milano luxury"
-          >
-            <img
-              src={splashClassic}
-              alt="Mancini Milano Classic — timeless Italian luxury tailoring in black and white"
-              className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:opacity-90 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
-              loading="eager"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/25 group-hover:from-black/45 transition-all duration-700" />
-            <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-lg">
-              <span className="text-[10px] lg:text-xs uppercase tracking-[0.4em] text-primary/80 mb-5 lg:mb-7">
-                The House of
-              </span>
-              <h2 className="font-heading text-primary text-5xl lg:text-7xl xl:text-8xl tracking-logo uppercase leading-[0.95] mb-4 lg:mb-6">
-                Mancini<br />Milano
-              </h2>
-              <p className="text-xs lg:text-sm text-foreground/70 tracking-wide uppercase mb-8 lg:mb-12">
-                Classic
-              </p>
-              <span className="inline-block border border-primary text-primary px-8 lg:px-10 py-3 lg:py-4 text-[11px] uppercase tracking-button font-medium group-hover:bg-primary group-hover:text-background transition-colors duration-500">
-                Discover Classic
-              </span>
-            </div>
-          </Link>
-
-          {/* STREETWEAR */}
+          {/* STREETWEAR — top on mobile, left on desktop */}
           <Link
             to="/streetwear"
-            className="group relative flex-1 min-h-[50vh] lg:min-h-screen overflow-hidden flex items-center justify-center bg-[#0a0a0a]"
+            className="group relative flex-1 min-h-[50vh] lg:min-h-screen overflow-hidden flex bg-[#0a0a0a] border-b lg:border-b-0 lg:border-r border-border/40"
             aria-label="Discover Streetwear — Mancini Milano elevated essentials"
           >
             <img
               src={splashStreetwear}
-              alt="Mancini Milano Streetwear — elevated essentials with luxury attitude"
-              className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
+              alt="Mancini Milano Streetwear — model wearing a Mancini Milano hooded sweatshirt"
+              className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
               loading="eager"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-black/20 group-hover:from-black/40 transition-all duration-700" />
-            <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-lg">
-              <span className="text-[10px] lg:text-xs uppercase tracking-[0.4em] text-foreground/70 mb-5 lg:mb-7">
-                The Movement
+            <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/10 to-black/45 group-hover:from-black/35 group-hover:to-black/35 transition-all duration-700" />
+
+            {/* Brand header */}
+            <div className="absolute top-0 left-0 right-0 z-10 flex flex-col items-center text-center pt-10 lg:pt-14 px-6">
+              <h1 className="font-heading text-foreground text-4xl sm:text-5xl lg:text-6xl xl:text-7xl tracking-logo uppercase leading-none">
+                Mancini
+              </h1>
+              <span className="mt-2 text-[10px] lg:text-xs tracking-[0.5em] uppercase text-foreground/85">
+                Milano
               </span>
-              <h2 className="font-heading text-foreground text-5xl lg:text-7xl xl:text-8xl tracking-logo uppercase leading-[0.95] mb-4 lg:mb-6">
-                Mancini<br />Milano
-              </h2>
-              <p className="text-xs lg:text-sm text-foreground/70 tracking-wide uppercase mb-8 lg:mb-12">
+            </div>
+
+            {/* Label */}
+            <div className="relative z-10 m-auto flex flex-col items-center text-center px-6">
+              <h2 className="font-heading text-foreground text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem] leading-none">
                 Streetwear
-              </p>
-              <span className="inline-block border border-foreground text-foreground px-8 lg:px-10 py-3 lg:py-4 text-[11px] uppercase tracking-button font-medium group-hover:bg-foreground group-hover:text-background transition-colors duration-500">
-                Discover Streetwear
+              </h2>
+              <div className="w-12 h-px bg-foreground/70 mt-6 mb-4" />
+              <span className="text-[11px] lg:text-xs uppercase tracking-[0.3em] text-foreground/90 group-hover:text-foreground transition-colors">
+                Discover More
+              </span>
+            </div>
+          </Link>
+
+          {/* CLASSIC — bottom on mobile, right on desktop */}
+          <Link
+            to="/classic"
+            className="group relative flex-1 min-h-[50vh] lg:min-h-screen overflow-hidden flex items-center justify-center bg-[#0a0a0a]"
+            aria-label="Discover Classic — Mancini Milano luxury"
+          >
+            <img
+              src={splashClassic}
+              alt="Mancini Milano Classic — model wearing a tailored blazer and polo"
+              className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
+              loading="eager"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/35 group-hover:from-black/40 transition-all duration-700" />
+
+            <div className="relative z-10 flex flex-col items-center text-center px-6">
+              <h2 className="font-heading text-foreground text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem] leading-none">
+                Classic
+              </h2>
+              <div className="w-12 h-px bg-foreground/70 mt-6 mb-4" />
+              <span className="text-[11px] lg:text-xs uppercase tracking-[0.3em] text-foreground/90 group-hover:text-foreground transition-colors">
+                Discover More
               </span>
             </div>
           </Link>
