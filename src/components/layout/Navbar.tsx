@@ -83,7 +83,7 @@ const Navbar = () => {
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
   const location = useLocation();
-  const isHome = location.pathname === '/';
+  const isHome = location.pathname === '/streetwear';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 36);
