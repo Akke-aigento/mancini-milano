@@ -44,10 +44,40 @@
     --classic-gold-soft: 42 38% 70%;
   }
 
-  /* Classic world — refined luxury overrides (scoped, no streetwear impact) */
+  /* Classic world — refined luxury LIGHT theme (scoped, no streetwear impact) */
   [data-world="classic"] {
-    --background: 0 0% 4%;
-    --foreground: 40 12% 94%;
+    --background: 0 0% 100%;          /* #FFFFFF */
+    --foreground: 0 0% 5%;            /* #0D0D0D */
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+
+    --primary: 42 38% 50%;            /* gold accent as primary */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 36 27% 96%;          /* warm off-white #F8F6F2 */
+    --secondary-foreground: 0 0% 5%;
+
+    --muted: 36 27% 96%;
+    --muted-foreground: 30 6% 40%;    /* #6B6660 */
+
+    --accent: 36 27% 96%;
+    --accent-foreground: 0 0% 5%;
+
+    --border: 36 17% 87%;             /* #E5E0D8 */
+    --input: 36 17% 87%;
+    --ring: 42 38% 50%;
+
+    --gold: 42 38% 50%;
+    --gold-hover: 42 38% 42%;
+    --surface: 0 0% 100%;
+    --surface-hover: 36 27% 96%;
+
+    --classic-gold: 42 38% 50%;
+    --classic-gold-soft: 42 38% 65%;
   }
 }
 
