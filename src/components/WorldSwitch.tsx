@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useWorld, type World } from '@/contexts/WorldContext';
 import { Zap, Crown } from 'lucide-react';
 
@@ -19,30 +20,100 @@ interface WorldSwitchProps {
   onSwitch?: () => void;
 }
 
+/* ----------------------------- Mobile: single swap button ----------------------------- */
+
+const HINT_KEY = 'mancini_world_swap_hint_shown';
+
+const MobileSwap = ({ className, onSwitch }: { className: string; onSwitch?: () => void }) => {
+  const { currentWorld, switchWorld } = useWorld();
+  const [showHint, setShowHint] = useState(false);
+
+  // Flash hint once per session so users discover the swap action
+  useEffect(() => {
+    if (!currentWorld) return;
+    try {
+      if (sessionStorage.getItem(HINT_KEY)) return;
+      sessionStorage.setItem(HINT_KEY, '1');
+    } catch {
+      return;
+    }
+    const showTimer = setTimeout(() => setShowHint(true), 600);
+    const hideTimer = setTimeout(() => setShowHint(false), 3000);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+    };
+  }, [currentWorld]);
+
+  if (!currentWorld) return null;
+
+  const target: World = currentWorld === 'classic' ? 'streetwear' : 'classic';
+  const isClassic = currentWorld === 'classic';
+
+  return (
+    <div className={`relative ${className}`}>
+      <button
+        type="button"
+        onClick={() => {
+          switchWorld();
+          onSwitch?.();
+          setShowHint(false);
+        }}
+        aria-label={`Switch to ${labels[target]}`}
+        className={[
+          'h-9 w-9 flex items-center justify-center',
+          'border transition-all duration-200',
+          'rounded-full',
+          isClassic
+            ? 'border-classic-gold/60 text-classic-gold hover:bg-classic-gold hover:text-background'
+            : 'border-accent/70 text-accent hover:bg-accent hover:text-foreground',
+        ].join(' ')}
+      >
+        <WorldIcon world={target} size={15} />
+      </button>
+
+      {/* Discovery hint — appears once per session */}
+      {showHint && (
+        <div
+          role="tooltip"
+          className={[
+            'absolute top-full right-0 mt-2 px-3 py-1.5 z-50',
+            'text-[10px] uppercase tracking-[0.2em] whitespace-nowrap',
+            'bg-background border pointer-events-none',
+            'animate-fade-in',
+            isClassic ? 'border-classic-gold/60 text-classic-gold' : 'border-accent/70 text-accent',
+          ].join(' ')}
+        >
+          Switch to {labels[target]}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* --------------------------------- Main component --------------------------------- */
+
 const WorldSwitch = ({ variant = 'desktop', className = '', onSwitch }: WorldSwitchProps) => {
   const { currentWorld, switchWorld } = useWorld();
 
   // Hidden on splash & world-agnostic pages (cart, checkout, account, login, etc.)
   if (!currentWorld) return null;
 
+  // Mobile uses a completely different pattern — a single "swap" button
+  if (variant === 'mobile') {
+    return <MobileSwap className={className} onSwitch={onSwitch} />;
+  }
+
   const worlds: World[] = ['streetwear', 'classic'];
   const isClassic = currentWorld === 'classic';
 
   const sizeClasses =
-    variant === 'mobile'
-      ? 'h-7 text-[10px]'
-      : variant === 'full'
-        ? 'h-11 text-[11px] w-full'
-        : 'h-9 text-[10px]';
+    variant === 'full' ? 'h-11 text-[11px] w-full' : 'h-9 text-[10px]';
 
   const segmentPadding =
-    variant === 'mobile'
-      ? 'px-3.5'
-      : variant === 'full'
-        ? 'flex-1 px-6 gap-2'
-        : 'px-3.5 gap-2';
+    variant === 'full' ? 'flex-1 px-6 gap-2' : 'px-3.5 gap-2';
 
-  const iconSize = variant === 'mobile' ? 14 : variant === 'full' ? 16 : 14;
+  const iconSize = variant === 'full' ? 16 : 14;
 
   return (
     <div
@@ -84,7 +155,7 @@ const WorldSwitch = ({ variant = 'desktop', className = '', onSwitch }: WorldSwi
             style={{ letterSpacing: '0.2em' }}
           >
             <WorldIcon world={w} size={iconSize} />
-            {variant !== 'mobile' && <span>{labels[w]}</span>}
+            <span>{labels[w]}</span>
           </button>
         );
       })}
