@@ -84,8 +84,21 @@ const Navbar = () => {
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
   const location = useLocation();
-  const { homeHref } = useWorld();
+  const { homeHref, currentWorld } = useWorld();
   const isHome = location.pathname === '/streetwear';
+  const isClassic = currentWorld === 'classic';
+
+  const BrandMark = ({ className = 'h-9 w-auto' }: { className?: string }) =>
+    isClassic ? (
+      <span
+        className="font-classic text-foreground uppercase leading-none whitespace-nowrap text-[15px] sm:text-base"
+        style={{ letterSpacing: '0.28em' }}
+      >
+        Mancini Milano
+      </span>
+    ) : (
+      <img src={logoDoberman} alt="Mancini Milano" className={`${className} object-contain`} />
+    );
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 36);
