@@ -139,7 +139,7 @@ const Navbar = () => {
           </div>
 
           {/* Logo — centered on mobile, left on desktop */}
-          <Link to="/" className="absolute left-1/2 -translate-x-1/2 lg:relative lg:left-auto lg:translate-x-0 h-10 flex items-center">
+          <Link to="/streetwear" className="absolute left-1/2 -translate-x-1/2 lg:relative lg:left-auto lg:translate-x-0 h-10 flex items-center">
             <img
               src={logoDoberman}
               alt="Mancini Milano"
@@ -149,7 +149,7 @@ const Navbar = () => {
 
           {/* Desktop nav links */}
           <div className="hidden lg:flex items-center gap-8">
-            <Link to="/" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/streetwear" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
               Home
             </Link>
             <DropdownMenu label="For Him" links={forHimLinks} slug="men" scrolled={scrolled} isHome={isHome} />
@@ -220,7 +220,7 @@ const Navbar = () => {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 bg-background lg:hidden">
           <div className="flex items-center justify-between h-16 px-4 border-b border-border">
-            <Link to="/" onClick={closeMobile} className="h-10 flex items-center">
+            <Link to="/streetwear" onClick={closeMobile} className="h-10 flex items-center">
               <img src={logoDoberman} alt="Mancini Milano" className="h-8 w-auto object-contain" />
             </Link>
             <button
@@ -232,7 +232,7 @@ const Navbar = () => {
             </button>
           </div>
           <div className="px-6 py-4 overflow-y-auto h-[calc(100vh-64px)]">
-            <Link to="/" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+            <Link to="/streetwear" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
               Home
             </Link>
             <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} />

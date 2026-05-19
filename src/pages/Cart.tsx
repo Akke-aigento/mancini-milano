@@ -129,7 +129,7 @@ const Cart = () => {
                 </button>
 
                 <Link
-                  to="/"
+                  to="/streetwear"
                   className="block text-center text-xs uppercase tracking-button text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Continue Shopping

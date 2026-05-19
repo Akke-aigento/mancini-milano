@@ -127,7 +127,7 @@ const CheckoutSuccess = () => {
               Contact opnemen
             </Link>
             <Link
-              to="/"
+              to="/streetwear"
               className="inline-block border border-border text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:border-foreground/30 transition-colors"
             >
               Terug naar shop
@@ -197,7 +197,7 @@ const CheckoutSuccess = () => {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            to="/"
+            to="/streetwear"
             className="inline-block border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
           >
             Terug naar shop
