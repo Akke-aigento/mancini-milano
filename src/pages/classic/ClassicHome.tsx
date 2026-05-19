@@ -14,7 +14,7 @@ const ClassicHome = () => {
         canonical="https://mancinimilano.com/classic"
       />
 
-      {/* Hero — full-bleed editorial campaign image */}
+      {/* Hero — full-bleed editorial campaign image with code-rendered overlay */}
       <section className="relative w-full overflow-hidden bg-secondary">
         {/* Thin top gold rule + eyebrow */}
         <div className="max-w-site mx-auto px-6 lg:px-12 pt-8 pb-4 flex items-center gap-4">
@@ -25,15 +25,35 @@ const ClassicHome = () => {
           <span aria-hidden className="block h-px flex-1 bg-classic-gold/40" />
         </div>
 
-        {/* Campaign image */}
+        {/* Hero image + overlay */}
         <div className="relative w-full">
           <img
             src={classicHero}
-            alt="Mancini Milano Classic — Timeless Style. Made To Last."
+            alt="Mancini Milano Classic campaign — black leather bag, cap, t-shirt and jeans on marble steps"
             className="block w-full h-auto"
             loading="eager"
           />
-          {/* Soft fade into the cream background at the bottom for seamless continuation */}
+
+          {/* Readability gradient — stronger on the left where text sits */}
+          <div
+            aria-hidden
+            className="absolute inset-0 pointer-events-none hidden lg:block"
+            style={{
+              background:
+                'linear-gradient(to right, hsl(var(--secondary) / 0.85) 0%, hsl(var(--secondary) / 0.45) 35%, transparent 60%)',
+            }}
+          />
+          {/* Mobile gradient — bottom-up so text below the products stays legible */}
+          <div
+            aria-hidden
+            className="absolute inset-0 pointer-events-none lg:hidden"
+            style={{
+              background:
+                'linear-gradient(to top, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.75) 25%, transparent 55%)',
+            }}
+          />
+
+          {/* Soft fade into the cream background at the bottom */}
           <div
             aria-hidden
             className="absolute inset-x-0 bottom-0 h-24 pointer-events-none"
@@ -42,21 +62,31 @@ const ClassicHome = () => {
                 'linear-gradient(to bottom, transparent 0%, hsl(var(--secondary)) 100%)',
             }}
           />
-        </div>
 
-        {/* CTA bar beneath image — editorial, gold-accented */}
-        <div className="max-w-site mx-auto px-6 lg:px-12 pt-6 pb-12 lg:pb-16 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <p className="font-classic italic text-lg lg:text-xl text-muted-foreground max-w-xl">
-            Refined essentials crafted with premium materials and elevated by gold details. Designed in Italy. Worn everywhere.
-          </p>
-          <Link
-            to="/classic/collections/all"
-            className="inline-block border border-classic-gold text-classic-gold bg-transparent px-10 py-4 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors duration-300 whitespace-nowrap"
-          >
-            Shop the Collection
-          </Link>
+          {/* Overlay content — left-aligned on desktop, bottom on mobile */}
+          <div className="absolute inset-0 flex items-end lg:items-center">
+            <div className="max-w-site mx-auto w-full px-6 lg:px-12 pb-8 lg:pb-0">
+              <div className="max-w-md">
+                <h1 className="font-classic font-light leading-[1.05] text-foreground text-3xl sm:text-4xl lg:text-6xl">
+                  <span className="block">Timeless Style.</span>
+                  <span className="block text-classic-gold">Made To Last.</span>
+                </h1>
+                <span aria-hidden className="block w-10 h-px bg-classic-gold mt-6 mb-5" />
+                <p className="text-sm lg:text-base text-muted-foreground leading-relaxed max-w-sm">
+                  Refined essentials crafted with premium materials and elevated by gold details. Designed in Italy. Worn everywhere.
+                </p>
+                <Link
+                  to="/classic/collections/all"
+                  className="inline-block mt-8 bg-foreground text-background px-10 py-4 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors duration-300"
+                >
+                  Shop Collection
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
+
 
 
       {/* Gold value-props strip (light) */}
