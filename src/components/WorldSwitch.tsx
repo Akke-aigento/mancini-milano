@@ -12,14 +12,15 @@ const WorldSwitch = () => {
   if (!currentWorld) return null;
 
   const worlds: World[] = ['streetwear', 'classic'];
+  const isClassic = currentWorld === 'classic';
 
   return (
-    <div className="w-full bg-secondary border-b border-border">
+    <div className={`w-full border-b ${isClassic ? 'bg-background border-border' : 'bg-secondary border-border'}`}>
       <div className="max-w-site mx-auto flex items-center justify-center px-4 py-2">
         <div
           role="group"
           aria-label="Switch between worlds"
-          className="inline-flex items-stretch border border-border"
+          className={`inline-flex items-stretch border ${isClassic ? 'border-classic-gold/60' : 'border-border'}`}
         >
           {worlds.map((w) => {
             const active = w === currentWorld;
@@ -35,8 +36,12 @@ const WorldSwitch = () => {
                   'px-5 sm:px-6 py-1.5 text-[10px] sm:text-[11px] font-medium uppercase',
                   'transition-colors duration-200 ease-out',
                   active
-                    ? 'bg-accent text-foreground'
-                    : 'bg-transparent text-muted-foreground hover:text-foreground',
+                    ? isClassic
+                      ? 'bg-classic-gold text-background'
+                      : 'bg-accent text-foreground'
+                    : isClassic
+                      ? 'bg-transparent text-foreground/60 hover:text-classic-gold'
+                      : 'bg-transparent text-muted-foreground hover:text-foreground',
                 ].join(' ')}
                 style={{ letterSpacing: '0.15em' }}
               >

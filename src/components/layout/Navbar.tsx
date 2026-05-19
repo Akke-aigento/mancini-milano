@@ -84,8 +84,21 @@ const Navbar = () => {
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
   const location = useLocation();
-  const { homeHref } = useWorld();
+  const { homeHref, currentWorld } = useWorld();
   const isHome = location.pathname === '/streetwear';
+  const isClassic = currentWorld === 'classic';
+
+  const BrandMark = ({ className = 'h-9 w-auto' }: { className?: string }) =>
+    isClassic ? (
+      <span
+        className="font-classic text-foreground uppercase leading-none whitespace-nowrap text-[15px] sm:text-base"
+        style={{ letterSpacing: '0.28em' }}
+      >
+        Mancini Milano
+      </span>
+    ) : (
+      <img src={logoDoberman} alt="Mancini Milano" className={`${className} object-contain`} />
+    );
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 36);
@@ -142,11 +155,7 @@ const Navbar = () => {
 
           {/* Logo — centered on mobile, left on desktop */}
           <Link to={homeHref} className="absolute left-1/2 -translate-x-1/2 lg:relative lg:left-auto lg:translate-x-0 h-10 flex items-center">
-            <img
-              src={logoDoberman}
-              alt="Mancini Milano"
-              className="h-9 w-auto object-contain"
-            />
+            <BrandMark />
           </Link>
 
           {/* Desktop nav links */}
@@ -223,7 +232,7 @@ const Navbar = () => {
         <div className="fixed inset-0 z-50 bg-background lg:hidden">
           <div className="flex items-center justify-between h-16 px-4 border-b border-border">
             <Link to={homeHref} onClick={closeMobile} className="h-10 flex items-center">
-              <img src={logoDoberman} alt="Mancini Milano" className="h-8 w-auto object-contain" />
+              <BrandMark className="h-8 w-auto" />
             </Link>
             <button
               onClick={closeMobile}
