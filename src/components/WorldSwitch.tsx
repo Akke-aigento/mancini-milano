@@ -1,5 +1,5 @@
 import { useWorld, type World } from '@/contexts/WorldContext';
-import { TieIcon, SneakerIcon } from '@/components/icons/WorldIcons';
+import { Zap, Crown } from 'lucide-react';
 
 const labels: Record<World, string> = {
   streetwear: 'Streetwear',
@@ -7,7 +7,9 @@ const labels: Record<World, string> = {
 };
 
 const WorldIcon = ({ world, size }: { world: World; size: number }) =>
-  world === 'classic' ? <TieIcon size={size} /> : <SneakerIcon size={size} />;
+  world === 'classic'
+    ? <Crown size={size} strokeWidth={1.75} aria-hidden="true" />
+    : <Zap size={size} strokeWidth={2} fill="currentColor" aria-hidden="true" />;
 
 type Variant = 'desktop' | 'mobile' | 'full';
 
