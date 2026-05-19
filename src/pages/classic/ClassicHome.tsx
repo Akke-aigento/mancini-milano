@@ -3,7 +3,7 @@ import { Gem, ShieldCheck, Shirt, Truck } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ClassicNewsletter from '@/components/classic/ClassicNewsletter';
-import classicHero from '@/assets/classic-hero.png';
+import classicHero from '@/assets/classic-hero-clean.jpg';
 
 const ClassicHome = () => {
   return (
