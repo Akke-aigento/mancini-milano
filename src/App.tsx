@@ -27,6 +27,8 @@ import Bedankt from "./pages/Bedankt";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
+import ClassicHome from "./pages/classic/ClassicHome";
+import ClassicPlaceholder from "./pages/classic/ClassicPlaceholder";
 
 const queryClient = new QueryClient();
 
