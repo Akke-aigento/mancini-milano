@@ -81,7 +81,7 @@ const MobileSwap = ({ className, onSwitch }: { className: string; onSwitch?: () 
             'text-[10px] uppercase tracking-[0.2em] whitespace-nowrap',
             'bg-background border pointer-events-none',
             'animate-fade-in',
-            isClassic ? 'border-classic-gold/60 text-classic-gold' : 'border-accent/70 text-accent',
+            isClassic ? 'border-classic-gold/60 text-classic-gold' : 'border-foreground/40 text-foreground',
           ].join(' ')}
         >
           Switch to {labels[target]}
