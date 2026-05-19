@@ -6,6 +6,7 @@ import { useCustomerAuth } from '@/integrations/sellqo/CustomerAuthContext';
 import { useCategories } from '@/integrations/sellqo/hooks';
 import { useWorld } from '@/contexts/WorldContext';
 import SearchOverlay from '@/components/SearchOverlay';
+import WorldSwitch from '@/components/WorldSwitch';
 import logoDoberman from '@/assets/logo-doberman.png';
 
 function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string; links: { label: string; slug: string }[]; slug: string; scrolled: boolean; isHome: boolean }) {
@@ -173,8 +174,9 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Mobile right: account + cart */}
+          {/* Mobile right: world switch + account + cart */}
           <div className="flex items-center gap-1 lg:hidden">
+            <WorldSwitch variant="mobile" className="mr-1" />
             <Link
               to={isAuthenticated ? "/account" : "/login"}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
@@ -198,6 +200,7 @@ const Navbar = () => {
 
           {/* Desktop right: search + account + cart */}
           <div className="hidden lg:flex items-center gap-3">
+            <WorldSwitch variant="desktop" className="mr-2" />
             <button
               onClick={() => setSearchOpen(true)}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
@@ -262,6 +265,11 @@ const Navbar = () => {
               <Link to={isAuthenticated ? "/account" : "/login"} onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">
                 {isAuthenticated ? "Mijn Account" : "Inloggen"}
               </Link>
+            </div>
+
+            <div className="mt-6">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Shop</p>
+              <WorldSwitch variant="full" onSwitch={closeMobile} />
             </div>
           </div>
         </div>
