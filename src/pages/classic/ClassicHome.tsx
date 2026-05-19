@@ -3,6 +3,7 @@ import { Gem, ShieldCheck, Shirt, Truck } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ClassicNewsletter from '@/components/classic/ClassicNewsletter';
+import classicHero from '@/assets/classic-hero.png';
 
 const ClassicHome = () => {
   return (
@@ -13,44 +14,47 @@ const ClassicHome = () => {
         canonical="https://mancinimilano.com/classic"
       />
 
-      {/* Hero — light editorial */}
-      <section className="relative w-full overflow-hidden bg-secondary" style={{ minHeight: '70vh' }}>
-        <div className="max-w-site mx-auto grid grid-cols-1 lg:grid-cols-2 items-center gap-12 lg:gap-20 px-6 lg:px-12 py-24 lg:py-32" style={{ minHeight: '70vh' }}>
-          <div className="flex flex-col items-start text-left order-2 lg:order-1">
-            <span className="text-[10px] lg:text-[11px] uppercase tracking-[0.5em] text-classic-gold mb-8">
-              Mancini Milano Classic
-            </span>
-            <h1 className="font-classic font-light text-foreground text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.05] mb-6">
-              Refined Essentials
-            </h1>
-            <span aria-hidden className="block w-16 h-px bg-classic-gold mb-8" />
-            <p className="font-classic text-xl md:text-2xl text-muted-foreground italic font-light mb-12 max-w-md">
-              Crafted in Italy. Designed to last.
-            </p>
-            <Link
-              to="/classic/collections/all"
-              className="inline-block border border-classic-gold text-classic-gold bg-transparent px-10 py-4 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors duration-300"
-            >
-              Discover the Collection
-            </Link>
-          </div>
-          <div className="order-1 lg:order-2 relative w-full aspect-[4/5] overflow-hidden bg-secondary">
-            <img
-              src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=1400&q=80"
-              alt="Mancini Milano Classic — refined Italian tailoring"
-              className="absolute inset-0 w-full h-full object-cover"
-              loading="eager"
-            />
-            {/* Soft fade into the light background on all edges */}
-            <div
-              aria-hidden
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background:
-                  'linear-gradient(to bottom, hsl(var(--secondary)) 0%, transparent 18%, transparent 82%, hsl(var(--secondary)) 100%), linear-gradient(to right, hsl(var(--secondary)) 0%, transparent 14%, transparent 86%, hsl(var(--secondary)) 100%)',
-              }}
-            />
-          </div>
+      {/* Hero — full-bleed editorial campaign image */}
+      <section className="relative w-full overflow-hidden bg-secondary">
+        {/* Thin top gold rule + eyebrow */}
+        <div className="max-w-site mx-auto px-6 lg:px-12 pt-8 pb-4 flex items-center gap-4">
+          <span aria-hidden className="block h-px flex-1 bg-classic-gold/40" />
+          <span className="text-[10px] lg:text-[11px] uppercase tracking-[0.5em] text-classic-gold whitespace-nowrap">
+            Mancini Milano Classic — FW 26
+          </span>
+          <span aria-hidden className="block h-px flex-1 bg-classic-gold/40" />
+        </div>
+
+        {/* Campaign image */}
+        <div className="relative w-full">
+          <img
+            src={classicHero}
+            alt="Mancini Milano Classic — Timeless Style. Made To Last."
+            className="block w-full h-auto"
+            loading="eager"
+          />
+          {/* Soft fade into the cream background at the bottom for seamless continuation */}
+          <div
+            aria-hidden
+            className="absolute inset-x-0 bottom-0 h-24 pointer-events-none"
+            style={{
+              background:
+                'linear-gradient(to bottom, transparent 0%, hsl(var(--secondary)) 100%)',
+            }}
+          />
+        </div>
+
+        {/* CTA bar beneath image — editorial, gold-accented */}
+        <div className="max-w-site mx-auto px-6 lg:px-12 pt-6 pb-12 lg:pb-16 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <p className="font-classic italic text-lg lg:text-xl text-muted-foreground max-w-xl">
+            Refined essentials crafted with premium materials and elevated by gold details. Designed in Italy. Worn everywhere.
+          </p>
+          <Link
+            to="/classic/collections/all"
+            className="inline-block border border-classic-gold text-classic-gold bg-transparent px-10 py-4 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors duration-300 whitespace-nowrap"
+          >
+            Shop the Collection
+          </Link>
         </div>
       </section>
 
