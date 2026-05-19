@@ -3,23 +3,33 @@ import { useState } from 'react';
 import { newsletterAPI } from '@/integrations/sellqo/api';
 import { toast } from 'sonner';
 import { Check } from 'lucide-react';
+import { useWorld } from '@/contexts/WorldContext';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const { currentWorld } = useWorld();
+  const isClassic = currentWorld === 'classic';
+
+  const brandCopy = isClassic
+    ? 'Refined Italian essentials. Quietly crafted, made to be kept.'
+    : 'Italian luxury streetwear. Elevated essentials for those who move with authority.';
 
   return (
-    <footer className="bg-card border-t border-border">
+    <footer className={`${isClassic ? 'bg-secondary' : 'bg-card'} border-t border-border`}>
       <div className="max-w-site mx-auto px-4 lg:px-8 py-16 lg:py-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
           {/* Brand */}
           <div>
-            <h3 className="font-heading text-lg tracking-logo uppercase text-foreground mb-4">Mancini Milano</h3>
+            <h3 className={`${isClassic ? 'font-classic' : 'font-heading'} text-lg tracking-logo uppercase text-foreground mb-4`}>
+              Mancini Milano
+            </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Italian luxury streetwear. Elevated essentials for those who move with authority.
+              {brandCopy}
             </p>
           </div>
+
 
           {/* Shop */}
           <div>
