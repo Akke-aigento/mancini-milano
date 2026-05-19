@@ -38,7 +38,7 @@ const Splash = () => {
             </div>
 
             {/* Label */}
-            <div className="relative z-10 m-auto flex flex-col items-center text-center px-6">
+            <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center text-center px-6 pb-10 lg:pb-14">
               <h2 className="font-heading text-foreground text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem] leading-none">
                 Streetwear
               </h2>
