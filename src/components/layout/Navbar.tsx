@@ -232,25 +232,45 @@ const Navbar = () => {
             </button>
           </div>
           <div className="px-6 py-4 overflow-y-auto h-[calc(100vh-64px)]">
-            <Link to={homeHref} onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
-              Home
-            </Link>
-            <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} />
-            <MobileAccordion label="For Her" slug="women" links={forHerLinks} onClose={closeMobile} />
-            <Link to="/streetwear/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
-              Fragrances
-            </Link>
-            <Link to="/contact" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
-              Contact
-            </Link>
+            {/* Quick actions: search + account */}
+            <div className="grid grid-cols-2 gap-2 pb-4 border-b border-border">
+              <button
+                onClick={() => { setSearchOpen(true); closeMobile(); }}
+                className="flex items-center justify-center gap-2 h-12 border border-border text-xs uppercase tracking-button text-foreground hover:border-classic-gold/60 hover:text-classic-gold transition-colors"
+                aria-label="Search"
+              >
+                <Search className="h-4 w-4" />
+                <span>Search</span>
+              </button>
+              <Link
+                to={isAuthenticated ? "/account" : "/login"}
+                onClick={closeMobile}
+                className="flex items-center justify-center gap-2 h-12 border border-border text-xs uppercase tracking-button text-foreground hover:border-classic-gold/60 hover:text-classic-gold transition-colors"
+                aria-label="Account"
+              >
+                <User className="h-4 w-4" />
+                <span>{isAuthenticated ? "Account" : "Sign In"}</span>
+              </Link>
+            </div>
+
+            <div className="pt-2">
+              <Link to={homeHref} onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+                Home
+              </Link>
+              <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} />
+              <MobileAccordion label="For Her" slug="women" links={forHerLinks} onClose={closeMobile} />
+              <Link to="/streetwear/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+                Fragrances
+              </Link>
+              <Link to="/contact" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+                Contact
+              </Link>
+            </div>
 
             <div className="border-t border-border mt-6 pt-6 space-y-1">
               <Link to="/about" onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">About Us</Link>
               <Link to="/faq" onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">FAQ</Link>
               <Link to="/size-guide" onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">Size Guide</Link>
-              <Link to={isAuthenticated ? "/account" : "/login"} onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">
-                {isAuthenticated ? "Mijn Account" : "Inloggen"}
-              </Link>
             </div>
 
             <div className="mt-6">
