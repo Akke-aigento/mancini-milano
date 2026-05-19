@@ -1,9 +1,13 @@
 import { useWorld, type World } from '@/contexts/WorldContext';
+import { TieIcon, SneakerIcon } from '@/components/icons/WorldIcons';
 
 const labels: Record<World, string> = {
   streetwear: 'Streetwear',
   classic: 'Classic',
 };
+
+const WorldIcon = ({ world, size }: { world: World; size: number }) =>
+  world === 'classic' ? <TieIcon size={size} /> : <SneakerIcon size={size} />;
 
 type Variant = 'desktop' | 'mobile' | 'full';
 
@@ -31,10 +35,12 @@ const WorldSwitch = ({ variant = 'desktop', className = '', onSwitch }: WorldSwi
 
   const segmentPadding =
     variant === 'mobile'
-      ? 'px-2.5'
+      ? 'px-3'
       : variant === 'full'
-        ? 'flex-1 px-6'
-        : 'px-4';
+        ? 'flex-1 px-6 gap-2'
+        : 'px-3.5 gap-2';
+
+  const iconSize = variant === 'mobile' ? 16 : variant === 'full' ? 16 : 14;
 
   return (
     <div
@@ -50,7 +56,6 @@ const WorldSwitch = ({ variant = 'desktop', className = '', onSwitch }: WorldSwi
     >
       {worlds.map((w) => {
         const active = w === currentWorld;
-        const display = variant === 'mobile' ? labels[w].charAt(0) : labels[w];
         return (
           <button
             key={w}
@@ -74,9 +79,10 @@ const WorldSwitch = ({ variant = 'desktop', className = '', onSwitch }: WorldSwi
                   ? 'bg-transparent text-foreground/60 hover:text-classic-gold'
                   : 'bg-transparent text-muted-foreground hover:text-foreground',
             ].join(' ')}
-            style={{ letterSpacing: variant === 'mobile' ? '0.1em' : '0.2em' }}
+            style={{ letterSpacing: '0.2em' }}
           >
-            {display}
+            <WorldIcon world={w} size={iconSize} />
+            {variant !== 'mobile' && <span>{labels[w]}</span>}
           </button>
         );
       })}
