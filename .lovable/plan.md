@@ -1,55 +1,88 @@
 ## Doel
 
-De S/C-initialen in de world-switch vervangen door twee herkenbare, op-maat getekende iconen: een **stropdas** voor Classic en een **sneaker** voor Streetwear. Het pictogram doet meteen het werk dat tekst nu doet — universeel leesbaar, ook op klein scherm.
+Op mobiel meer ademruimte maken voor de world-toggle door het account- en zoekicoon weg te halen uit de top action-bar en te verplaatsen naar het hamburger-menu. Tegelijk de toggle zelf verfijnen — kleiner, eleganter, minder bombastisch.
 
 ## Aanpak
 
-Lucide heeft geen stropdas of sneaker, dus ik teken twee kleine inline-SVG componenten in dezelfde lijnstijl als de rest van de iconen (1.25–1.5 stroke, `currentColor`, 16–18px). Geen extra dependency.
+### 1. Mobiele top-bar opschonen — `src/components/layout/Navbar.tsx`
 
-### 1. Nieuw bestand: `src/components/icons/WorldIcons.tsx`
+**Links (huidige hamburger + search cluster, lijn 139–154):** alleen de hamburger laten staan. De search-knop verdwijnt hier.
 
-Bevat twee minimalistische SVG-componenten:
+**Rechts (huidige toggle + account + cart cluster, lijn 177–198):** account-link verdwijnt hier. Alleen `WorldSwitch` + cart blijven.
 
-- **`TieIcon`** — silhouette van een stropdas: smalle knoop bovenin, driehoekige punt eronder. Strakke lijnen, geen vulling, in de classic-gold kleur via `currentColor`.
-- **`SneakerIcon`** — zijaanzicht van een lage sneaker: zool-lijn onderin, vetersilhouet bovenin, één accentstreep. Past bij de stoere streetwear-toon.
-
-Beide nemen `className` en `strokeWidth` als props zodat ze schalen met het pill-formaat.
-
-### 2. `WorldSwitch.tsx` aanpassen
-
-- Importeer de twee icon-componenten.
-- Vervang het `display`-veld door:
-  - `variant === 'mobile'` → alleen icoon (18px), pill iets breder voor optische balans.
-  - `variant === 'desktop'` → icoon (14px) + label naast elkaar in elke knop.
-  - `variant === 'full'` (mobiel menu paneel) → icoon (16px) + label gecentreerd.
-- Active-state geeft het icoon dezelfde tekstkleur als de label (goud-op-zwart of accent-op-licht), inactive-state inherit `currentColor` van de muted text.
-
-### 3. Mobiele pill-breedte bijstellen
-
-De mini-pill (variant `mobile`) groeit van ~48px naar ~56px (2× 28px segment) om de iconen ademruimte te geven zonder de gecentreerde logo te raken bij 320px viewports. Hoogte blijft 32px.
-
-### 4. ARIA & toegankelijkheid
-
-- Iconen krijgen `aria-hidden`.
-- De knop houdt zijn `aria-label="Switch to Classic / Streetwear"` zodat screen-readers en toetsenbordgebruikers exact weten waar ze klikken — de iconografie staat hier alleen voor visuele communicatie.
-
-## Visueel
+Resultaat:
 
 ```text
-DESKTOP NAVBAR (icoon + label)
-[ 👟 STREETWEAR │ 👔 CLASSIC ]
+MOBIEL NAVBAR (voor)
+[☰] [🔍]      MANCINI MILANO      [👟│👔] [👤] [🛍]
 
-MOBIEL NAVBAR (alleen icoon, ~56×32)
-[ 👟 │ 👔 ]
-
-MOBIEL MENU PANEEL (full-width)
-[   👟 STREETWEAR    │    👔 CLASSIC   ]
+MOBIEL NAVBAR (na)
+[☰]           MANCINI MILANO            [👟│👔] [🛍]
 ```
 
-Echte iconen worden custom getekend in dezelfde dunne stroke-stijl als Lucide — geen emoji.
+Hierdoor ontstaat aan beide kanten zichtbare ruimte naast het gecentreerde logo, en de toggle valt op zonder geduwd te zitten.
+
+### 2. Search & Account in het hamburger-paneel — zelfde bestand
+
+Het mobiel menu-paneel (lijn 231+) krijgt bovenaan, vlak onder de header van het paneel, een rij met twee inline acties:
+
+```text
+┌─────────────────────────────┐
+│ 🔍  Search products         │
+│ 👤  Account / Inloggen      │
+├─────────────────────────────┤
+│ Home                        │
+│ For Him            ⌄        │
+│ ...                          │
+```
+
+- **Search-rij**: opent dezelfde `SearchOverlay` via een lokale handler `(setSearchOpen(true); closeMobile())`.
+- **Account-rij**: linkt naar `/account` of `/login` afhankelijk van `isAuthenticated`, met label "My Account" of "Sign In".
+
+De bestaande "Mijn Account / Inloggen"-link onderaan in de utility-blok mag dan verdwijnen om duplicatie te vermijden (de visueel prominente versie bovenaan vervangt 'm).
+
+### 3. World-switch verfijnen op mobiel — `src/components/WorldSwitch.tsx`
+
+De `mobile` variant wordt eleganter:
+
+- Hoogte van `h-8` → `h-7` (28px). Nog steeds tapbaar samen met breedte.
+- Icoongrootte van 16px → 14px.
+- Padding `px-3` → `px-3.5` (iets meer ademruimte links/rechts van het icoon binnen elke helft).
+- Border-thickness: `border` blijft, maar krijgt een subtiele `border-classic-gold/50` (was `/70`) zodat de pill rustiger oogt naast het cartlogo.
+- Actieve helft behoudt gouden fill — maar met een dunner accent: een 1px inset shadow vervangt later eventueel de full fill. Voor nu: gouden fill blijft (consistent met desktop).
+
+Desktop- en full-varianten blijven exact zoals nu.
+
+## Visueel resultaat
+
+```text
+MOBIEL (390px)
+┌────────────────────────────────────────────┐
+│  ☰         MANCINI MILANO       [👟│👔] 🛍 │
+└────────────────────────────────────────────┘
+
+MOBIEL MENU PANEEL
+┌────────────────────────────────────────────┐
+│   MANCINI MILANO                         ✕ │
+├────────────────────────────────────────────┤
+│ 🔍  Search products                        │
+│ 👤  My Account                             │
+├────────────────────────────────────────────┤
+│ Home                                       │
+│ For Him                                  ⌄ │
+│ For Her                                  ⌄ │
+│ Fragrances                                 │
+│ Contact                                    │
+├────────────────────────────────────────────┤
+│ About Us · FAQ · Size Guide                │
+├────────────────────────────────────────────┤
+│ Shop                                       │
+│ [    👟 STREETWEAR    │    👔 CLASSIC    ] │
+└────────────────────────────────────────────┘
+```
 
 ## Niet aanpassen
 
-- Geen wijzigingen aan `WorldContext`, `Layout.tsx`, of de plaatsing van de switch in de navbar (dat is al goed).
-- Geen kleurtokens veranderen.
-- Streetwear/Classic-pagina's blijven identiek.
+- Desktop-navbar blijft volledig identiek (search/account/cart staan daar prima).
+- `WorldContext`, `Layout.tsx`, en alle pagina's blijven ongemoeid.
+- Het hamburger-menu zelf qua structuur (accordions, sections) blijft hetzelfde, alleen 1 rij erbij bovenaan en 1 dubbele link weg onderaan.
