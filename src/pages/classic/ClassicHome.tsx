@@ -28,13 +28,13 @@ const ClassicHome = () => {
             loading="eager"
           />
 
-          {/* Desktop readability gradient — stronger on the left where text sits */}
+          {/* Desktop readability gradient — very subtle, wordmark blends with the marble */}
           <div
             aria-hidden
             className="absolute inset-0 pointer-events-none hidden lg:block"
             style={{
               background:
-                'linear-gradient(to right, hsl(var(--secondary) / 0.85) 0%, hsl(var(--secondary) / 0.45) 35%, transparent 60%)',
+                'linear-gradient(to right, hsl(var(--secondary) / 0.35) 0%, hsl(var(--secondary) / 0.15) 20%, transparent 40%)',
             }}
           />
 
@@ -48,51 +48,57 @@ const ClassicHome = () => {
             }}
           />
 
-          {/* Desktop overlay — left-aligned over marble */}
+          {/* Desktop overlay — wordmark printed on the marble next to the products */}
           <div className="absolute inset-0 hidden lg:flex items-center">
             <div className="max-w-site mx-auto w-full px-6 lg:px-12">
               <div className="max-w-md">
                 <h1 className="leading-none">
                   <span
-                    className="font-classic font-semibold block text-[72px] xl:text-[96px] leading-[0.95]"
+                    className="font-classic font-semibold block text-[88px] xl:text-[120px] leading-[0.95]"
                     style={{
                       color: '#C8A75A',
                       letterSpacing: '0.04em',
                       textShadow:
-                        '0 1px 0 rgba(255,220,150,0.35), 0 2px 4px rgba(0,0,0,0.25), 0 -1px 0 rgba(120,80,20,0.4)',
+                        '0 1px 0 rgba(255,220,150,0.4), 0 2px 4px rgba(0,0,0,0.22), 0 -1px 0 rgba(120,80,20,0.45)',
                     }}
                   >
                     MANCINI
                   </span>
                   <span
-                    className="block mt-2 text-[14px] xl:text-[18px] font-medium"
+                    className="block mt-3 text-[16px] xl:text-[22px] font-medium"
                     style={{
                       color: '#C8A75A',
                       letterSpacing: '0.55em',
-                      textShadow: '0 1px 1px rgba(0,0,0,0.15)',
+                      textShadow: '0 1px 1px rgba(0,0,0,0.18)',
                     }}
                   >
                     MILANO
                   </span>
                 </h1>
-                <p className="font-classic italic text-foreground/80 text-lg lg:text-xl mt-5">
+                <p
+                  className="font-classic italic text-lg xl:text-xl mt-6"
+                  style={{ color: 'rgba(200,167,90,0.85)' }}
+                >
                   Timeless style. Made to last.
                 </p>
-
-                <span aria-hidden className="block w-10 h-px bg-classic-gold mt-6 mb-5" />
-                <p className="text-sm lg:text-base text-muted-foreground leading-relaxed max-w-sm">
-                  Refined essentials crafted with premium materials and elevated by gold details. Designed in Italy. Worn everywhere.
-                </p>
-                <Link
-                  to="/classic/collections/all"
-                  className="inline-block mt-8 bg-foreground text-background px-10 py-4 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors duration-300"
-                >
-                  Shop Collection
-                </Link>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Desktop body + CTA row — below the photo */}
+        <div className="hidden lg:flex max-w-site mx-auto px-6 lg:px-12 pt-8 pb-14 items-center justify-between gap-8">
+          <p className="font-classic italic text-lg lg:text-xl text-muted-foreground max-w-xl">
+            Refined essentials crafted with premium materials and elevated by gold details. Designed in Italy. Worn everywhere.
+          </p>
+          <Link
+            to="/classic/collections/all"
+            className="inline-block bg-foreground text-background px-10 py-4 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors duration-300 whitespace-nowrap"
+          >
+            Shop Collection
+          </Link>
+        </div>
+
 
         {/* Mobile text block — stacked under the image */}
         <div className="lg:hidden max-w-site mx-auto px-6 pt-8 pb-12">
