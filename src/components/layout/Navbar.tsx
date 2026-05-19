@@ -232,7 +232,7 @@ const Navbar = () => {
         <div className="fixed inset-0 z-50 bg-background lg:hidden">
           <div className="flex items-center justify-between h-16 px-4 border-b border-border">
             <Link to={homeHref} onClick={closeMobile} className="h-10 flex items-center">
-              <img src={logoDoberman} alt="Mancini Milano" className="h-8 w-auto object-contain" />
+              <BrandMark className="h-8 w-auto" />
             </Link>
             <button
               onClick={closeMobile}
