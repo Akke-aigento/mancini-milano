@@ -1,35 +1,64 @@
 ## Doel
 
-De geüploade foto (`PHOTO-2026-05-19-11-00-14.jpg`) gebruiken als visuele basis voor de splash/keuzepagina (`/`), in plaats van de huidige Unsplash-stockafbeeldingen.
-
-De foto is één beeld met twee helften:
-- **Bovenste helft** → man met zwarte Mancini Milano hoodie → past bij **Streetwear**
-- **Onderste helft** → man met blazer + polo → past bij **Classic**
+De aparte `WorldSwitch`-balk boven de navbar verdwijnt. De Streetwear/Classic-toggle wordt onderdeel van de bestaande action-bar in de navbar — strak, niet-storend, en bewust anders op mobiel waar de ruimte schaars is.
 
 ## Aanpak
 
-1. **Foto importeren als project-assets** (gesplitst in twee bestanden zodat elke helft scherp kan worden ingeladen en goed crop't binnen zijn eigen kolom/rij):
-   - `src/assets/splash-classic.jpg` — onderste helft (blazer)
-   - `src/assets/splash-streetwear.jpg` — bovenste helft (hoodie)
-   - Gesplitst via een eenmalig shellscript (ImageMagick) op basis van de originele upload.
+### 1. `WorldSwitch` herschrijven naar een inline pill (responsive)
 
-2. **`src/pages/Splash.tsx` aanpassen**:
-   - Vervang de twee Unsplash `<img src="https://images.unsplash.com/...">` door ES6-imports van de nieuwe assets.
-   - Classic-helft krijgt `splash-classic.jpg`, Streetwear-helft krijgt `splash-streetwear.jpg`.
-   - `alt`-teksten en `object-cover` behouden; eventueel `object-position` finetunen zodat het gezicht/logo mooi in beeld blijft op mobiel (390px) en desktop.
-   - Overlay/gradient, typografie, knoppen, links en layout blijven exact zoals nu — alleen de achtergrondbeelden veranderen.
+Bestand: `src/components/WorldSwitch.tsx`
 
-3. **Niet aanraken**:
-   - Routing, WorldContext, Navbar, Layout, sticky-header fix.
-   - Knopteksten ("Discover Classic" / "Discover Streetwear"), heading-structuur, SEO-tags.
-   - Andere pagina's of componenten.
+Het wordt geen standalone-balk meer, maar een herbruikbaar component dat in de navbar past:
 
-## Verificatie
+- **Desktop (lg+)**: een compacte pill met beide labels `STREETWEAR | CLASSIC`, ~10px font, uppercase, tracking-wide. Actieve helft krijgt goud (classic) of accent (streetwear) achtergrond. Inline naast Search/Account/Cart.
+- **Mobiel (<lg)**: een mini-toggle van **alleen initialen** `S | C` in een smal pill (≈48px breed, 32px hoog). Past tussen hamburger/search en blok of net voor het account-icoon zonder de gecentreerde logo te raken. Gouden rand op classic, neutrale rand op streetwear. Tap = direct switchen. `aria-label` blijft volledig ("Switch to Classic").
 
-- `/` openen op mobiel (390×720) en desktop → beide helften tonen de nieuwe foto, scherp, met juiste uitsnede.
-- Klikken op Classic-helft → `/classic`. Klikken op Streetwear-helft → `/streetwear`.
-- Geen console errors, geen layout-shift, geen broken images.
+Geen popover, geen extra UI — één tap = wissel, net zoals nu.
 
-## Open vraag (optioneel)
+### 2. `WorldSwitch` uit het Layout halen
 
-Wil je dat ik de foto ook in **hogere resolutie** lever (1600px breed) en/of dat ik een lichte **donkere overlay** behoud zoals nu zodat de witte tekst leesbaar blijft over de blazer-/hoodie-foto? Mijn default: ja op beide — overlay behouden voor leesbaarheid, en de gesplitste assets exporteren op volle originele resolutie.
+Bestand: `src/components/layout/Layout.tsx`
+
+- Regel 19 (`<WorldSwitch />` boven `AnnouncementBar`) verwijderen.
+- De `AnnouncementBar` (Free shipping ...) blijft staan en wordt nu de bovenste regel — voelt meteen rustiger.
+
+### 3. `WorldSwitch` plaatsen in `Navbar.tsx`
+
+Bestand: `src/components/layout/Navbar.tsx`
+
+Twee inserts, want mobiel en desktop hebben aparte action-clusters:
+
+- **Mobiel right cluster (lijn 177)**: vóór het `User`-icoon de mini-toggle plaatsen (`S | C`). De cluster gebruikt `gap-1`, dus de toggle krijgt een eigen `mx-1` voor optische ademruimte. Door initialen + 48px breedte botst dit niet met het centrale logo bij iPhone SE-formaat (320px).
+- **Desktop right cluster (lijn 200)**: de volledige pill (`STREETWEAR | CLASSIC`) net vóór de Search-knop. Krijgt extra `mr-2` zodat de iconen visueel apart blijven.
+
+Op routes waar `currentWorld` null is (cart, checkout, account, login) blijft het component zichzelf onzichtbaar maken — die guard zit al in `WorldSwitch`.
+
+### 4. Mobiele menu-paneel (sidebar overlay)
+
+Het volledige mobiel menu (lijn 231+) krijgt onderaan, vlak boven de "About Us / FAQ"-blok, een full-width versie van dezelfde toggle met volledige labels. Zo heeft de gebruiker daar ook nog een duidelijke entry — bonus voor wie de mini-pill in de header over het hoofd ziet.
+
+## Visueel
+
+```text
+DESKTOP NAVBAR
+┌─────────────────────────────────────────────────────────────────────┐
+│ LOGO    Home  ForHim  ForHer  Fragrances  Contact   [STREETWEAR│CLASSIC]  🔍 👤 🛍 │
+└─────────────────────────────────────────────────────────────────────┘
+
+MOBIEL NAVBAR
+┌──────────────────────────────────────────┐
+│ ☰ 🔍        MANCINI MILANO        [S│C] 👤 🛍 │
+└──────────────────────────────────────────┘
+```
+
+Actieve helft = goud-fill op Classic, accent-fill op Streetwear, witte/zwarte tekst — consistent met de huidige stijl.
+
+## Niet aanpassen
+
+- Geen wijzigingen aan `AnnouncementBar`, `Footer`, `WorldContext`, of de Classic-hero die we net hebben gezet.
+- Geen kleurtokens veranderen — we hergebruiken `classic-gold`, `accent`, `border`.
+- Streetwear-pagina's blijven identiek qua ritme; alleen de extra balk bovenaan is weg.
+
+## Vervolgnoot
+
+Mocht de mini-pill op mobiel toch knel komen bij heel lange logos of extra knoppen, dan kunnen we hem verplaatsen naar het uiterste rechts (na 🛍) of vervangen door een enkele swap-icoon (`⇄`) die direct toggled.

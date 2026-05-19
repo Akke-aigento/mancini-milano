@@ -5,7 +5,15 @@ const labels: Record<World, string> = {
   classic: 'Classic',
 };
 
-const WorldSwitch = () => {
+type Variant = 'desktop' | 'mobile' | 'full';
+
+interface WorldSwitchProps {
+  variant?: Variant;
+  className?: string;
+  onSwitch?: () => void;
+}
+
+const WorldSwitch = ({ variant = 'desktop', className = '', onSwitch }: WorldSwitchProps) => {
   const { currentWorld, switchWorld } = useWorld();
 
   // Hidden on splash & world-agnostic pages (cart, checkout, account, login, etc.)
@@ -14,43 +22,64 @@ const WorldSwitch = () => {
   const worlds: World[] = ['streetwear', 'classic'];
   const isClassic = currentWorld === 'classic';
 
+  const sizeClasses =
+    variant === 'mobile'
+      ? 'h-8 text-[10px]'
+      : variant === 'full'
+        ? 'h-11 text-[11px] w-full'
+        : 'h-9 text-[10px]';
+
+  const segmentPadding =
+    variant === 'mobile'
+      ? 'px-2.5'
+      : variant === 'full'
+        ? 'flex-1 px-6'
+        : 'px-4';
+
   return (
-    <div className={`w-full border-b ${isClassic ? 'bg-background border-border' : 'bg-secondary border-border'}`}>
-      <div className="max-w-site mx-auto flex items-center justify-center px-4 py-2">
-        <div
-          role="group"
-          aria-label="Switch between worlds"
-          className={`inline-flex items-stretch border ${isClassic ? 'border-classic-gold/60' : 'border-border'}`}
-        >
-          {worlds.map((w) => {
-            const active = w === currentWorld;
-            return (
-              <button
-                key={w}
-                type="button"
-                onClick={() => {
-                  if (!active) switchWorld();
-                }}
-                aria-pressed={active}
-                className={[
-                  'px-5 sm:px-6 py-1.5 text-[10px] sm:text-[11px] font-medium uppercase',
-                  'transition-colors duration-200 ease-out',
-                  active
-                    ? isClassic
-                      ? 'bg-classic-gold text-background'
-                      : 'bg-accent text-foreground'
-                    : isClassic
-                      ? 'bg-transparent text-foreground/60 hover:text-classic-gold'
-                      : 'bg-transparent text-muted-foreground hover:text-foreground',
-                ].join(' ')}
-                style={{ letterSpacing: '0.15em' }}
-              >
-                {labels[w]}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+    <div
+      role="group"
+      aria-label="Switch between worlds"
+      className={[
+        'inline-flex items-stretch border transition-colors',
+        isClassic ? 'border-classic-gold/70' : 'border-border',
+        sizeClasses,
+        variant === 'full' ? 'flex' : '',
+        className,
+      ].join(' ')}
+    >
+      {worlds.map((w) => {
+        const active = w === currentWorld;
+        const display = variant === 'mobile' ? labels[w].charAt(0) : labels[w];
+        return (
+          <button
+            key={w}
+            type="button"
+            onClick={() => {
+              if (!active) {
+                switchWorld();
+                onSwitch?.();
+              }
+            }}
+            aria-pressed={active}
+            aria-label={active ? `${labels[w]} (current)` : `Switch to ${labels[w]}`}
+            className={[
+              segmentPadding,
+              'font-medium uppercase transition-colors duration-200 ease-out flex items-center justify-center',
+              active
+                ? isClassic
+                  ? 'bg-classic-gold text-background'
+                  : 'bg-accent text-foreground'
+                : isClassic
+                  ? 'bg-transparent text-foreground/60 hover:text-classic-gold'
+                  : 'bg-transparent text-muted-foreground hover:text-foreground',
+            ].join(' ')}
+            style={{ letterSpacing: variant === 'mobile' ? '0.1em' : '0.2em' }}
+          >
+            {display}
+          </button>
+        );
+      })}
     </div>
   );
 };

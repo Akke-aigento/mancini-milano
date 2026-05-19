@@ -7,7 +7,6 @@ import Footer from './Footer';
 import CartDrawer from '@/components/CartDrawer';
 import BackToTop from '@/components/BackToTop';
 import CookieConsent from '@/components/CookieConsent';
-import WorldSwitch from '@/components/WorldSwitch';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -16,7 +15,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen flex flex-col animate-in fade-in duration-300">
       <SplashScreen />
-      <WorldSwitch />
       <AnnouncementBar />
       {isHome && <LookbookBanner />}
       <Navbar />
