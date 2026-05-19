@@ -81,13 +81,13 @@ const Index = () => {
         <div className="flex flex-col items-center gap-4 px-6 py-6 bg-background">
           <div className="flex gap-4 w-full max-w-xs">
             <Link
-to="/collections/men"
+to="/streetwear/collections/men"
               className="flex-1 text-center border border-foreground text-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Shop Men
             </Link>
             <Link
-to="/collections/women"
+to="/streetwear/collections/women"
               className="flex-1 text-center border border-foreground text-foreground px-6 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Shop Women
@@ -114,13 +114,13 @@ to="/collections/women"
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
-              to="/collections/men"
+              to="/streetwear/collections/men"
               className="border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Shop Men
             </Link>
             <Link
-              to="/collections/women"
+              to="/streetwear/collections/women"
               className="border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
             >
               Shop Women
@@ -163,7 +163,7 @@ to="/collections/women"
             {featuredCategories.map((cat: any) => (
               <Link
                 key={cat.id}
-                to={`/collections/${cat.slug}`}
+                to={`/streetwear/collections/${cat.slug}`}
                 className="group relative aspect-[3/4] overflow-hidden block"
               >
                 <img
@@ -212,7 +212,7 @@ to="/collections/women"
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {trendingProducts.map((product: Product) => (
-              <Link key={product.id} to={`/products/${product.slug}`} className="group block">
+              <Link key={product.id} to={`/streetwear/products/${product.slug}`} className="group block">
                 <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
                   {product.images?.[0] && (
                     <img
@@ -256,7 +256,7 @@ to="/collections/women"
                   {shopTheLookProducts.map((product: Product) => (
                     <Link
                       key={product.id}
-                      to={`/products/${product.slug}`}
+                      to={`/streetwear/products/${product.slug}`}
                       className="flex items-center gap-4 p-3 border border-border hover:border-primary/30 transition-colors group"
                     >
                       <div className="w-16 h-20 overflow-hidden bg-card flex-shrink-0">
@@ -272,7 +272,7 @@ to="/collections/women"
                   ))}
                 </div>
                 <Link
-                  to="/collections/shop-the-look"
+                  to="/streetwear/collections/shop-the-look"
                   className="inline-block border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors self-start"
                 >
                   Shop Collection →
@@ -306,7 +306,7 @@ to="/collections/women"
                 </div>
                 <p className="text-2xl text-primary font-heading mb-8">From {formatPrice(fragrance.price)}</p>
                 <Link
-                  to={`/products/${fragrance.slug}`}
+                  to={`/streetwear/products/${fragrance.slug}`}
                   className="inline-block border border-foreground text-foreground bg-transparent px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
                 >
                   Discover →

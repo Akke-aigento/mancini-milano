@@ -147,7 +147,7 @@ const Bedankt = () => {
 
         <div className="text-center">
           <Link
-            to="/"
+            to="/streetwear"
             className="inline-block border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors"
           >
             Terug naar shop

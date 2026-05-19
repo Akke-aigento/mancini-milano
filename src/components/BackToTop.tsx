@@ -6,7 +6,7 @@ const BackToTop = () => {
   const { pathname } = useLocation();
   const [visible, setVisible] = useState(false);
 
-  const isProductPage = pathname.startsWith('/products/');
+  const isProductPage = pathname.startsWith('/streetwear/products/');
 
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 500);

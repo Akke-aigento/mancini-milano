@@ -26,7 +26,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const isOutOfStock = product.in_stock === false || product.stock_status === 'out_of_stock';
 
   return (
-    <Link to={`/products/${product.slug}`} className="group block">
+    <Link to={`/streetwear/products/${product.slug}`} className="group block">
       <div className="relative aspect-[3/4] overflow-hidden mb-3">
         {product.images?.[0] && (
           <img

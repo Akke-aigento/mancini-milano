@@ -5,57 +5,71 @@
   fetches products + categories from the SellQo Storefront API on request.
 -->
 <urlset xmlns="http://www.w3.org/1999/sitemap/0.9">
-  <!-- Static routes -->
+  <!-- Splash (brand entry) -->
   <url>
     <loc>https://mancinimilano.com/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Streetwear world -->
+  <url>
+    <loc>https://mancinimilano.com/streetwear</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://mancinimilano.com/collections/men</loc>
+    <loc>https://mancinimilano.com/streetwear/collections/men</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://mancinimilano.com/collections/women</loc>
+    <loc>https://mancinimilano.com/streetwear/collections/women</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://mancinimilano.com/collections/jackets</loc>
+    <loc>https://mancinimilano.com/streetwear/collections/jackets</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mancinimilano.com/collections/hoodies</loc>
+    <loc>https://mancinimilano.com/streetwear/collections/hoodies</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mancinimilano.com/collections/t-shirts</loc>
+    <loc>https://mancinimilano.com/streetwear/collections/t-shirts</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mancinimilano.com/collections/pants</loc>
+    <loc>https://mancinimilano.com/streetwear/collections/pants</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mancinimilano.com/collections/tracksuits</loc>
+    <loc>https://mancinimilano.com/streetwear/collections/tracksuits</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mancinimilano.com/collections/bags</loc>
+    <loc>https://mancinimilano.com/streetwear/collections/bags</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mancinimilano.com/collections/accessories</loc>
+    <loc>https://mancinimilano.com/streetwear/collections/accessories</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://mancinimilano.com/streetwear/collections/fragrances</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- World-agnostic pages -->
   <url>
     <loc>https://mancinimilano.com/about</loc>
     <changefreq>monthly</changefreq>

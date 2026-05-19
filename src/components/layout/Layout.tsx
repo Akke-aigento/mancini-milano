@@ -10,7 +10,7 @@ import CookieConsent from '@/components/CookieConsent';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  const isHome = location.pathname === '/';
+  const isHome = location.pathname === '/streetwear';
 
   return (
     <div className="min-h-screen flex flex-col animate-in fade-in duration-300 overflow-x-hidden">
