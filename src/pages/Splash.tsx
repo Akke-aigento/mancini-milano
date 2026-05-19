@@ -60,7 +60,7 @@ const Splash = () => {
             aria-label="Discover Streetwear — Mancini Milano elevated essentials"
           >
             <img
-              src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=1600&q=80"
+              src={splashStreetwear}
               alt="Mancini Milano Streetwear — elevated essentials with luxury attitude"
               className="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:opacity-70 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
               loading="eager"
