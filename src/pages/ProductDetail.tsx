@@ -200,7 +200,7 @@ const ProductDetail = () => {
           },
           offers: {
             '@type': 'Offer',
-            url: `https://mancinimilano.com/products/${product.slug}`,
+            url: `https://mancinimilano.com/streetwear/products/${product.slug}`,
             price: displayPrice,
             priceCurrency: product.currency || 'EUR',
             availability: product.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
