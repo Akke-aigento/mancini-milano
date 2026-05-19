@@ -136,7 +136,7 @@ const Navbar = () => {
     <>
       <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
-          {/* Mobile left: hamburger + search */}
+          {/* Mobile left: hamburger only */}
           <div className="flex items-center gap-1 lg:hidden">
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -144,13 +144,6 @@ const Navbar = () => {
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5" />
             </button>
           </div>
 
