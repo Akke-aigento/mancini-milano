@@ -28,19 +28,19 @@ const WorldSwitch = ({ variant = 'desktop', className = '', onSwitch }: WorldSwi
 
   const sizeClasses =
     variant === 'mobile'
-      ? 'h-8 text-[10px]'
+      ? 'h-7 text-[10px]'
       : variant === 'full'
         ? 'h-11 text-[11px] w-full'
         : 'h-9 text-[10px]';
 
   const segmentPadding =
     variant === 'mobile'
-      ? 'px-3'
+      ? 'px-3.5'
       : variant === 'full'
         ? 'flex-1 px-6 gap-2'
         : 'px-3.5 gap-2';
 
-  const iconSize = variant === 'mobile' ? 16 : variant === 'full' ? 16 : 14;
+  const iconSize = variant === 'mobile' ? 14 : variant === 'full' ? 16 : 14;
 
   return (
     <div
@@ -48,7 +48,7 @@ const WorldSwitch = ({ variant = 'desktop', className = '', onSwitch }: WorldSwi
       aria-label="Switch between worlds"
       className={[
         'inline-flex items-stretch border transition-colors',
-        isClassic ? 'border-classic-gold/70' : 'border-border',
+        isClassic ? 'border-classic-gold/50' : 'border-border',
         sizeClasses,
         variant === 'full' ? 'flex' : '',
         className,
