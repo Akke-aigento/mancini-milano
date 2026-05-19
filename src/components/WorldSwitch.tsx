@@ -48,7 +48,7 @@ const WorldSwitch = ({ variant = 'desktop', className = '', onSwitch }: WorldSwi
       aria-label="Switch between worlds"
       className={[
         'inline-flex items-stretch border transition-colors',
-        isClassic ? 'border-classic-gold/70' : 'border-border',
+        isClassic ? 'border-classic-gold/50' : 'border-border',
         sizeClasses,
         variant === 'full' ? 'flex' : '',
         className,
