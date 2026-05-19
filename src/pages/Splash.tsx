@@ -31,7 +31,7 @@ const Splash = () => {
             aria-label="Discover Classic — Mancini Milano luxury"
           >
             <img
-              src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=1600&q=80"
+              src={splashClassic}
               alt="Mancini Milano Classic — timeless Italian luxury tailoring in black and white"
               className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
               loading="eager"
