@@ -84,6 +84,7 @@ const Navbar = () => {
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
   const location = useLocation();
+  const { homeHref } = useWorld();
   const isHome = location.pathname === '/streetwear';
 
   useEffect(() => {
