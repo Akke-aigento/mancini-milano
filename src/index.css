@@ -38,6 +38,17 @@
     --gold-hover: 0 0% 85%;
     --surface: 0 0% 5%;
     --surface-hover: 0 0% 7%;
+
+    /* Classic-only accent (real gold) — scoped via [data-world="classic"] */
+    --classic-gold: 42 38% 58%;
+    --classic-gold-soft: 42 38% 70%;
+  }
+
+  /* Classic world — refined luxury overrides (scoped, no streetwear impact) */
+  [data-world="classic"] {
+    --background: 0 0% 4%;
+    --foreground: 40 12% 94%;
+  }
   }
 }
 
