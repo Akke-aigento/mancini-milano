@@ -22,10 +22,11 @@ const Splash = () => {
             <img
               src={splashStreetwear}
               alt="Mancini Milano Streetwear — model wearing a Mancini Milano hooded sweatshirt"
-              className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
+              className="absolute inset-0 w-full h-full object-cover object-[50%_15%] lg:object-[50%_10%] opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
               loading="eager"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/10 to-black/45 group-hover:from-black/35 group-hover:to-black/35 transition-all duration-700" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/10 to-black/30 group-hover:from-black/35 transition-all duration-700" />
+            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
 
             {/* Brand header */}
             <div className="absolute top-0 left-0 right-0 z-10 flex flex-col items-center text-center pt-10 lg:pt-14 px-6">
@@ -38,7 +39,7 @@ const Splash = () => {
             </div>
 
             {/* Label */}
-            <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center text-center px-6 pb-10 lg:pb-14">
+            <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center text-center px-6 pb-12 lg:pb-16">
               <h2 className="font-heading text-foreground text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem] leading-none">
                 Streetwear
               </h2>
