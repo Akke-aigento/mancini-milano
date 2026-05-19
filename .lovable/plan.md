@@ -1,52 +1,35 @@
-# Fix: Header is niet meer sticky
+## Doel
 
-## Wat ik zie
+De geüploade foto (`PHOTO-2026-05-19-11-00-14.jpg`) gebruiken als visuele basis voor de splash/keuzepagina (`/`), in plaats van de huidige Unsplash-stockafbeeldingen.
 
-Op `/streetwear` (en elke andere wereldpagina) heeft `<Navbar>` netjes `sticky top-0`, maar zodra je scrollt verdwijnt de hele navbar bovenaan het scherm in plaats van te plakken. Bevestigd in de preview: na ~800px scrollen is de header volledig weg.
+De foto is één beeld met twee helften:
+- **Bovenste helft** → man met zwarte Mancini Milano hoodie → past bij **Streetwear**
+- **Onderste helft** → man met blazer + polo → past bij **Classic**
 
-## Oorzaak
+## Aanpak
 
-In `src/components/layout/Layout.tsx` staat op de root-wrapper:
+1. **Foto importeren als project-assets** (gesplitst in twee bestanden zodat elke helft scherp kan worden ingeladen en goed crop't binnen zijn eigen kolom/rij):
+   - `src/assets/splash-classic.jpg` — onderste helft (blazer)
+   - `src/assets/splash-streetwear.jpg` — bovenste helft (hoodie)
+   - Gesplitst via een eenmalig shellscript (ImageMagick) op basis van de originele upload.
 
-```tsx
-<div className="min-h-screen flex flex-col animate-in fade-in duration-300 overflow-x-hidden">
-```
+2. **`src/pages/Splash.tsx` aanpassen**:
+   - Vervang de twee Unsplash `<img src="https://images.unsplash.com/...">` door ES6-imports van de nieuwe assets.
+   - Classic-helft krijgt `splash-classic.jpg`, Streetwear-helft krijgt `splash-streetwear.jpg`.
+   - `alt`-teksten en `object-cover` behouden; eventueel `object-position` finetunen zodat het gezicht/logo mooi in beeld blijft op mobiel (390px) en desktop.
+   - Overlay/gradient, typografie, knoppen, links en layout blijven exact zoals nu — alleen de achtergrondbeelden veranderen.
 
-Die `overflow-x-hidden` is de boosdoener. Browsers behandelen elke `overflow-*: hidden` als "deze container is potentieel een scroll-context". Een `position: sticky` element ankert altijd aan zijn dichtstbijzijnde scrollende voorouder. Resultaat:
+3. **Niet aanraken**:
+   - Routing, WorldContext, Navbar, Layout, sticky-header fix.
+   - Knopteksten ("Discover Classic" / "Discover Streetwear"), heading-structuur, SEO-tags.
+   - Andere pagina's of componenten.
 
-- De Navbar denkt dat hij relatief moet plakken binnen de Layout-div.
-- Maar de Layout-div scrollt zelf niet (alleen `html`/`body` scrolt) → de sticky heeft effectief geen ankerpunt en gedraagt zich als gewoon `relative`.
-- Dus de navbar scrollt mee weg met de rest van de pagina.
+## Verificatie
 
-Dit is een bekend gedrag van `position: sticky` in combinatie met `overflow: hidden` op een voorouder. Het zat er waarschijnlijk al langer in maar viel niet op omdat WorldSwitch/AnnouncementBar de navbar bovenaan zichtbaar hielden tot je verder scrolde.
+- `/` openen op mobiel (390×720) en desktop → beide helften tonen de nieuwe foto, scherp, met juiste uitsnede.
+- Klikken op Classic-helft → `/classic`. Klikken op Streetwear-helft → `/streetwear`.
+- Geen console errors, geen layout-shift, geen broken images.
 
-## Fix
+## Open vraag (optioneel)
 
-Verplaats de horizontale-overflow-bescherming van de Layout-wrapper naar het `html, body` niveau in `src/index.css`. Daarmee:
-
-- Blijft de page-breedte nog steeds vergrendeld (geen horizontale scrollbar bij brede children).
-- Verdwijnt de scroll-context die de sticky brak, want `html`/`body` is sowieso al de page scroll container.
-- Geen enkele andere component verandert van gedrag.
-
-### Concrete wijzigingen
-
-1. **`src/components/layout/Layout.tsx`** — verwijder `overflow-x-hidden` van de root-div:
-   ```tsx
-   <div className="min-h-screen flex flex-col animate-in fade-in duration-300">
-   ```
-
-2. **`src/index.css`** — zorg dat `html, body` `overflow-x: hidden` hebben (toevoegen als het er nog niet staat in de bestaande base layer). Geen andere CSS-regels aanraken.
-
-3. **Verifiëren** — na de wijziging:
-   - `/streetwear` → scroll naar beneden → navbar plakt aan de top.
-   - `/classic` → idem.
-   - `/cart`, `/checkout/*` (wereld-agnostisch) → navbar plakt aan de top.
-   - Geen horizontale scrollbar op mobiel of desktop.
-   - Geen console errors.
-
-## Wat ik NIET aanraak
-
-- WorldSwitch, AnnouncementBar, LookbookBanner positionering.
-- De `sticky top-0` op de navbar zelf — die is correct.
-- De WorldContext / homeHref logic van de vorige fix.
-- Andere `overflow-*` classes elders in het project.
+Wil je dat ik de foto ook in **hogere resolutie** lever (1600px breed) en/of dat ik een lichte **donkere overlay** behoud zoals nu zodat de witte tekst leesbaar blijft over de blazer-/hoodie-foto? Mijn default: ja op beide — overlay behouden voor leesbaarheid, en de gesplitste assets exporteren op volle originele resolutie.
