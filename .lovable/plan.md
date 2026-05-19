@@ -1,64 +1,55 @@
 ## Doel
 
-De aparte `WorldSwitch`-balk boven de navbar verdwijnt. De Streetwear/Classic-toggle wordt onderdeel van de bestaande action-bar in de navbar — strak, niet-storend, en bewust anders op mobiel waar de ruimte schaars is.
+De S/C-initialen in de world-switch vervangen door twee herkenbare, op-maat getekende iconen: een **stropdas** voor Classic en een **sneaker** voor Streetwear. Het pictogram doet meteen het werk dat tekst nu doet — universeel leesbaar, ook op klein scherm.
 
 ## Aanpak
 
-### 1. `WorldSwitch` herschrijven naar een inline pill (responsive)
+Lucide heeft geen stropdas of sneaker, dus ik teken twee kleine inline-SVG componenten in dezelfde lijnstijl als de rest van de iconen (1.25–1.5 stroke, `currentColor`, 16–18px). Geen extra dependency.
 
-Bestand: `src/components/WorldSwitch.tsx`
+### 1. Nieuw bestand: `src/components/icons/WorldIcons.tsx`
 
-Het wordt geen standalone-balk meer, maar een herbruikbaar component dat in de navbar past:
+Bevat twee minimalistische SVG-componenten:
 
-- **Desktop (lg+)**: een compacte pill met beide labels `STREETWEAR | CLASSIC`, ~10px font, uppercase, tracking-wide. Actieve helft krijgt goud (classic) of accent (streetwear) achtergrond. Inline naast Search/Account/Cart.
-- **Mobiel (<lg)**: een mini-toggle van **alleen initialen** `S | C` in een smal pill (≈48px breed, 32px hoog). Past tussen hamburger/search en blok of net voor het account-icoon zonder de gecentreerde logo te raken. Gouden rand op classic, neutrale rand op streetwear. Tap = direct switchen. `aria-label` blijft volledig ("Switch to Classic").
+- **`TieIcon`** — silhouette van een stropdas: smalle knoop bovenin, driehoekige punt eronder. Strakke lijnen, geen vulling, in de classic-gold kleur via `currentColor`.
+- **`SneakerIcon`** — zijaanzicht van een lage sneaker: zool-lijn onderin, vetersilhouet bovenin, één accentstreep. Past bij de stoere streetwear-toon.
 
-Geen popover, geen extra UI — één tap = wissel, net zoals nu.
+Beide nemen `className` en `strokeWidth` als props zodat ze schalen met het pill-formaat.
 
-### 2. `WorldSwitch` uit het Layout halen
+### 2. `WorldSwitch.tsx` aanpassen
 
-Bestand: `src/components/layout/Layout.tsx`
+- Importeer de twee icon-componenten.
+- Vervang het `display`-veld door:
+  - `variant === 'mobile'` → alleen icoon (18px), pill iets breder voor optische balans.
+  - `variant === 'desktop'` → icoon (14px) + label naast elkaar in elke knop.
+  - `variant === 'full'` (mobiel menu paneel) → icoon (16px) + label gecentreerd.
+- Active-state geeft het icoon dezelfde tekstkleur als de label (goud-op-zwart of accent-op-licht), inactive-state inherit `currentColor` van de muted text.
 
-- Regel 19 (`<WorldSwitch />` boven `AnnouncementBar`) verwijderen.
-- De `AnnouncementBar` (Free shipping ...) blijft staan en wordt nu de bovenste regel — voelt meteen rustiger.
+### 3. Mobiele pill-breedte bijstellen
 
-### 3. `WorldSwitch` plaatsen in `Navbar.tsx`
+De mini-pill (variant `mobile`) groeit van ~48px naar ~56px (2× 28px segment) om de iconen ademruimte te geven zonder de gecentreerde logo te raken bij 320px viewports. Hoogte blijft 32px.
 
-Bestand: `src/components/layout/Navbar.tsx`
+### 4. ARIA & toegankelijkheid
 
-Twee inserts, want mobiel en desktop hebben aparte action-clusters:
-
-- **Mobiel right cluster (lijn 177)**: vóór het `User`-icoon de mini-toggle plaatsen (`S | C`). De cluster gebruikt `gap-1`, dus de toggle krijgt een eigen `mx-1` voor optische ademruimte. Door initialen + 48px breedte botst dit niet met het centrale logo bij iPhone SE-formaat (320px).
-- **Desktop right cluster (lijn 200)**: de volledige pill (`STREETWEAR | CLASSIC`) net vóór de Search-knop. Krijgt extra `mr-2` zodat de iconen visueel apart blijven.
-
-Op routes waar `currentWorld` null is (cart, checkout, account, login) blijft het component zichzelf onzichtbaar maken — die guard zit al in `WorldSwitch`.
-
-### 4. Mobiele menu-paneel (sidebar overlay)
-
-Het volledige mobiel menu (lijn 231+) krijgt onderaan, vlak boven de "About Us / FAQ"-blok, een full-width versie van dezelfde toggle met volledige labels. Zo heeft de gebruiker daar ook nog een duidelijke entry — bonus voor wie de mini-pill in de header over het hoofd ziet.
+- Iconen krijgen `aria-hidden`.
+- De knop houdt zijn `aria-label="Switch to Classic / Streetwear"` zodat screen-readers en toetsenbordgebruikers exact weten waar ze klikken — de iconografie staat hier alleen voor visuele communicatie.
 
 ## Visueel
 
 ```text
-DESKTOP NAVBAR
-┌─────────────────────────────────────────────────────────────────────┐
-│ LOGO    Home  ForHim  ForHer  Fragrances  Contact   [STREETWEAR│CLASSIC]  🔍 👤 🛍 │
-└─────────────────────────────────────────────────────────────────────┘
+DESKTOP NAVBAR (icoon + label)
+[ 👟 STREETWEAR │ 👔 CLASSIC ]
 
-MOBIEL NAVBAR
-┌──────────────────────────────────────────┐
-│ ☰ 🔍        MANCINI MILANO        [S│C] 👤 🛍 │
-└──────────────────────────────────────────┘
+MOBIEL NAVBAR (alleen icoon, ~56×32)
+[ 👟 │ 👔 ]
+
+MOBIEL MENU PANEEL (full-width)
+[   👟 STREETWEAR    │    👔 CLASSIC   ]
 ```
 
-Actieve helft = goud-fill op Classic, accent-fill op Streetwear, witte/zwarte tekst — consistent met de huidige stijl.
+Echte iconen worden custom getekend in dezelfde dunne stroke-stijl als Lucide — geen emoji.
 
 ## Niet aanpassen
 
-- Geen wijzigingen aan `AnnouncementBar`, `Footer`, `WorldContext`, of de Classic-hero die we net hebben gezet.
-- Geen kleurtokens veranderen — we hergebruiken `classic-gold`, `accent`, `border`.
-- Streetwear-pagina's blijven identiek qua ritme; alleen de extra balk bovenaan is weg.
-
-## Vervolgnoot
-
-Mocht de mini-pill op mobiel toch knel komen bij heel lange logos of extra knoppen, dan kunnen we hem verplaatsen naar het uiterste rechts (na 🛍) of vervangen door een enkele swap-icoon (`⇄`) die direct toggled.
+- Geen wijzigingen aan `WorldContext`, `Layout.tsx`, of de plaatsing van de switch in de navbar (dat is al goed).
+- Geen kleurtokens veranderen.
+- Streetwear/Classic-pagina's blijven identiek.
