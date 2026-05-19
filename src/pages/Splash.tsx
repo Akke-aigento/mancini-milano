@@ -1,0 +1,88 @@
+import { Link } from 'react-router-dom';
+import SEO from '@/components/SEO';
+import logoDoberman from '@/assets/logo-doberman.png';
+
+const Splash = () => {
+  return (
+    <>
+      <SEO
+        title="Mancini Milano — Two Worlds, One Vision"
+        description="Step into the world of Mancini Milano. Choose between Classic — timeless Italian luxury — or Streetwear — elevated essentials with attitude."
+        canonical="https://mancinimilano.com/"
+      />
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Header */}
+        <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center pt-8 lg:pt-10 pointer-events-none">
+          <img
+            src={logoDoberman}
+            alt="Mancini Milano"
+            className="h-12 lg:h-14 w-auto object-contain"
+          />
+        </header>
+
+        {/* Two halves */}
+        <main className="flex-1 flex flex-col lg:flex-row">
+          {/* CLASSIC */}
+          <Link
+            to="/classic"
+            className="group relative flex-1 min-h-[50vh] lg:min-h-screen overflow-hidden flex items-center justify-center bg-[#0a0a0a] border-b lg:border-b-0 lg:border-r border-border/40"
+            aria-label="Discover Classic — Mancini Milano luxury"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=1600&q=80"
+              alt="Mancini Milano Classic — timeless Italian luxury tailoring in black and white"
+              className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
+              loading="eager"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/40 group-hover:from-black/70 transition-all duration-700" />
+            <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-lg">
+              <span className="text-[10px] lg:text-xs uppercase tracking-[0.4em] text-primary/80 mb-5 lg:mb-7">
+                The House of
+              </span>
+              <h2 className="font-heading text-primary text-5xl lg:text-7xl xl:text-8xl tracking-logo uppercase leading-[0.95] mb-4 lg:mb-6">
+                Mancini<br />Milano
+              </h2>
+              <p className="text-xs lg:text-sm text-foreground/70 tracking-wide uppercase mb-8 lg:mb-12">
+                Classic
+              </p>
+              <span className="inline-block border border-primary text-primary px-8 lg:px-10 py-3 lg:py-4 text-[11px] uppercase tracking-button font-medium group-hover:bg-primary group-hover:text-background transition-colors duration-500">
+                Discover Classic
+              </span>
+            </div>
+          </Link>
+
+          {/* STREETWEAR */}
+          <Link
+            to="/streetwear"
+            className="group relative flex-1 min-h-[50vh] lg:min-h-screen overflow-hidden flex items-center justify-center bg-[#0a0a0a]"
+            aria-label="Discover Streetwear — Mancini Milano elevated essentials"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=1600&q=80"
+              alt="Mancini Milano Streetwear — elevated essentials with luxury attitude"
+              className="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:opacity-70 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
+              loading="eager"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30 group-hover:from-black/65 transition-all duration-700" />
+            <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-lg">
+              <span className="text-[10px] lg:text-xs uppercase tracking-[0.4em] text-foreground/70 mb-5 lg:mb-7">
+                The Movement
+              </span>
+              <h2 className="font-heading text-foreground text-5xl lg:text-7xl xl:text-8xl tracking-logo uppercase leading-[0.95] mb-4 lg:mb-6">
+                Mancini<br />Milano
+              </h2>
+              <p className="text-xs lg:text-sm text-foreground/70 tracking-wide uppercase mb-8 lg:mb-12">
+                Streetwear
+              </p>
+              <span className="inline-block border border-foreground text-foreground px-8 lg:px-10 py-3 lg:py-4 text-[11px] uppercase tracking-button font-medium group-hover:bg-foreground group-hover:text-background transition-colors duration-500">
+                Discover Streetwear
+              </span>
+            </div>
+          </Link>
+        </main>
+      </div>
+    </>
+  );
+};
+
+export default Splash;
