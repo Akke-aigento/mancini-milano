@@ -1,15 +1,25 @@
-## Wijzigingen
+## Wijziging
 
-### 1. `src/pages/classic/ClassicHome.tsx` — eyebrow-balk weg
-Verwijder de "Mancini Milano Classic — FW 26"-rij met de twee gouden lijntjes (lijn 19–26). De hero begint dan direct met de campagnefoto.
+Vervang de 4 placeholder gradient-blokken in de "THE COLLECTION" sectie op `/classic` (`src/pages/classic/ClassicHome.tsx`) door echte productfoto's uit de uploads.
 
-### 2. `src/components/WorldSwitch.tsx` — mobiele swap-knop verfijnen
-- `h-9 w-9` → `h-8 w-8` (36 → 32px)
-- Icoon `size={15}` → `size={13}`
-- Border-opaciteit iets dunner: `border-classic-gold/60` → `/50` en `border-foreground/40` → `/30`
+### Mapping
+- **Tops** → `user-uploads://image-78.png` (Mancini t-shirt)
+- **Outerwear** → `user-uploads://Screenshot_2026-05-20_at_14.39.43.png` (gewatteerd vest)
+- **Bottoms** → `user-uploads://Screenshot_2026-05-20_at_14.38.45.png` (zwarte jeans)
+- **Accessories** → `user-uploads://Screenshot_2026-05-20_at_14.39.54.png` (schoudertas)
 
-### 3. `src/components/layout/Navbar.tsx` — switch dichter bij cart
-Mobiele rechter cluster (lijn 171): `gap-2` → `gap-0.5`. Cart-knop behoudt zijn 44×44 touch target.
+### Stappen
+1. Kopieer de 4 uploads naar `src/assets/`:
+   - `classic-cat-tops.jpg`
+   - `classic-cat-outerwear.jpg`
+   - `classic-cat-bottoms.jpg`
+   - `classic-cat-accessories.jpg`
+2. Importeer ze bovenaan `ClassicHome.tsx`.
+3. Vervang in de "Secondary category strip" de gradient-divs door een `<img>` met `object-cover` over de volledige `aspect-[4/5]` tegel.
+4. Behoud de bestaande hover (gold border-tint overlay), de label eronder met gold underline-animatie, en de slug-links.
+5. Verwijder de `gradient` en de grote letter-overlay (niet meer nodig met echte foto's).
 
-## Niet aanpassen
-Desktop world-switch, `full`-variant in mobile menu, en rest van het navbar-cluster blijven ongemoeid.
+### Niet aanpassen
+- For Him / For Her primaire tegels
+- Streetwear
+- Layout, spacing, kopjes, of andere secties op Classic
