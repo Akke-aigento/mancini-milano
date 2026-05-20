@@ -6,6 +6,10 @@ import ClassicNewsletter from '@/components/classic/ClassicNewsletter';
 import classicHero from '@/assets/classic-hero-clean.jpg';
 import classicForHim from '@/assets/classic-forhim.jpg';
 import classicForHer from '@/assets/classic-forher.jpg';
+import classicCatTops from '@/assets/classic-cat-tops.jpg';
+import classicCatOuterwear from '@/assets/classic-cat-outerwear.jpg';
+import classicCatBottoms from '@/assets/classic-cat-bottoms.jpg';
+import classicCatAccessories from '@/assets/classic-cat-accessories.jpg';
 
 const scrollToCollection = (e: React.MouseEvent) => {
   e.preventDefault();
@@ -286,34 +290,26 @@ const ClassicHome = () => {
           {/* Secondary category strip */}
           <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {[
-              { label: 'Outerwear', slug: 'outerware', gradient: 'linear-gradient(135deg, #e8e0d2 0%, #cdbfa6 100%)' },
-              { label: 'Tops', slug: 'tops', gradient: 'linear-gradient(135deg, #f0e8db 0%, #d4c4a8 100%)' },
-              { label: 'Bottoms', slug: 'bottoms', gradient: 'linear-gradient(135deg, #ddd2c0 0%, #b8a587 100%)' },
-              { label: 'Accessories', slug: 'accessories', gradient: 'linear-gradient(135deg, #ece4d5 0%, #c4b39a 100%)' },
+              { label: 'Outerwear', slug: 'outerware', img: classicCatOuterwear },
+              { label: 'Tops', slug: 'tops', img: classicCatTops },
+              { label: 'Bottoms', slug: 'bottoms', img: classicCatBottoms },
+              { label: 'Accessories', slug: 'accessories', img: classicCatAccessories },
             ].map(cat => (
               <Link
                 key={cat.slug}
                 to={`/classic/collections/${cat.slug}`}
                 className="group block text-center"
               >
-                <div
-                  className="relative w-full aspect-[4/5] overflow-hidden"
-                  style={{ background: cat.gradient }}
-                >
+                <div className="relative w-full aspect-[4/5] overflow-hidden bg-background">
+                  <img
+                    src={cat.img}
+                    alt={`Mancini Milano Classic — ${cat.label}`}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                  />
                   <div
                     aria-hidden
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <span
-                      className="font-classic uppercase text-[42px] lg:text-[64px] font-semibold opacity-15 transition-opacity duration-500 group-hover:opacity-25"
-                      style={{ color: '#8a6f3a', letterSpacing: '0.08em' }}
-                    >
-                      {cat.label.charAt(0)}
-                    </span>
-                  </div>
-                  <div
-                    aria-hidden
-                    className="absolute inset-0 transition-colors duration-500 group-hover:bg-classic-gold/5"
+                    className="absolute inset-0 transition-colors duration-500 group-hover:bg-classic-gold/10"
                   />
                 </div>
                 <div className="pt-4 pb-1">
