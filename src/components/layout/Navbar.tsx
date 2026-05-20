@@ -52,8 +52,9 @@ function resolveHref(item: NavItem, world: World): string {
   return base;
 }
 
-function DropdownMenu({ label, href, links, scrolled, isHome }: { label: string; href: string; links: { label: string; href: string }[]; scrolled: boolean; isHome: boolean }) {
+function DropdownMenu({ label, href, links, scrolled, isHome, openUp }: { label: string; href: string; links: { label: string; href: string }[]; scrolled: boolean; isHome: boolean; openUp: boolean }) {
   const [open, setOpen] = useState(false);
+  const upward = openUp && isHome && !scrolled;
 
   return (
     <div
@@ -66,10 +67,10 @@ function DropdownMenu({ label, href, links, scrolled, isHome }: { label: string;
         className="flex items-center gap-1 text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors"
       >
         {label}
-        <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${isHome && !scrolled ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${upward ? 'rotate-180' : ''}`} />
       </Link>
       {open && (
-        <div className={`absolute left-0 z-50 ${!isHome || scrolled ? 'top-full pt-2' : 'bottom-full pb-2'}`}>
+        <div className={`absolute left-0 z-50 ${upward ? 'bottom-full pb-2' : 'top-full pt-2'}`}>
           <div className="bg-card border border-border min-w-[180px] py-2">
             {links.map(link => (
               <Link
@@ -165,7 +166,7 @@ const Navbar = () => {
     }
     if (item.subLinks) {
       const subLinks = item.subLinks.map(s => ({ label: s.label, href: `/${effectiveWorld}/collections/${s.slug}` }));
-      return <DropdownMenu key={item.label} label={item.label} href={href} links={subLinks} scrolled={scrolled} isHome={isHome} />;
+      return <DropdownMenu key={item.label} label={item.label} href={href} links={subLinks} scrolled={scrolled} isHome={isHome} openUp={effectiveWorld === 'streetwear'} />;
     }
     return (
       <Link key={item.label} to={href} className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
