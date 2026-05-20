@@ -106,6 +106,9 @@ const ClassicHome = () => {
           >
             Shop Collection
           </Link>
+        </div>
+
+
 
 
         {/* Mobile text block — stacked under the image */}
