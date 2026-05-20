@@ -146,6 +146,7 @@ const ClassicHome = () => {
           </p>
           <Link
             to="/classic/collections/all"
+            onClick={scrollToCollection}
             className="inline-block mt-7 bg-foreground text-background px-10 py-4 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors duration-300"
           >
             Shop Collection
