@@ -4,6 +4,14 @@ import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ClassicNewsletter from '@/components/classic/ClassicNewsletter';
 import classicHero from '@/assets/classic-hero-clean.jpg';
+import classicForHim from '@/assets/classic-forhim.jpg';
+import classicForHer from '@/assets/classic-forher.jpg';
+
+const scrollToCollection = (e: React.MouseEvent) => {
+  e.preventDefault();
+  const el = document.getElementById('classic-collection-showcase');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
 
 const ClassicHome = () => {
   return (
