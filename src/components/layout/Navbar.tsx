@@ -166,7 +166,7 @@ const Navbar = () => {
     }
     if (item.subLinks) {
       const subLinks = item.subLinks.map(s => ({ label: s.label, href: `/${effectiveWorld}/collections/${s.slug}` }));
-      return <DropdownMenu key={item.label} label={item.label} href={href} links={subLinks} scrolled={scrolled} isHome={isHome} />;
+      return <DropdownMenu key={item.label} label={item.label} href={href} links={subLinks} scrolled={scrolled} isHome={isHome} openUp={effectiveWorld === 'streetwear'} />;
     }
     return (
       <Link key={item.label} to={href} className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
