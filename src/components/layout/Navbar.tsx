@@ -4,12 +4,55 @@ import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCustomerAuth } from '@/integrations/sellqo/CustomerAuthContext';
 import { useCategories } from '@/integrations/sellqo/hooks';
-import { useWorld } from '@/contexts/WorldContext';
+import { useWorld, World } from '@/contexts/WorldContext';
 import SearchOverlay from '@/components/SearchOverlay';
 import WorldSwitch from '@/components/WorldSwitch';
 import logoDoberman from '@/assets/logo-doberman.png';
 
-function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string; links: { label: string; slug: string }[]; slug: string; scrolled: boolean; isHome: boolean }) {
+type ShowIn = 'both' | 'streetwear' | 'classic';
+interface NavItem {
+  label: string;
+  basePath: string;
+  showIn: ShowIn;
+  useWorldPrefix: boolean;
+  subLinks?: { label: string; slug: string }[];
+}
+
+const FOR_HIM_LINKS = [
+  { label: 'Jackets', slug: 'jackets' },
+  { label: 'Hoodies', slug: 'hoodies' },
+  { label: 'T-Shirts', slug: 't-shirts' },
+  { label: 'Pants', slug: 'pants' },
+  { label: 'Tracksuits', slug: 'tracksuits' },
+  { label: 'Bags', slug: 'bags' },
+  { label: 'Accessories', slug: 'accessories' },
+];
+
+const FOR_HER_LINKS = [
+  { label: 'Jackets', slug: 'jackets-women' },
+  { label: 'Hoodies', slug: 'hoodies-women' },
+  { label: 'T-Shirts', slug: 't-shirts-women' },
+  { label: 'Pants', slug: 'pants-women' },
+  { label: 'Tracksuits', slug: 'tracksuits-women' },
+  { label: 'Bags', slug: 'bags-women' },
+  { label: 'Accessories', slug: 'accessories-women' },
+];
+
+const NAV_ITEMS: NavItem[] = [
+  { label: 'Home', basePath: '', showIn: 'both', useWorldPrefix: true },
+  { label: 'For Him', basePath: '/collections/men', showIn: 'both', useWorldPrefix: true, subLinks: FOR_HIM_LINKS },
+  { label: 'For Her', basePath: '/collections/women', showIn: 'both', useWorldPrefix: true, subLinks: FOR_HER_LINKS },
+  { label: 'Fragrances', basePath: '/collections/fragrances', showIn: 'streetwear', useWorldPrefix: true },
+  { label: 'Contact', basePath: '/contact', showIn: 'both', useWorldPrefix: false },
+];
+
+function resolveHref(item: NavItem, world: World): string {
+  if (!item.useWorldPrefix) return item.basePath || '/';
+  const base = `/${world}${item.basePath}`;
+  return base;
+}
+
+function DropdownMenu({ label, href, links, scrolled, isHome }: { label: string; href: string; links: { label: string; href: string }[]; scrolled: boolean; isHome: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -19,7 +62,7 @@ function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string;
       onMouseLeave={() => setOpen(false)}
     >
       <Link
-        to={`/streetwear/collections/${slug}`}
+        to={href}
         className="flex items-center gap-1 text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors"
       >
         {label}
@@ -30,8 +73,8 @@ function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string;
           <div className="bg-card border border-border min-w-[180px] py-2">
             {links.map(link => (
               <Link
-                key={link.slug}
-                to={`/streetwear/collections/${link.slug}`}
+                key={link.href}
+                to={link.href}
                 className="block px-5 py-2.5 text-xs uppercase tracking-button text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
                 onClick={() => setOpen(false)}
               >
@@ -45,7 +88,7 @@ function DropdownMenu({ label, links, slug, scrolled, isHome }: { label: string;
   );
 }
 
-function MobileAccordion({ label, slug, links, onClose }: { label: string; slug: string; links: { label: string; slug: string }[]; onClose: () => void }) {
+function MobileAccordion({ label, href, links, onClose }: { label: string; href: string; links: { label: string; href: string }[]; onClose: () => void }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -61,8 +104,8 @@ function MobileAccordion({ label, slug, links, onClose }: { label: string; slug:
         <div className="pl-4 pb-2 space-y-1">
           {links.map(l => (
             <Link
-              key={l.slug}
-              to={`/streetwear/collections/${l.slug}`}
+              key={l.href}
+              to={l.href}
               onClick={onClose}
               className="block py-2.5 text-sm uppercase tracking-button text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center"
             >
@@ -75,19 +118,20 @@ function MobileAccordion({ label, slug, links, onClose }: { label: string; slug:
   );
 }
 
-// Fallback hardcoded links in case API categories haven't loaded yet
-
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { isAuthenticated } = useCustomerAuth();
   const { itemCount, openCart } = useSellQoCart();
-  const { data: categories } = useCategories();
+  useCategories();
   const location = useLocation();
-  const { homeHref, currentWorld } = useWorld();
-  const isHome = location.pathname === '/streetwear';
+  const { homeHref, currentWorld, lastActiveWorld } = useWorld();
+  const isHome = location.pathname === '/streetwear' || location.pathname === '/classic';
   const isClassic = currentWorld === 'classic';
+  const effectiveWorld: World = currentWorld ?? lastActiveWorld ?? 'streetwear';
+
+  const visibleItems = NAV_ITEMS.filter(item => item.showIn === 'both' || item.showIn === effectiveWorld);
 
   const BrandMark = ({ className = 'h-9 w-auto' }: { className?: string }) =>
     isClassic ? (
@@ -108,29 +152,47 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const FIXED_SUBCATEGORIES = [
-    { label: 'Jackets', slug: 'jackets' },
-    { label: 'Hoodies', slug: 'hoodies' },
-    { label: 'T-Shirts', slug: 't-shirts' },
-    { label: 'Pants', slug: 'pants' },
-    { label: 'Tracksuits', slug: 'tracksuits' },
-    { label: 'Bags', slug: 'bags' },
-    { label: 'Accessories', slug: 'accessories' },
-  ];
-
-  const forHimLinks = FIXED_SUBCATEGORIES;
-  const forHerLinks = [
-    { label: 'Jackets', slug: 'jackets-women' },
-    { label: 'Hoodies', slug: 'hoodies-women' },
-    { label: 'T-Shirts', slug: 't-shirts-women' },
-    { label: 'Pants', slug: 'pants-women' },
-    { label: 'Tracksuits', slug: 'tracksuits-women' },
-    { label: 'Bags', slug: 'bags-women' },
-    { label: 'Accessories', slug: 'accessories-women' },
-  ];
-
-
   const closeMobile = () => setMobileOpen(false);
+
+  const renderDesktopItem = (item: NavItem) => {
+    const href = resolveHref(item, effectiveWorld);
+    if (item.label === 'Home') {
+      return (
+        <Link key={item.label} to={homeHref} className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
+          {item.label}
+        </Link>
+      );
+    }
+    if (item.subLinks) {
+      const subLinks = item.subLinks.map(s => ({ label: s.label, href: `/${effectiveWorld}/collections/${s.slug}` }));
+      return <DropdownMenu key={item.label} label={item.label} href={href} links={subLinks} scrolled={scrolled} isHome={isHome} />;
+    }
+    return (
+      <Link key={item.label} to={href} className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
+        {item.label}
+      </Link>
+    );
+  };
+
+  const renderMobileItem = (item: NavItem) => {
+    const href = resolveHref(item, effectiveWorld);
+    if (item.label === 'Home') {
+      return (
+        <Link key={item.label} to={homeHref} onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+          {item.label}
+        </Link>
+      );
+    }
+    if (item.subLinks) {
+      const subLinks = item.subLinks.map(s => ({ label: s.label, href: `/${effectiveWorld}/collections/${s.slug}` }));
+      return <MobileAccordion key={item.label} label={item.label} href={href} links={subLinks} onClose={closeMobile} />;
+    }
+    return (
+      <Link key={item.label} to={href} onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
+        {item.label}
+      </Link>
+    );
+  };
 
   return (
     <>
@@ -154,17 +216,7 @@ const Navbar = () => {
 
           {/* Desktop nav links */}
           <div className="hidden lg:flex items-center gap-8">
-            <Link to={homeHref} className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
-              Home
-            </Link>
-            <DropdownMenu label="For Him" links={forHimLinks} slug="men" scrolled={scrolled} isHome={isHome} />
-            <DropdownMenu label="For Her" links={forHerLinks} slug="women" scrolled={scrolled} isHome={isHome} />
-            <Link to="/streetwear/collections/fragrances" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
-              Fragrances
-            </Link>
-            <Link to="/contact" className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
-              Contact
-            </Link>
+            {visibleItems.map(renderDesktopItem)}
           </div>
 
           {/* Mobile right: world switch + cart */}
@@ -254,17 +306,7 @@ const Navbar = () => {
             </div>
 
             <div className="pt-2">
-              <Link to={homeHref} onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
-                Home
-              </Link>
-              <MobileAccordion label="For Him" slug="men" links={forHimLinks} onClose={closeMobile} />
-              <MobileAccordion label="For Her" slug="women" links={forHerLinks} onClose={closeMobile} />
-              <Link to="/streetwear/collections/fragrances" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
-                Fragrances
-              </Link>
-              <Link to="/contact" onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
-                Contact
-              </Link>
+              {visibleItems.map(renderMobileItem)}
             </div>
 
             <div className="border-t border-border mt-6 pt-6 space-y-1">

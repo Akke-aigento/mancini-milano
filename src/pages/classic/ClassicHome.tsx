@@ -4,6 +4,14 @@ import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ClassicNewsletter from '@/components/classic/ClassicNewsletter';
 import classicHero from '@/assets/classic-hero-clean.jpg';
+import classicForHim from '@/assets/classic-forhim.jpg';
+import classicForHer from '@/assets/classic-forher.jpg';
+
+const scrollToCollection = (e: React.MouseEvent) => {
+  e.preventDefault();
+  const el = document.getElementById('classic-collection-showcase');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
 
 const ClassicHome = () => {
   return (
@@ -93,11 +101,14 @@ const ClassicHome = () => {
           </p>
           <Link
             to="/classic/collections/all"
+            onClick={scrollToCollection}
             className="inline-block bg-foreground text-background px-10 py-4 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors duration-300 whitespace-nowrap"
           >
             Shop Collection
           </Link>
         </div>
+
+
 
 
         {/* Mobile text block — stacked under the image */}
@@ -135,6 +146,7 @@ const ClassicHome = () => {
           </p>
           <Link
             to="/classic/collections/all"
+            onClick={scrollToCollection}
             className="inline-block mt-7 bg-foreground text-background px-10 py-4 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors duration-300"
           >
             Shop Collection
@@ -207,6 +219,115 @@ const ClassicHome = () => {
               </p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* THE COLLECTION — For Him / For Her showcase */}
+      <section
+        id="classic-collection-showcase"
+        className="py-24 lg:py-32 px-6 lg:px-12 bg-secondary scroll-mt-20"
+      >
+        <div className="max-w-site mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-[10px] uppercase tracking-[0.4em] text-classic-gold inline-block">
+              The Collection
+            </span>
+            <h2 className="font-classic font-light text-foreground text-4xl md:text-5xl mt-4">
+              Crafted for Him &amp; Her
+            </h2>
+            <span aria-hidden className="block w-12 h-px bg-classic-gold mx-auto mt-6" />
+          </div>
+
+          {/* Primary tiles */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            {[
+              { label: 'For Him', href: '/classic/collections/men', img: classicForHim, alt: 'Mancini Milano Classic — For Him editorial' },
+              { label: 'For Her', href: '/classic/collections/women', img: classicForHer, alt: 'Mancini Milano Classic — For Her editorial' },
+            ].map(tile => (
+              <Link
+                key={tile.label}
+                to={tile.href}
+                className="group relative block overflow-hidden border border-transparent hover:border-classic-gold transition-colors duration-500"
+              >
+                <div className="relative aspect-[4/5] lg:aspect-[4/5] lg:h-[600px] w-full overflow-hidden bg-background">
+                  <img
+                    src={tile.img}
+                    alt={tile.alt}
+                    width={1024}
+                    height={1280}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
+                  />
+                  <div
+                    aria-hidden
+                    className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none"
+                    style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.55) 100%)' }}
+                  />
+                  <div className="absolute inset-x-0 bottom-0 p-8 lg:p-10">
+                    <span aria-hidden className="block w-8 h-px bg-classic-gold mb-4 transition-all duration-500 group-hover:w-16" />
+                    <p
+                      className="font-classic uppercase text-2xl lg:text-3xl font-light"
+                      style={{ color: '#F5F0E0', letterSpacing: '0.18em' }}
+                    >
+                      {tile.label}
+                    </p>
+                    <p
+                      className="mt-2 text-[11px] uppercase tracking-[0.3em] font-medium"
+                      style={{ color: '#C8A75A' }}
+                    >
+                      Shop the edit
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Secondary category strip */}
+          <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            {[
+              { label: 'Outerwear', slug: 'outerware', gradient: 'linear-gradient(135deg, #e8e0d2 0%, #cdbfa6 100%)' },
+              { label: 'Tops', slug: 'tops', gradient: 'linear-gradient(135deg, #f0e8db 0%, #d4c4a8 100%)' },
+              { label: 'Bottoms', slug: 'bottoms', gradient: 'linear-gradient(135deg, #ddd2c0 0%, #b8a587 100%)' },
+              { label: 'Accessories', slug: 'accessories', gradient: 'linear-gradient(135deg, #ece4d5 0%, #c4b39a 100%)' },
+            ].map(cat => (
+              <Link
+                key={cat.slug}
+                to={`/classic/collections/${cat.slug}`}
+                className="group block text-center"
+              >
+                <div
+                  className="relative w-full aspect-[4/5] overflow-hidden"
+                  style={{ background: cat.gradient }}
+                >
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <span
+                      className="font-classic uppercase text-[42px] lg:text-[64px] font-semibold opacity-15 transition-opacity duration-500 group-hover:opacity-25"
+                      style={{ color: '#8a6f3a', letterSpacing: '0.08em' }}
+                    >
+                      {cat.label.charAt(0)}
+                    </span>
+                  </div>
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 transition-colors duration-500 group-hover:bg-classic-gold/5"
+                  />
+                </div>
+                <div className="pt-4 pb-1">
+                  <span className="font-classic text-foreground text-base lg:text-lg inline-block relative">
+                    {cat.label}
+                    <span
+                      aria-hidden
+                      className="absolute left-0 right-0 -bottom-1 h-px bg-classic-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center"
+                    />
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
