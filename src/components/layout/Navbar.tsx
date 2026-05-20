@@ -1,58 +1,102 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCustomerAuth } from '@/integrations/sellqo/CustomerAuthContext';
 import { useCategories } from '@/integrations/sellqo/hooks';
 import { useWorld, World } from '@/contexts/WorldContext';
+import type { Category } from '@/integrations/sellqo/types';
 import SearchOverlay from '@/components/SearchOverlay';
 import WorldSwitch from '@/components/WorldSwitch';
 import logoDoberman from '@/assets/logo-doberman.png';
 
 type ShowIn = 'both' | 'streetwear' | 'classic';
+type CategoryKey = 'him' | 'her';
 interface NavItem {
   label: string;
   basePath: string;
   showIn: ShowIn;
   useWorldPrefix: boolean;
-  subLinks?: { label: string; slug: string }[];
+  categoryKey?: CategoryKey;
 }
 
-const FOR_HIM_LINKS = [
-  { label: 'Jackets', slug: 'jackets' },
-  { label: 'Hoodies', slug: 'hoodies' },
-  { label: 'T-Shirts', slug: 't-shirts' },
-  { label: 'Pants', slug: 'pants' },
-  { label: 'Tracksuits', slug: 'tracksuits' },
-  { label: 'Bags', slug: 'bags' },
-  { label: 'Accessories', slug: 'accessories' },
-];
-
-const FOR_HER_LINKS = [
-  { label: 'Jackets', slug: 'jackets-women' },
-  { label: 'Hoodies', slug: 'hoodies-women' },
-  { label: 'T-Shirts', slug: 't-shirts-women' },
-  { label: 'Pants', slug: 'pants-women' },
-  { label: 'Tracksuits', slug: 'tracksuits-women' },
-  { label: 'Bags', slug: 'bags-women' },
-  { label: 'Accessories', slug: 'accessories-women' },
-];
+// Root category slugs per world, as defined in the SellQo admin.
+const CATEGORY_ROOTS: Record<World, Record<CategoryKey, string>> = {
+  streetwear: { him: 'men', her: 'women' },
+  classic: { him: 'men-classic', her: 'classic-women' },
+};
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Home', basePath: '', showIn: 'both', useWorldPrefix: true },
-  { label: 'For Him', basePath: '/collections/men', showIn: 'both', useWorldPrefix: true, subLinks: FOR_HIM_LINKS },
-  { label: 'For Her', basePath: '/collections/women', showIn: 'both', useWorldPrefix: true, subLinks: FOR_HER_LINKS },
+  { label: 'For Him', basePath: '/collections/men', showIn: 'both', useWorldPrefix: true, categoryKey: 'him' },
+  { label: 'For Her', basePath: '/collections/women', showIn: 'both', useWorldPrefix: true, categoryKey: 'her' },
   { label: 'Fragrances', basePath: '/collections/fragrances', showIn: 'streetwear', useWorldPrefix: true },
   { label: 'Contact', basePath: '/contact', showIn: 'both', useWorldPrefix: false },
 ];
 
 function resolveHref(item: NavItem, world: World): string {
   if (!item.useWorldPrefix) return item.basePath || '/';
-  const base = `/${world}${item.basePath}`;
-  return base;
+  return `/${world}${item.basePath}`;
 }
 
-function DropdownMenu({ label, href, links, scrolled, isHome, openUp }: { label: string; href: string; links: { label: string; href: string }[]; scrolled: boolean; isHome: boolean; openUp: boolean }) {
+interface NavLink { label: string; href: string }
+interface NavSection { label?: string; href?: string; links: NavLink[] }
+
+function buildSections(
+  categories: Category[] | undefined,
+  world: World,
+  key: CategoryKey,
+  mode: 'flat' | 'grouped',
+): NavSection[] {
+  if (!categories || categories.length === 0) return [];
+  const rootSlug = CATEGORY_ROOTS[world][key];
+  const root = categories.find(c => c.slug === rootSlug);
+  if (!root) return [];
+  const toHref = (slug: string) => `/${world}/collections/${slug}`;
+  const sortByPosition = (a: Category, b: Category) =>
+    (a.position ?? 0) - (b.position ?? 0) || a.name.localeCompare(b.name);
+  const children = categories.filter(c => c.parent_id === root.id).sort(sortByPosition);
+  if (children.length === 0) return [];
+
+  if (mode === 'flat') {
+    return [{ links: children.map(c => ({ label: c.name, href: toHref(c.slug) })) }];
+  }
+
+  // Grouped: each child becomes a section with its grandchildren as links.
+  const sections: NavSection[] = children.map(child => {
+    const grandchildren = categories
+      .filter(c => c.parent_id === child.id)
+      .sort(sortByPosition);
+    return {
+      label: child.name,
+      href: toHref(child.slug),
+      links: grandchildren.map(g => ({ label: g.name, href: toHref(g.slug) })),
+    };
+  });
+  return sections;
+}
+
+function sectionsHaveLinks(sections: NavSection[]) {
+  return sections.some(s => s.links.length > 0 || s.href);
+}
+
+function DropdownMenu({
+  label,
+  href,
+  sections,
+  scrolled,
+  isHome,
+  openUp,
+  grouped,
+}: {
+  label: string;
+  href: string;
+  sections: NavSection[];
+  scrolled: boolean;
+  isHome: boolean;
+  openUp: boolean;
+  grouped: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const upward = openUp && isHome && !scrolled;
 
@@ -71,16 +115,35 @@ function DropdownMenu({ label, href, links, scrolled, isHome, openUp }: { label:
       </Link>
       {open && (
         <div className={`absolute left-0 z-50 ${upward ? 'bottom-full pb-2' : 'top-full pt-2'}`}>
-          <div className="bg-card border border-border min-w-[180px] py-2">
-            {links.map(link => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className="block px-5 py-2.5 text-xs uppercase tracking-button text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
-                onClick={() => setOpen(false)}
-              >
-                {link.label}
-              </Link>
+          <div className={`bg-card border border-border py-2 ${grouped ? 'min-w-[260px]' : 'min-w-[180px]'}`}>
+            {sections.map((section, idx) => (
+              <div key={section.label ?? `section-${idx}`} className={idx > 0 ? 'mt-1 pt-2 border-t border-border/50' : ''}>
+                {grouped && section.label && (
+                  section.href ? (
+                    <Link
+                      to={section.href}
+                      onClick={() => setOpen(false)}
+                      className="block px-5 py-1.5 text-[10px] uppercase tracking-[0.3em] text-classic-gold hover:text-foreground transition-colors"
+                    >
+                      {section.label}
+                    </Link>
+                  ) : (
+                    <div className="px-5 py-1.5 text-[10px] uppercase tracking-[0.3em] text-classic-gold">
+                      {section.label}
+                    </div>
+                  )
+                )}
+                {section.links.map(link => (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className="block px-5 py-2.5 text-xs uppercase tracking-button text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
+                    onClick={() => setOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
             ))}
           </div>
         </div>
@@ -89,7 +152,19 @@ function DropdownMenu({ label, href, links, scrolled, isHome, openUp }: { label:
   );
 }
 
-function MobileAccordion({ label, href, links, onClose }: { label: string; href: string; links: { label: string; href: string }[]; onClose: () => void }) {
+function MobileAccordion({
+  label,
+  href,
+  sections,
+  onClose,
+  grouped,
+}: {
+  label: string;
+  href: string;
+  sections: NavSection[];
+  onClose: () => void;
+  grouped: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -103,15 +178,34 @@ function MobileAccordion({ label, href, links, onClose }: { label: string; href:
       </button>
       {open && (
         <div className="pl-4 pb-2 space-y-1">
-          {links.map(l => (
-            <Link
-              key={l.href}
-              to={l.href}
-              onClick={onClose}
-              className="block py-2.5 text-sm uppercase tracking-button text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center"
-            >
-              {l.label}
-            </Link>
+          {sections.map((section, idx) => (
+            <div key={section.label ?? `section-${idx}`} className={idx > 0 ? 'pt-2' : ''}>
+              {grouped && section.label && (
+                section.href ? (
+                  <Link
+                    to={section.href}
+                    onClick={onClose}
+                    className="block pt-2 pb-1 text-[10px] uppercase tracking-[0.3em] text-classic-gold"
+                  >
+                    {section.label}
+                  </Link>
+                ) : (
+                  <div className="pt-2 pb-1 text-[10px] uppercase tracking-[0.3em] text-classic-gold">
+                    {section.label}
+                  </div>
+                )
+              )}
+              {section.links.map(l => (
+                <Link
+                  key={l.href}
+                  to={l.href}
+                  onClick={onClose}
+                  className="block py-2.5 text-sm uppercase tracking-button text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center"
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </div>
           ))}
         </div>
       )}
@@ -125,7 +219,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const { isAuthenticated } = useCustomerAuth();
   const { itemCount, openCart } = useSellQoCart();
-  useCategories();
+  const { data: categories } = useCategories();
   const location = useLocation();
   const { homeHref, currentWorld, lastActiveWorld } = useWorld();
   const isHome = location.pathname === '/streetwear' || location.pathname === '/classic';
@@ -133,6 +227,14 @@ const Navbar = () => {
   const effectiveWorld: World = currentWorld ?? lastActiveWorld ?? 'streetwear';
 
   const visibleItems = NAV_ITEMS.filter(item => item.showIn === 'both' || item.showIn === effectiveWorld);
+
+  const sectionsByKey = useMemo(() => {
+    const mode: 'flat' | 'grouped' = effectiveWorld === 'classic' ? 'grouped' : 'flat';
+    return {
+      him: buildSections(categories, effectiveWorld, 'him', mode),
+      her: buildSections(categories, effectiveWorld, 'her', mode),
+    };
+  }, [categories, effectiveWorld]);
 
   const BrandMark = ({ className = 'h-9 w-auto' }: { className?: string }) =>
     isClassic ? (
@@ -154,6 +256,7 @@ const Navbar = () => {
   }, []);
 
   const closeMobile = () => setMobileOpen(false);
+  const grouped = effectiveWorld === 'classic';
 
   const renderDesktopItem = (item: NavItem) => {
     const href = resolveHref(item, effectiveWorld);
@@ -164,9 +267,12 @@ const Navbar = () => {
         </Link>
       );
     }
-    if (item.subLinks) {
-      const subLinks = item.subLinks.map(s => ({ label: s.label, href: `/${effectiveWorld}/collections/${s.slug}` }));
-      return <DropdownMenu key={item.label} label={item.label} href={href} links={subLinks} scrolled={scrolled} isHome={isHome} openUp={effectiveWorld === 'streetwear'} />;
+    if (item.categoryKey) {
+      const sections = sectionsByKey[item.categoryKey];
+      if (sectionsHaveLinks(sections)) {
+        return <DropdownMenu key={item.label} label={item.label} href={href} sections={sections} scrolled={scrolled} isHome={isHome} openUp={effectiveWorld === 'streetwear'} grouped={grouped} />;
+      }
+      // No categories yet — render as plain link without chevron.
     }
     return (
       <Link key={item.label} to={href} className="text-xs uppercase tracking-button font-medium text-muted-foreground hover:text-primary transition-colors">
@@ -184,9 +290,11 @@ const Navbar = () => {
         </Link>
       );
     }
-    if (item.subLinks) {
-      const subLinks = item.subLinks.map(s => ({ label: s.label, href: `/${effectiveWorld}/collections/${s.slug}` }));
-      return <MobileAccordion key={item.label} label={item.label} href={href} links={subLinks} onClose={closeMobile} />;
+    if (item.categoryKey) {
+      const sections = sectionsByKey[item.categoryKey];
+      if (sectionsHaveLinks(sections)) {
+        return <MobileAccordion key={item.label} label={item.label} href={href} sections={sections} onClose={closeMobile} grouped={grouped} />;
+      }
     }
     return (
       <Link key={item.label} to={href} onClick={closeMobile} className="block py-3 text-base uppercase tracking-button font-medium text-foreground min-h-[44px] flex items-center">
