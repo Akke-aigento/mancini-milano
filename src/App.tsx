@@ -67,10 +67,10 @@ const App = () => (
                   <Route path="/streetwear/collections/:slug" element={<Collection />} />
                   <Route path="/streetwear/products/:slug" element={<ProductDetail />} />
 
-                  {/* Classic world (placeholder pages — Phase 2) */}
+                  {/* Classic world */}
                   <Route path="/classic" element={<ClassicHome />} />
-                  <Route path="/classic/collections/:slug" element={<ClassicPlaceholder kind="collection" />} />
-                  <Route path="/classic/products/:slug" element={<ClassicPlaceholder kind="product" />} />
+                  <Route path="/classic/collections/:slug" element={<Collection />} />
+                  <Route path="/classic/products/:slug" element={<ProductDetail />} />
 
                   {/* 301-equivalent redirects from legacy paths */}
                   <Route path="/collections/:slug" element={<RedirectCollection />} />

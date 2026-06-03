@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useWorld } from '@/contexts/WorldContext';
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat('en-EU', {
@@ -24,9 +25,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const hasSecondImage = product.images.length > 1;
   const allowHoverImage = hasSecondImage;
   const isOutOfStock = product.in_stock === false || product.stock_status === 'out_of_stock';
+  const { currentWorld } = useWorld();
+  const basePath = currentWorld === 'classic' ? '/classic' : '/streetwear';
 
   return (
-    <Link to={`/streetwear/products/${product.slug}`} className="group block">
+    <Link to={`${basePath}/products/${product.slug}`} className="group block">
       <div className="relative aspect-[3/4] overflow-hidden mb-3">
         {product.images?.[0] && (
           <img

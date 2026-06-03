@@ -8,6 +8,7 @@ import ProductCard, { formatPrice } from '@/components/ProductCard';
 import { SafeHtml } from '@/components/SafeHtml';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useProduct, useRelatedProducts } from '@/integrations/sellqo/hooks';
+import { useWorld } from '@/contexts/WorldContext';
 
 const SIZE_KEYS = ['size', 'sized', 'maat', 'taille', 'größe'];
 const COLOR_KEYS = ['color', 'colour', 'kleur', 'couleur', 'farbe'];
@@ -31,6 +32,8 @@ const getOptionValue = (options: Record<string, string> | undefined, keys: strin
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { currentWorld } = useWorld();
+  const basePath = currentWorld === 'classic' ? '/classic' : '/streetwear';
   const { addItem } = useSellQoCart();
   const { data: product, isLoading: loading } = useProduct(slug || '');
   const { data: related = [] } = useRelatedProducts(slug || '');
@@ -172,7 +175,7 @@ const ProductDetail = () => {
         <section className="max-w-site mx-auto px-4 lg:px-8 py-20 text-center">
           <h1 className="font-heading text-3xl tracking-heading uppercase text-foreground mb-4">Product Not Found</h1>
           <p className="text-muted-foreground mb-8">The product you're looking for doesn't exist.</p>
-          <Link to="/streetwear" className="inline-block border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors">
+          <Link to={basePath} className="inline-block border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors">
             Back to Home
           </Link>
         </section>
@@ -200,7 +203,7 @@ const ProductDetail = () => {
           },
           offers: {
             '@type': 'Offer',
-            url: `https://mancinimilano.com/streetwear/products/${product.slug}`,
+            url: `https://mancinimilano.com${basePath}/products/${product.slug}`,
             price: displayPrice,
             priceCurrency: product.currency || 'EUR',
             availability: product.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
@@ -210,11 +213,11 @@ const ProductDetail = () => {
       />
       <div className="max-w-site mx-auto px-4 lg:px-8 py-8 lg:py-12">
         <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-8">
-          <Link to="/streetwear" className="hover:text-foreground transition-colors">Home</Link>
+          <Link to={basePath} className="hover:text-foreground transition-colors">Home</Link>
           <ChevronRight className="h-3 w-3" />
           {product.category && (
             <>
-              <Link to={`/streetwear/collections/${product.category.slug}`} className="hover:text-foreground transition-colors">
+              <Link to={`${basePath}/collections/${product.category.slug}`} className="hover:text-foreground transition-colors">
                 {product.category.name}
               </Link>
               <ChevronRight className="h-3 w-3" />

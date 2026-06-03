@@ -5,6 +5,7 @@ import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ProductCard from '@/components/ProductCard';
 import { useProducts, useCategories } from '@/integrations/sellqo/hooks';
+import { useWorld } from '@/contexts/WorldContext';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
@@ -28,10 +29,18 @@ const WOMEN_SUBCATEGORIES = [
   { label: 'Accessories', slug: 'accessories-women' },
 ];
 
+const PARENT_SLUGS = {
+  streetwear: ['men', 'women'],
+  classic: ['men-classic', 'classic-women'],
+};
+
 const Collection = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { currentWorld } = useWorld();
+  const world = currentWorld === 'classic' ? 'classic' : 'streetwear';
+  const basePath = world === 'classic' ? '/classic' : '/streetwear';
 
-  const parentCategories = ['men', 'women'];
+  const parentCategories = PARENT_SLUGS[world];
   const isParent = slug ? parentCategories.includes(slug) : false;
 
   const { data: products = [], isLoading: loading } = useProducts(
@@ -57,10 +66,25 @@ const Collection = () => {
 
   const collection = categories.find((c: any) => c.slug === slug);
   const baseTitle = collection?.name || slug?.replace(/-/g, ' ') || '';
-  // Strip gender suffix from title display
-  const title = baseTitle.replace(/\s*-?\s*women$/i, '').replace(/\s*\(women\)$/i, '');
+  // Strip gender/world suffix from title display
+  const title = baseTitle
+    .replace(/\s*-?\s*women$/i, '')
+    .replace(/\s*\(women\)$/i, '')
+    .replace(/\s*-?\s*classic$/i, '')
+    .replace(/^classic\s+/i, '');
 
   const subcategoryCards = useMemo(() => {
+    if (world === 'classic') {
+      // Dynamic: derive subcategories from SellQo categories under the parent
+      const parent = categories.find((c: any) => c.slug === slug);
+      if (!parent) return [];
+      const children = categories.filter((c: any) => c.parent_id === parent.id);
+      return children.map((c: any) => ({
+        label: c.name.replace(/\s*-?\s*classic$/i, '').replace(/^classic\s+/i, ''),
+        slug: c.slug,
+        image: c.image || '',
+      }));
+    }
     const subs = slug === 'women' ? WOMEN_SUBCATEGORIES : MEN_SUBCATEGORIES;
     return subs.map((sub) => {
       const apiCat = categories.find((c: any) => c.slug === sub.slug);
@@ -70,7 +94,8 @@ const Collection = () => {
         image: apiCat?.image || '',
       };
     });
-  }, [categories, slug]);
+  }, [categories, slug, world]);
+
 
   // For non-parent pages, build subcategory pills
   const pills = !isParent && slug
@@ -90,7 +115,7 @@ const Collection = () => {
   if (isParent) {
     return (
       <Layout>
-        <SEO title={title} description={`Shop ${title} at Mancini Milano. Premium Italian luxury streetwear.`} />
+        <SEO title={title} description={`Shop ${title} at Mancini Milano. ${world === 'classic' ? 'Refined Italian classics.' : 'Premium Italian luxury streetwear.'}`} />
         <section className="max-w-site mx-auto px-4 lg:px-8 pt-12 pb-6 lg:pt-16 lg:pb-8">
           <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-2 text-center">
             {title}
@@ -105,7 +130,7 @@ const Collection = () => {
             {subcategoryCards.map((cat) => (
               <Link
                 key={cat.slug}
-                to={`/streetwear/collections/${cat.slug}`}
+                to={`${basePath}/collections/${cat.slug}`}
                 className="group block"
               >
                 <div className="relative aspect-[3/4] overflow-hidden mb-3">
@@ -137,7 +162,7 @@ const Collection = () => {
   // Regular collection page with products
   return (
     <Layout>
-      <SEO title={title} description={`Shop ${title} at Mancini Milano. Premium Italian luxury streetwear.`} />
+      <SEO title={title} description={`Shop ${title} at Mancini Milano. ${world === 'classic' ? 'Refined Italian classics.' : 'Premium Italian luxury streetwear.'}`} />
       <section className="max-w-site mx-auto px-4 lg:px-8 pt-12 pb-6 lg:pt-16 lg:pb-8">
         <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-2 text-center">
           {title}
@@ -154,7 +179,7 @@ const Collection = () => {
               {pills.map((pill) => (
                 <Link
                   key={pill.slug}
-                  to={`/streetwear/collections/${pill.slug}`}
+                  to={`${basePath}/collections/${pill.slug}`}
                   className={`px-4 py-1.5 text-xs uppercase tracking-button font-medium border transition-colors ${
                     slug === pill.slug
                       ? 'border-primary text-primary'
