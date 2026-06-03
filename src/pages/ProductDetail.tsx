@@ -6,6 +6,7 @@ import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ProductCard, { formatPrice } from '@/components/ProductCard';
 import { SafeHtml } from '@/components/SafeHtml';
+import CategoryBreadcrumb from '@/components/CategoryBreadcrumb';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useProduct, useRelatedProducts } from '@/integrations/sellqo/hooks';
 import { useWorld } from '@/contexts/WorldContext';
@@ -212,19 +213,9 @@ const ProductDetail = () => {
         }}
       />
       <div className="max-w-site mx-auto px-4 lg:px-8 py-8 lg:py-12">
-        <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-8">
-          <Link to={basePath} className="hover:text-foreground transition-colors">Home</Link>
-          <ChevronRight className="h-3 w-3" />
-          {product.category && (
-            <>
-              <Link to={`${basePath}/collections/${product.category.slug}`} className="hover:text-foreground transition-colors">
-                {product.category.name}
-              </Link>
-              <ChevronRight className="h-3 w-3" />
-            </>
-          )}
-          <span className="text-foreground truncate">{product.title}</span>
-        </nav>
+        <div className="mb-8">
+          <CategoryBreadcrumb categorySlug={product.category?.slug} productTitle={product.title} />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12">
           <div>
