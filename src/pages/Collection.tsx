@@ -1,10 +1,14 @@
 import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useQueries } from '@tanstack/react-query';
 import { ChevronDown, ArrowRight } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ProductCard from '@/components/ProductCard';
-import { useProducts, useCategories } from '@/integrations/sellqo/hooks';
+import { useProducts, useCategories, sellqoKeys } from '@/integrations/sellqo/hooks';
+import { productsAPI } from '@/integrations/sellqo/api';
+import { extractArray } from '@/integrations/sellqo/client';
+import { normalizeProducts } from '@/integrations/sellqo/normalizer';
 import { useWorld } from '@/contexts/WorldContext';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
@@ -40,6 +44,32 @@ const CLASSIC_SLUG_ALIASES: Record<string, string> = {
   women: 'classic-women',
 };
 
+const isClassicCat = (s?: string) =>
+  !!s && (
+    s === 'classic' ||
+    s.startsWith('men-classic') ||
+    s.startsWith('classic-women') ||
+    s.startsWith('outerware-men-classic') ||
+    s.startsWith('outerware-women-classic')
+  );
+
+function collectDescendantSlugs(categories: any[], rootSlug: string): string[] {
+  const root = categories.find((c) => c.slug === rootSlug);
+  if (!root) return [rootSlug];
+  const result: string[] = [rootSlug];
+  const queue: string[] = [root.id];
+  while (queue.length) {
+    const parentId = queue.shift()!;
+    for (const c of categories) {
+      if (c.parent_id === parentId) {
+        result.push(c.slug);
+        queue.push(c.id);
+      }
+    }
+  }
+  return result;
+}
+
 const Collection = () => {
   const { slug: routeSlug } = useParams<{ slug: string }>();
   const { currentWorld } = useWorld();
@@ -55,17 +85,52 @@ const Collection = () => {
   // Classic uses a flat collection layout (pills + product grid) on parent pages too.
   const isParent = world === 'streetwear' && slug ? parentCategories.includes(slug) : false;
 
-
-  const { data: products = [], isLoading: loading } = useProducts(
-    slug ? { category_slug: slug } : undefined
-  );
-
   const { data: categories = [] } = useCategories();
   const [sort, setSort] = useState<SortOption>('featured');
 
+  // For Classic: fetch products from all descendant categories (API doesn't include children).
+  // For Streetwear: single category fetch (unchanged behavior).
+  const descendantSlugs = useMemo(() => {
+    if (world !== 'classic' || !slug) return [];
+    if (categories.length === 0) return [];
+    return collectDescendantSlugs(categories, slug);
+  }, [world, slug, categories]);
 
-  const isClassicCat = (s?: string) =>
-    !!s && (s === 'classic' || s.startsWith('men-classic') || s.startsWith('classic-women'));
+  // Streetwear single query
+  const streetwearQuery = useProducts(
+    world === 'streetwear' && slug ? { category_slug: slug } : undefined
+  );
+
+  // Classic descendant queries
+  const classicQueries = useQueries({
+    queries: descendantSlugs.map((s) => ({
+      queryKey: sellqoKeys.products.list({ category_slug: s }),
+      queryFn: async () => {
+        const res = await productsAPI.getAll({ category_slug: s });
+        return normalizeProducts(extractArray<any>(res));
+      },
+      enabled: world === 'classic' && !!s,
+    })),
+  });
+
+  const products = useMemo(() => {
+    if (world === 'streetwear') return streetwearQuery.data ?? [];
+    const seen = new Set<string>();
+    const out: any[] = [];
+    for (const q of classicQueries) {
+      for (const p of (q.data ?? [])) {
+        if (!seen.has(p.id)) {
+          seen.add(p.id);
+          out.push(p);
+        }
+      }
+    }
+    return out;
+  }, [world, streetwearQuery.data, classicQueries]);
+
+  const loading = world === 'streetwear'
+    ? streetwearQuery.isLoading
+    : (descendantSlugs.length === 0 || classicQueries.some((q) => q.isLoading));
 
   const filteredByWorld = useMemo(
     () => products.filter((p: any) =>

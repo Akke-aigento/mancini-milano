@@ -1,26 +1,20 @@
-Ik begrijp het: in Classic mag niets van de streetwear men/women categorieboom gebruikt worden. De Classic tegels en dropdowns moeten vertrekken van de Classic parent-categorieën, maar de URL mag wel mooi `/classic/collections/men` en `/classic/collections/women` blijven.
+Het probleem: de SellQo API geeft bij `category_slug=men-classic` alleen producten terug die rechtstreeks aan die parent hangen, niet aan child-categorieën. "The Boss Fragrance Tee" zit in `men-classic-accessories-bags`, dus die valt buiten de huidige query. Daarnaast bestaan er Classic takken die niet met `men-classic`/`classic-women` beginnen (`outerware-men-classic`, `outerware-women-classic` en hun children) — die worden door de world-filter foutief als niet-Classic gezien.
 
 Plan:
 
-1. **Classic parent-aliases ondersteunen in `Collection.tsx`**
-   - Behandel `/classic/collections/men` intern als SellQo category slug `men-classic`.
-   - Behandel `/classic/collections/women` intern als SellQo category slug `classic-women`.
-   - Streetwear blijft ongewijzigd: `/streetwear/collections/men` blijft de streetwear `men` categorie.
+1. **Descendant-aware fetching op Classic collectiepagina's** (`src/pages/Collection.tsx`)
+   - Op elke Classic pagina (parent én sub) bouwen we uit de `useCategories()` boom de set van alle descendant-categorie-IDs/slugs van de gevraagde slug (inclusief de slug zelf).
+   - In plaats van één `useProducts({ category_slug })` call, halen we producten op voor elke descendant-slug parallel (via `useQueries`) en mergen we het resultaat, ontdubbeld op product-id.
+   - Streetwear blijft ongewijzigd: één enkele `useProducts({ category_slug })` call zoals nu.
 
-2. **Classic hoofdpagina links aanpassen**
-   - “For Him” linkt naar `/classic/collections/men`.
-   - “For Her” linkt naar `/classic/collections/women`.
-   - De secundaire tegels onder Classic blijven dynamisch uit de Classic men-categorieboom komen, niet uit streetwear.
+2. **World-filter uitbreiden voor Classic outerware**
+   - `isClassicCat` herkent ook `outerware-men-classic*` en `outerware-women-classic*` als Classic, zodat producten in die takken op Classic blijven en niet per ongeluk in streetwear lekken.
 
-3. **Parent-categoriepagina proper houden**
-   - Op `/classic/collections/men` tonen we de dropdown/child categorieën van `men-classic` als tegels.
-   - Op `/classic/collections/women` tonen we de child categorieën van `classic-women` als tegels.
-   - De titel blijft “Men”/“Women”, maar de data komt van de Classic parent.
+3. **Geen wijziging aan tegels of UI**
+   - De parent-tegelpagina is al vervangen door de flat collection layout uit de vorige iteratie; die blijft. Enkel de productfetch wordt descendant-aware.
 
-4. **Navbar/dropdown links consistent maken**
-   - In Classic mode linken de topnav “For Him” en “For Her” naar `/classic/collections/men` en `/classic/collections/women`.
-   - De dropdown-items blijven naar hun echte Classic child slugs linken, zoals `men-classic-tops`.
-
-Technisch:
-- Ik voeg een kleine resolver toe die alleen in Classic mode de route-slug alias omzet naar de echte SellQo slug voor fetching en categorie-lookups.
-- De world-filter die streetwear producten uit Classic houdt blijft behouden.
+Technische notes:
+- Helper `collectDescendantSlugs(categories, rootSlug)` doet een BFS vanaf het category-id met die slug en geeft alle descendant slugs terug (incl. root).
+- We gebruiken `useQueries` van react-query zodat elke descendant-slug zijn eigen cache-key krijgt en we niet onnodig opnieuw fetchen.
+- Loading state = elke onderliggende query nog loading. Resultaat = `flatMap` + `dedupe` op `product.id`.
+- World-filter blijft als veiligheidsnet voor het geval een product in meerdere wereldcategorieën hangt.
