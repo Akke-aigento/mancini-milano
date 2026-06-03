@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
 import { Gem, ShieldCheck, Shirt, Truck } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ClassicNewsletter from '@/components/classic/ClassicNewsletter';
+import { useCategories } from '@/integrations/sellqo/hooks';
 import classicHero from '@/assets/classic-hero-clean.jpg';
 import classicForHim from '@/assets/classic-forhim.jpg';
 import classicForHer from '@/assets/classic-forher.jpg';
@@ -18,6 +20,21 @@ const scrollToCollection = (e: React.MouseEvent) => {
 };
 
 const ClassicHome = () => {
+  const { data: categories = [] } = useCategories();
+
+  // Resolve a Classic Men child slug by fuzzy name match (e.g. "Tops" -> men-classic-tops)
+  const resolveMenClassicChild = useMemo(() => {
+    const menClassic = (categories as any[]).find((c) => c.slug === 'men-classic');
+    const children = menClassic
+      ? (categories as any[]).filter((c) => c.parent_id === menClassic.id)
+      : [];
+    return (needle: string) => {
+      const n = needle.toLowerCase();
+      const match = children.find((c) => c.name?.toLowerCase().includes(n) || c.slug?.toLowerCase().includes(n));
+      return match?.slug || 'men-classic';
+    };
+  }, [categories]);
+
   return (
     <Layout>
       <SEO
