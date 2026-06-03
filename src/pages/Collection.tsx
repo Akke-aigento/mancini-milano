@@ -178,7 +178,7 @@ const Collection = () => {
           {title}
         </h1>
         <p className="text-sm text-muted-foreground text-center">
-          {products.length} {products.length === 1 ? 'product' : 'products'}
+          {sortedProducts.length} {sortedProducts.length === 1 ? 'product' : 'products'}
         </p>
       </section>
 
