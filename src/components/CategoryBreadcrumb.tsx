@@ -67,9 +67,9 @@ const CategoryBreadcrumb = ({ categorySlug, productCategories, productTitle }: C
 
   // Walk parent_id chain from the current category up to (and including) the world root.
   const chain: { slug: string; label: string }[] = [];
-  if (categorySlug && categories.length) {
+  if (resolvedSlug && categories.length) {
     const byId = new Map<string, Category>(categories.map((c) => [c.id, c]));
-    let current: Category | undefined = categories.find((c) => c.slug === categorySlug);
+    let current: Category | undefined = categories.find((c) => c.slug === resolvedSlug);
     const guard = new Set<string>();
     while (current && !guard.has(current.id)) {
       guard.add(current.id);
@@ -80,7 +80,7 @@ const CategoryBreadcrumb = ({ categorySlug, productCategories, productTitle }: C
     }
     // Fallback: category not found in tree
     if (chain.length === 0) {
-      chain.push({ slug: categorySlug, label: cleanLabel(categorySlug.replace(/-/g, ' ')) });
+      chain.push({ slug: resolvedSlug, label: cleanLabel(resolvedSlug.replace(/-/g, ' ')) });
     }
   }
 
