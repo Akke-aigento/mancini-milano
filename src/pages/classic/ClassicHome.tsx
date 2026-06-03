@@ -262,8 +262,8 @@ const ClassicHome = () => {
           {/* Primary tiles */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             {[
-              { label: 'For Him', href: '/classic/collections/men', img: classicForHim, alt: 'Mancini Milano Classic — For Him editorial' },
-              { label: 'For Her', href: '/classic/collections/women', img: classicForHer, alt: 'Mancini Milano Classic — For Her editorial' },
+              { label: 'For Him', href: '/classic/collections/men-classic', img: classicForHim, alt: 'Mancini Milano Classic — For Him editorial' },
+              { label: 'For Her', href: '/classic/collections/classic-women', img: classicForHer, alt: 'Mancini Milano Classic — For Her editorial' },
             ].map(tile => (
               <Link
                 key={tile.label}
