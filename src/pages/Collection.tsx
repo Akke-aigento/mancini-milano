@@ -124,15 +124,8 @@ const Collection = () => {
     ? streetwearQuery.isLoading
     : (descendantSlugs.length === 0 || classicQueries.some((q) => q.isLoading));
 
-  const filteredByWorld = useMemo(
-    () => products.filter((p: any) =>
-      world === 'classic' ? isClassicCat(p.category?.slug) : !isClassicCat(p.category?.slug)
-    ),
-    [products, world]
-  );
-
   const sortedProducts = useMemo(() => {
-    const sorted = [...filteredByWorld];
+    const sorted = [...products];
     switch (sort) {
       case 'price-asc':
         return sorted.sort((a, b) => a.price - b.price);
