@@ -307,10 +307,10 @@ const ClassicHome = () => {
           {/* Secondary category strip */}
           <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {[
-              { label: 'Outerwear', slug: 'outerware', img: classicCatOuterwear },
-              { label: 'Tops', slug: 'tops', img: classicCatTops },
-              { label: 'Bottoms', slug: 'bottoms', img: classicCatBottoms },
-              { label: 'Accessories', slug: 'accessories', img: classicCatAccessories },
+              { label: 'Outerwear', slug: resolveMenClassicChild('outer'), img: classicCatOuterwear },
+              { label: 'Tops', slug: resolveMenClassicChild('top'), img: classicCatTops },
+              { label: 'Bottoms', slug: resolveMenClassicChild('bottom'), img: classicCatBottoms },
+              { label: 'Accessories', slug: resolveMenClassicChild('access'), img: classicCatAccessories },
             ].map(cat => (
               <Link
                 key={cat.slug}
