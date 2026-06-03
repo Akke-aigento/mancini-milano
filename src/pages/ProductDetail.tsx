@@ -213,11 +213,11 @@ const ProductDetail = () => {
       />
       <div className="max-w-site mx-auto px-4 lg:px-8 py-8 lg:py-12">
         <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-8">
-          <Link to="/streetwear" className="hover:text-foreground transition-colors">Home</Link>
+          <Link to={basePath} className="hover:text-foreground transition-colors">Home</Link>
           <ChevronRight className="h-3 w-3" />
           {product.category && (
             <>
-              <Link to={`/streetwear/collections/${product.category.slug}`} className="hover:text-foreground transition-colors">
+              <Link to={`${basePath}/collections/${product.category.slug}`} className="hover:text-foreground transition-colors">
                 {product.category.name}
               </Link>
               <ChevronRight className="h-3 w-3" />
