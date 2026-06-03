@@ -12,11 +12,11 @@ const Splash = () => {
         canonical="https://mancinimilano.com/"
       />
       <div className="min-h-screen bg-background flex flex-col">
-        <main className="flex-1 flex flex-col lg:flex-row">
-          {/* STREETWEAR — top on mobile, left on desktop */}
+        <main className="flex-1 flex flex-col">
+          {/* STREETWEAR — stacked on all viewports */}
           <Link
             to="/streetwear"
-            className="group relative flex-1 min-h-[50vh] lg:min-h-screen overflow-hidden flex bg-[#0a0a0a] border-b lg:border-b-0 lg:border-r border-border/40"
+            className="group relative flex-1 min-h-[50vh] overflow-hidden flex bg-[#0a0a0a] border-b border-border/40"
             aria-label="Discover Streetwear — Mancini Milano elevated essentials"
           >
             <img
