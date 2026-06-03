@@ -53,7 +53,7 @@ const Splash = () => {
           {/* CLASSIC — bottom on mobile, right on desktop */}
           <Link
             to="/classic"
-            className="group relative flex-1 min-h-[50vh] lg:min-h-screen overflow-hidden flex bg-[#0a0a0a]"
+            className="group relative flex-1 min-h-[50vh] overflow-hidden flex bg-[#0a0a0a]"
             aria-label="Discover Classic — Mancini Milano luxury"
           >
             <img
