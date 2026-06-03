@@ -179,7 +179,7 @@ const Collection = () => {
               {pills.map((pill) => (
                 <Link
                   key={pill.slug}
-                  to={`/streetwear/collections/${pill.slug}`}
+                  to={`${basePath}/collections/${pill.slug}`}
                   className={`px-4 py-1.5 text-xs uppercase tracking-button font-medium border transition-colors ${
                     slug === pill.slug
                       ? 'border-primary text-primary'
