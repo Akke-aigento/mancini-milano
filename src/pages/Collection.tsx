@@ -5,6 +5,7 @@ import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ProductCard from '@/components/ProductCard';
 import { useProducts, useCategories } from '@/integrations/sellqo/hooks';
+import { useWorld } from '@/contexts/WorldContext';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
@@ -28,10 +29,18 @@ const WOMEN_SUBCATEGORIES = [
   { label: 'Accessories', slug: 'accessories-women' },
 ];
 
+const PARENT_SLUGS = {
+  streetwear: ['men', 'women'],
+  classic: ['men-classic', 'classic-women'],
+};
+
 const Collection = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { currentWorld } = useWorld();
+  const world = currentWorld === 'classic' ? 'classic' : 'streetwear';
+  const basePath = world === 'classic' ? '/classic' : '/streetwear';
 
-  const parentCategories = ['men', 'women'];
+  const parentCategories = PARENT_SLUGS[world];
   const isParent = slug ? parentCategories.includes(slug) : false;
 
   const { data: products = [], isLoading: loading } = useProducts(
@@ -57,10 +66,25 @@ const Collection = () => {
 
   const collection = categories.find((c: any) => c.slug === slug);
   const baseTitle = collection?.name || slug?.replace(/-/g, ' ') || '';
-  // Strip gender suffix from title display
-  const title = baseTitle.replace(/\s*-?\s*women$/i, '').replace(/\s*\(women\)$/i, '');
+  // Strip gender/world suffix from title display
+  const title = baseTitle
+    .replace(/\s*-?\s*women$/i, '')
+    .replace(/\s*\(women\)$/i, '')
+    .replace(/\s*-?\s*classic$/i, '')
+    .replace(/^classic\s+/i, '');
 
   const subcategoryCards = useMemo(() => {
+    if (world === 'classic') {
+      // Dynamic: derive subcategories from SellQo categories under the parent
+      const parent = categories.find((c: any) => c.slug === slug);
+      if (!parent) return [];
+      const children = categories.filter((c: any) => c.parent_id === parent.id);
+      return children.map((c: any) => ({
+        label: c.name.replace(/\s*-?\s*classic$/i, '').replace(/^classic\s+/i, ''),
+        slug: c.slug,
+        image: c.image || '',
+      }));
+    }
     const subs = slug === 'women' ? WOMEN_SUBCATEGORIES : MEN_SUBCATEGORIES;
     return subs.map((sub) => {
       const apiCat = categories.find((c: any) => c.slug === sub.slug);
@@ -70,7 +94,8 @@ const Collection = () => {
         image: apiCat?.image || '',
       };
     });
-  }, [categories, slug]);
+  }, [categories, slug, world]);
+
 
   // For non-parent pages, build subcategory pills
   const pills = !isParent && slug
