@@ -31,14 +31,25 @@ const WOMEN_SUBCATEGORIES = [
 
 const PARENT_SLUGS = {
   streetwear: ['men', 'women'],
-  classic: ['men-classic', 'classic-women'],
+  classic: ['men-classic', 'classic-women', 'men', 'women'],
+};
+
+// In Classic world, map pretty URL slugs (men/women) to the real SellQo slugs.
+const CLASSIC_SLUG_ALIASES: Record<string, string> = {
+  men: 'men-classic',
+  women: 'classic-women',
 };
 
 const Collection = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug: routeSlug } = useParams<{ slug: string }>();
   const { currentWorld } = useWorld();
   const world = currentWorld === 'classic' ? 'classic' : 'streetwear';
   const basePath = world === 'classic' ? '/classic' : '/streetwear';
+
+  // Resolve route slug to the actual SellQo category slug for Classic aliases.
+  const slug = world === 'classic' && routeSlug
+    ? (CLASSIC_SLUG_ALIASES[routeSlug] ?? routeSlug)
+    : routeSlug;
 
   const parentCategories = PARENT_SLUGS[world];
   const isParent = slug ? parentCategories.includes(slug) : false;
@@ -49,6 +60,7 @@ const Collection = () => {
 
   const { data: categories = [] } = useCategories();
   const [sort, setSort] = useState<SortOption>('featured');
+
 
   const isClassicCat = (s?: string) =>
     !!s && (s === 'classic' || s.startsWith('men-classic') || s.startsWith('classic-women'));
