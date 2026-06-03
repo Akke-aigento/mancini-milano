@@ -136,7 +136,7 @@ const Collection = () => {
       default:
         return sorted;
     }
-  }, [filteredByWorld, sort]);
+  }, [products, sort]);
 
   const collection = categories.find((c: any) => c.slug === slug);
   const baseTitle = collection?.name || slug?.replace(/-/g, ' ') || '';
