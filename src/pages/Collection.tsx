@@ -52,7 +52,9 @@ const Collection = () => {
     : routeSlug;
 
   const parentCategories = PARENT_SLUGS[world];
-  const isParent = slug ? parentCategories.includes(slug) : false;
+  // Classic uses a flat collection layout (pills + product grid) on parent pages too.
+  const isParent = world === 'streetwear' && slug ? parentCategories.includes(slug) : false;
+
 
   const { data: products = [], isLoading: loading } = useProducts(
     slug ? { category_slug: slug } : undefined
