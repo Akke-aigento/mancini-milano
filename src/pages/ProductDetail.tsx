@@ -8,6 +8,7 @@ import ProductCard, { formatPrice } from '@/components/ProductCard';
 import { SafeHtml } from '@/components/SafeHtml';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useProduct, useRelatedProducts } from '@/integrations/sellqo/hooks';
+import { useWorld } from '@/contexts/WorldContext';
 
 const SIZE_KEYS = ['size', 'sized', 'maat', 'taille', 'größe'];
 const COLOR_KEYS = ['color', 'colour', 'kleur', 'couleur', 'farbe'];
