@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
 import { Gem, ShieldCheck, Shirt, Truck } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ClassicNewsletter from '@/components/classic/ClassicNewsletter';
+import { useCategories } from '@/integrations/sellqo/hooks';
 import classicHero from '@/assets/classic-hero-clean.jpg';
 import classicForHim from '@/assets/classic-forhim.jpg';
 import classicForHer from '@/assets/classic-forher.jpg';
@@ -18,6 +20,21 @@ const scrollToCollection = (e: React.MouseEvent) => {
 };
 
 const ClassicHome = () => {
+  const { data: categories = [] } = useCategories();
+
+  // Resolve a Classic Men child slug by fuzzy name match (e.g. "Tops" -> men-classic-tops)
+  const resolveMenClassicChild = useMemo(() => {
+    const menClassic = (categories as any[]).find((c) => c.slug === 'men-classic');
+    const children = menClassic
+      ? (categories as any[]).filter((c) => c.parent_id === menClassic.id)
+      : [];
+    return (needle: string) => {
+      const n = needle.toLowerCase();
+      const match = children.find((c) => c.name?.toLowerCase().includes(n) || c.slug?.toLowerCase().includes(n));
+      return match?.slug || 'men-classic';
+    };
+  }, [categories]);
+
   return (
     <Layout>
       <SEO
@@ -245,8 +262,8 @@ const ClassicHome = () => {
           {/* Primary tiles */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             {[
-              { label: 'For Him', href: '/classic/collections/men', img: classicForHim, alt: 'Mancini Milano Classic — For Him editorial' },
-              { label: 'For Her', href: '/classic/collections/women', img: classicForHer, alt: 'Mancini Milano Classic — For Her editorial' },
+              { label: 'For Him', href: '/classic/collections/men-classic', img: classicForHim, alt: 'Mancini Milano Classic — For Him editorial' },
+              { label: 'For Her', href: '/classic/collections/classic-women', img: classicForHer, alt: 'Mancini Milano Classic — For Her editorial' },
             ].map(tile => (
               <Link
                 key={tile.label}
@@ -290,10 +307,10 @@ const ClassicHome = () => {
           {/* Secondary category strip */}
           <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {[
-              { label: 'Outerwear', slug: 'outerware', img: classicCatOuterwear },
-              { label: 'Tops', slug: 'tops', img: classicCatTops },
-              { label: 'Bottoms', slug: 'bottoms', img: classicCatBottoms },
-              { label: 'Accessories', slug: 'accessories', img: classicCatAccessories },
+              { label: 'Outerwear', slug: resolveMenClassicChild('outer'), img: classicCatOuterwear },
+              { label: 'Tops', slug: resolveMenClassicChild('top'), img: classicCatTops },
+              { label: 'Bottoms', slug: resolveMenClassicChild('bottom'), img: classicCatBottoms },
+              { label: 'Accessories', slug: resolveMenClassicChild('access'), img: classicCatAccessories },
             ].map(cat => (
               <Link
                 key={cat.slug}

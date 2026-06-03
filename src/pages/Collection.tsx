@@ -50,8 +50,18 @@ const Collection = () => {
   const { data: categories = [] } = useCategories();
   const [sort, setSort] = useState<SortOption>('featured');
 
+  const isClassicCat = (s?: string) =>
+    !!s && (s === 'classic' || s.startsWith('men-classic') || s.startsWith('classic-women'));
+
+  const filteredByWorld = useMemo(
+    () => products.filter((p: any) =>
+      world === 'classic' ? isClassicCat(p.category?.slug) : !isClassicCat(p.category?.slug)
+    ),
+    [products, world]
+  );
+
   const sortedProducts = useMemo(() => {
-    const sorted = [...products];
+    const sorted = [...filteredByWorld];
     switch (sort) {
       case 'price-asc':
         return sorted.sort((a, b) => a.price - b.price);
@@ -62,7 +72,7 @@ const Collection = () => {
       default:
         return sorted;
     }
-  }, [products, sort]);
+  }, [filteredByWorld, sort]);
 
   const collection = categories.find((c: any) => c.slug === slug);
   const baseTitle = collection?.name || slug?.replace(/-/g, ' ') || '';
@@ -168,7 +178,7 @@ const Collection = () => {
           {title}
         </h1>
         <p className="text-sm text-muted-foreground text-center">
-          {products.length} {products.length === 1 ? 'product' : 'products'}
+          {sortedProducts.length} {sortedProducts.length === 1 ? 'product' : 'products'}
         </p>
       </section>
 
