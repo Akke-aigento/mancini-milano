@@ -6,6 +6,7 @@ import type { Category } from '@/integrations/sellqo/types';
 
 interface CategoryBreadcrumbProps {
   categorySlug?: string;
+  productCategories?: Array<{ id?: string; slug: string }>;
   productTitle?: string;
 }
 
@@ -29,11 +30,36 @@ function cleanLabel(name: string) {
     .trim();
 }
 
-const CategoryBreadcrumb = ({ categorySlug, productTitle }: CategoryBreadcrumbProps) => {
+function pickWorldCategory(
+  candidates: Array<{ slug: string }> | undefined,
+  allCategories: Category[],
+  world: World,
+): string | undefined {
+  if (!candidates || candidates.length === 0) return undefined;
+  const roots: string[] = WORLD_ROOTS[world].map((r) => r.slug);
+  for (const candidate of candidates) {
+    let cat = allCategories.find((c) => c.slug === candidate.slug);
+    const visited = new Set<string>();
+    while (cat) {
+      if (visited.has(cat.id)) break;
+      visited.add(cat.id);
+      if (roots.includes(cat.slug)) return candidate.slug;
+      if (!cat.parent_id) break;
+      cat = allCategories.find((c) => c.id === cat!.parent_id);
+    }
+  }
+  return candidates[0].slug;
+}
+
+const CategoryBreadcrumb = ({ categorySlug, productCategories, productTitle }: CategoryBreadcrumbProps) => {
   const { currentWorld } = useWorld();
   const world: World = currentWorld === 'classic' ? 'classic' : 'streetwear';
   const basePath = `/${world}`;
   const { data: categories = [] } = useCategories();
+
+  const resolvedSlug = productCategories
+    ? pickWorldCategory(productCategories, categories, world)
+    : categorySlug;
 
   const roots = WORLD_ROOTS[world];
   const rootSlugs = new Set(roots.map((r) => r.slug));
