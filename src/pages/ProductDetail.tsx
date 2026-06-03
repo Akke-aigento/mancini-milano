@@ -32,6 +32,8 @@ const getOptionValue = (options: Record<string, string> | undefined, keys: strin
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { currentWorld } = useWorld();
+  const basePath = currentWorld === 'classic' ? '/classic' : '/streetwear';
   const { addItem } = useSellQoCart();
   const { data: product, isLoading: loading } = useProduct(slug || '');
   const { data: related = [] } = useRelatedProducts(slug || '');
