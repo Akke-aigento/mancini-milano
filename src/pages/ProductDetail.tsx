@@ -6,6 +6,7 @@ import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ProductCard, { formatPrice } from '@/components/ProductCard';
 import { SafeHtml } from '@/components/SafeHtml';
+import CategoryBreadcrumb from '@/components/CategoryBreadcrumb';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useProduct, useRelatedProducts } from '@/integrations/sellqo/hooks';
 import { useWorld } from '@/contexts/WorldContext';
