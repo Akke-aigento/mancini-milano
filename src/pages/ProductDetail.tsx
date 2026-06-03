@@ -175,7 +175,7 @@ const ProductDetail = () => {
         <section className="max-w-site mx-auto px-4 lg:px-8 py-20 text-center">
           <h1 className="font-heading text-3xl tracking-heading uppercase text-foreground mb-4">Product Not Found</h1>
           <p className="text-muted-foreground mb-8">The product you're looking for doesn't exist.</p>
-          <Link to="/streetwear" className="inline-block border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors">
+          <Link to={basePath} className="inline-block border border-foreground text-foreground px-8 py-3 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors">
             Back to Home
           </Link>
         </section>
