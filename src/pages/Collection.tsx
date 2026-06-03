@@ -130,7 +130,7 @@ const Collection = () => {
             {subcategoryCards.map((cat) => (
               <Link
                 key={cat.slug}
-                to={`/streetwear/collections/${cat.slug}`}
+                to={`${basePath}/collections/${cat.slug}`}
                 className="group block"
               >
                 <div className="relative aspect-[3/4] overflow-hidden mb-3">
