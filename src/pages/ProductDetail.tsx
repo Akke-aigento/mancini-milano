@@ -214,7 +214,10 @@ const ProductDetail = () => {
       />
       <div className="max-w-site mx-auto px-4 lg:px-8 py-8 lg:py-12">
         <div className="mb-8">
-          <CategoryBreadcrumb categorySlug={product.category?.slug} productTitle={product.title} />
+          <CategoryBreadcrumb
+            productCategories={product.categories || (product.category ? [product.category] : [])}
+            productTitle={product.title}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12">
