@@ -44,14 +44,6 @@ const CLASSIC_SLUG_ALIASES: Record<string, string> = {
   women: 'classic-women',
 };
 
-const isClassicCat = (s?: string) =>
-  !!s && (
-    s === 'classic' ||
-    s.startsWith('men-classic') ||
-    s.startsWith('classic-women') ||
-    s.startsWith('outerware-men-classic') ||
-    s.startsWith('outerware-women-classic')
-  );
 
 function collectDescendantSlugs(categories: any[], rootSlug: string): string[] {
   const root = categories.find((c) => c.slug === rootSlug);
