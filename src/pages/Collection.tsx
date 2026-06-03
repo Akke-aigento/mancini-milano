@@ -5,6 +5,7 @@ import { ChevronDown, ArrowRight } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
 import ProductCard from '@/components/ProductCard';
+import CategoryBreadcrumb from '@/components/CategoryBreadcrumb';
 import { useProducts, useCategories, sellqoKeys } from '@/integrations/sellqo/hooks';
 import { productsAPI } from '@/integrations/sellqo/api';
 import { extractArray } from '@/integrations/sellqo/client';
@@ -191,6 +192,9 @@ const Collection = () => {
       <Layout>
         <SEO title={title} description={`Shop ${title} at Mancini Milano. ${world === 'classic' ? 'Refined Italian classics.' : 'Premium Italian luxury streetwear.'}`} />
         <section className="max-w-site mx-auto px-4 lg:px-8 pt-12 pb-6 lg:pt-16 lg:pb-8">
+          <div className="mb-6">
+            <CategoryBreadcrumb categorySlug={slug} />
+          </div>
           <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-2 text-center">
             {title}
           </h1>
@@ -238,6 +242,9 @@ const Collection = () => {
     <Layout>
       <SEO title={title} description={`Shop ${title} at Mancini Milano. ${world === 'classic' ? 'Refined Italian classics.' : 'Premium Italian luxury streetwear.'}`} />
       <section className="max-w-site mx-auto px-4 lg:px-8 pt-12 pb-6 lg:pt-16 lg:pb-8">
+        <div className="mb-6">
+          <CategoryBreadcrumb categorySlug={slug} />
+        </div>
         <h1 className="font-heading text-3xl lg:text-4xl tracking-heading uppercase text-foreground mb-2 text-center">
           {title}
         </h1>
