@@ -44,14 +44,6 @@ const CLASSIC_SLUG_ALIASES: Record<string, string> = {
   women: 'classic-women',
 };
 
-const isClassicCat = (s?: string) =>
-  !!s && (
-    s === 'classic' ||
-    s.startsWith('men-classic') ||
-    s.startsWith('classic-women') ||
-    s.startsWith('outerware-men-classic') ||
-    s.startsWith('outerware-women-classic')
-  );
 
 function collectDescendantSlugs(categories: any[], rootSlug: string): string[] {
   const root = categories.find((c) => c.slug === rootSlug);
@@ -132,15 +124,8 @@ const Collection = () => {
     ? streetwearQuery.isLoading
     : (descendantSlugs.length === 0 || classicQueries.some((q) => q.isLoading));
 
-  const filteredByWorld = useMemo(
-    () => products.filter((p: any) =>
-      world === 'classic' ? isClassicCat(p.category?.slug) : !isClassicCat(p.category?.slug)
-    ),
-    [products, world]
-  );
-
   const sortedProducts = useMemo(() => {
-    const sorted = [...filteredByWorld];
+    const sorted = [...products];
     switch (sort) {
       case 'price-asc':
         return sorted.sort((a, b) => a.price - b.price);
@@ -151,7 +136,7 @@ const Collection = () => {
       default:
         return sorted;
     }
-  }, [filteredByWorld, sort]);
+  }, [products, sort]);
 
   const collection = categories.find((c: any) => c.slug === slug);
   const baseTitle = collection?.name || slug?.replace(/-/g, ' ') || '';
