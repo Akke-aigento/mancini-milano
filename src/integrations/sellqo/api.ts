@@ -1,4 +1,5 @@
 import { sellqoFetch } from './client';
+import { getOrCreateSessionId } from './session';
 import type { Product, Collection, Category, Cart, PaginatedResponse, ProductsParams } from './types';
 
 // === PRODUCTS ===
@@ -49,7 +50,7 @@ export const cartAPI = {
   create: () =>
     sellqoFetch<Cart>('/cart', {
       method: 'POST',
-      body: JSON.stringify({ session_id: crypto.randomUUID() }),
+      body: JSON.stringify({ session_id: getOrCreateSessionId() }),
     }),
 
   get: (cartId: string) =>

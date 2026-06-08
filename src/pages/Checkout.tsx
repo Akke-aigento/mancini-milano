@@ -6,10 +6,8 @@ import SEO from '@/components/SEO';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCheckout } from '@/integrations/sellqo/CheckoutContext';
 import { checkoutAPI, cartAPI } from '@/integrations/sellqo/api';
-import { extractSingle } from '@/integrations/sellqo/client';
-import { normalizeCart } from '@/integrations/sellqo/normalizer';
-import type { Cart } from '@/integrations/sellqo/types';
-import { CART_STORAGE_KEY, markCartOrphaned, storeCartId } from '@/integrations/sellqo/hooks';
+
+import { CART_STORAGE_KEY, markCartOrphaned, storeCartId, createCartIdempotent } from '@/integrations/sellqo/hooks';
 import { formatPrice } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -30,12 +28,10 @@ const Checkout = () => {
     if (!cartItems.length) return null;
     console.warn('[checkout] reconciling cart', { staleCartId, localItemCount: cartItems.length });
     try {
-      const created = await cartAPI.create();
-      const raw = extractSingle<Cart>(created) || created;
-      const cart = normalizeCart(raw);
+      const cart = await createCartIdempotent();
       const newCartId: string | undefined = cart?.id;
       if (!newCartId) {
-        console.error('[checkout] reconcile: cart_create returned no id', created);
+        console.error('[checkout] reconcile: createCartIdempotent returned no id', cart);
         return null;
       }
       const results = await Promise.allSettled(
