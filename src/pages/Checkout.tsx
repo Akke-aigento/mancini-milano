@@ -6,6 +6,9 @@ import SEO from '@/components/SEO';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCheckout } from '@/integrations/sellqo/CheckoutContext';
 import { checkoutAPI, cartAPI } from '@/integrations/sellqo/api';
+import { extractSingle } from '@/integrations/sellqo/client';
+import { normalizeCart } from '@/integrations/sellqo/normalizer';
+import type { Cart } from '@/integrations/sellqo/types';
 import { CART_STORAGE_KEY, markCartOrphaned, storeCartId } from '@/integrations/sellqo/hooks';
 import { formatPrice } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
@@ -28,8 +31,9 @@ const Checkout = () => {
     console.warn('[checkout] reconciling cart', { staleCartId, localItemCount: cartItems.length });
     try {
       const created = await cartAPI.create();
-      const newCart: any = (created as any)?.data ?? created;
-      const newCartId: string | undefined = newCart?.id;
+      const raw = extractSingle<Cart>(created) || created;
+      const cart = normalizeCart(raw);
+      const newCartId: string | undefined = cart?.id;
       if (!newCartId) {
         console.error('[checkout] reconcile: cart_create returned no id', created);
         return null;
