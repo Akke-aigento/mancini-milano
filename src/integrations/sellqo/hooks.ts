@@ -109,22 +109,74 @@ export function useCategories() {
 
 // === CART HOOKS ===
 const CART_STORAGE_KEY = 'mancini_cart_id';
+const ORPHANED_CARTS_KEY = 'mancini_orphaned_carts';
+
+function readStorage(key: string): string | null {
+  try {
+    const v = localStorage.getItem(key);
+    if (v && v !== 'undefined' && v !== 'null' && v.trim() !== '') return v;
+  } catch { /* noop */ }
+  try {
+    const v = sessionStorage.getItem(key);
+    if (v && v !== 'undefined' && v !== 'null' && v.trim() !== '') return v;
+  } catch { /* noop */ }
+  return null;
+}
 
 function getStoredCartId(): string | null {
-  try {
-    const id = localStorage.getItem(CART_STORAGE_KEY);
-    if (!id || id === 'undefined' || id === 'null' || id.trim() === '') {
-      if (id !== null) localStorage.removeItem(CART_STORAGE_KEY);
-      return null;
-    }
-    return id;
-  } catch {
+  const id = readStorage(CART_STORAGE_KEY);
+  if (!id) {
+    try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
+    try { sessionStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
     return null;
   }
+  return id;
 }
 
 function storeCartId(cartId: string) {
   try { localStorage.setItem(CART_STORAGE_KEY, cartId); } catch { /* noop */ }
+  try { sessionStorage.setItem(CART_STORAGE_KEY, cartId); } catch { /* noop */ }
+}
+
+function markCartOrphaned(cartId: string) {
+  try {
+    const raw = localStorage.getItem(ORPHANED_CARTS_KEY);
+    const list: string[] = raw ? JSON.parse(raw) : [];
+    if (!list.includes(cartId)) list.push(cartId);
+    localStorage.setItem(ORPHANED_CARTS_KEY, JSON.stringify(list.slice(-20)));
+  } catch { /* noop */ }
+}
+
+// In-flight guard: prevents a second cart_create from racing inside the same
+// browser session (the 19:54 + 20:22 duplicate-cart scenario).
+let inFlightCartCreate: Promise<Cart> | null = null;
+
+async function createCartIdempotent(): Promise<Cart> {
+  const existing = getStoredCartId();
+  if (existing) {
+    try {
+      const result = await cartAPI.get(existing);
+      const raw = extractSingle<Cart>(result) || result;
+      return normalizeCart(raw);
+    } catch {
+      // stale id — fall through and create a fresh one
+      try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
+      try { sessionStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
+    }
+  }
+  if (inFlightCartCreate) return inFlightCartCreate;
+  inFlightCartCreate = (async () => {
+    try {
+      const result = await cartAPI.create();
+      const raw = extractSingle<Cart>(result) || result;
+      const cart = normalizeCart(raw);
+      storeCartId(cart.id);
+      return cart;
+    } finally {
+      inFlightCartCreate = null;
+    }
+  })();
+  return inFlightCartCreate;
 }
 
 export function useCartQuery() {
@@ -140,6 +192,7 @@ export function useCartQuery() {
         // Cart doesn't exist anymore — clear stale ID
         console.warn('Cart not found, clearing stored cart ID');
         try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
+        try { sessionStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
         return undefined;
       }
     },
@@ -151,11 +204,7 @@ export function useCartQuery() {
 export function useCreateCart() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
-      const result = await cartAPI.create();
-      const raw = extractSingle<Cart>(result) || result;
-      return normalizeCart(raw);
-    },
+    mutationFn: createCartIdempotent,
     onSuccess: (cart) => {
       storeCartId(cart.id);
       queryClient.setQueryData(sellqoKeys.cart(cart.id), cart);
@@ -165,15 +214,11 @@ export function useCreateCart() {
 
 export function useAddToCart() {
   const queryClient = useQueryClient();
-  const createCart = useCreateCart();
 
   return useMutation({
     mutationFn: async (item: { product_id: string; variant_id?: string; quantity: number }) => {
-      let activeCartId = getStoredCartId();
-      if (!activeCartId) {
-        const newCart = await createCart.mutateAsync();
-        activeCartId = newCart.id;
-      }
+      const cart = await createCartIdempotent();
+      const activeCartId = cart.id;
       const result = await cartAPI.addItem(activeCartId, item);
       const raw = extractSingle<Cart>(result) || result;
       return normalizeCart(raw);
