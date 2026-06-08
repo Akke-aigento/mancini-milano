@@ -344,4 +344,4 @@ export function useNewsletterSubscribe() {
   });
 }
 
-export { getStoredCartId, storeCartId, markCartOrphaned, CART_STORAGE_KEY, ORPHANED_CARTS_KEY };
+export { getStoredCartId, storeCartId, markCartOrphaned, createCartIdempotent, CART_STORAGE_KEY, ORPHANED_CARTS_KEY };
