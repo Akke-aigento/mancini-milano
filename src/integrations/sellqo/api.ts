@@ -50,7 +50,7 @@ export const cartAPI = {
   create: () =>
     sellqoFetch<Cart>('/cart', {
       method: 'POST',
-      body: JSON.stringify({ session_id: crypto.randomUUID() }),
+      body: JSON.stringify({ session_id: getOrCreateSessionId() }),
     }),
 
   get: (cartId: string) =>
