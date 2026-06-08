@@ -8,3 +8,9 @@
 ## Reconcile-flow normalisatie fix
 - `Checkout.reconcileCart` now runs `cartAPI.create()` response through `extractSingle<Cart>() + normalizeCart()` (same pattern as `createCartIdempotent` in `hooks.ts`). Previously it read `.data.id` directly and received `undefined` because the SellQo storefront API returns `{ cart_id: <uuid> }`, causing the false-positive "cart_create returned no id" error and an empty checkout total.
 - `cartAPI.addItem` responses are not normalised in the reconcile loop because only success/failure is consumed (`Promise.allSettled`); the authoritative cart state is re-fetched via the follow-up `initCheckout(newCartId)` call.
+
+## Cart session_id stability fix
+- New `getOrCreateSessionId()` helper in `src/integrations/sellqo/session.ts` mints a stable per-browser `mancini_session_id` (localStorage, in-memory fallback for strict privacy mode).
+- `cartAPI.create()` now sends `session_id: getOrCreateSessionId()` instead of a fresh `crypto.randomUUID()` per call. Previously every call generated a new session_id, defeating the SellQo backend's idempotency filter (filter key = session_id) and producing 9 carts in 30 min for a single visitor (prod incident 2026-06-08).
+- `Checkout.reconcileCart` now delegates cart creation to `createCartIdempotent` (re-exported from `hooks.ts`) so the in-flight guard prevents parallel creates inside the same paint cycle.
+- `ensureSessionForLegacyCart()` runs once at app boot (`src/main.tsx`) — for visitors who already had a `mancini_cart_id` but no `mancini_session_id`, a session_id is minted now while the legacy cart_id is preserved so the reconcile-flow can still repair it.
