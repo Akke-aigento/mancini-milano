@@ -1,4 +1,5 @@
 import { sellqoFetch } from './client';
+import { getOrCreateSessionId } from './session';
 import type { Product, Collection, Category, Cart, PaginatedResponse, ProductsParams } from './types';
 
 // === PRODUCTS ===
