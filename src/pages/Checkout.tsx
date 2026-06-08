@@ -28,12 +28,10 @@ const Checkout = () => {
     if (!cartItems.length) return null;
     console.warn('[checkout] reconciling cart', { staleCartId, localItemCount: cartItems.length });
     try {
-      const created = await cartAPI.create();
-      const raw = extractSingle<Cart>(created) || created;
-      const cart = normalizeCart(raw);
+      const cart = await createCartIdempotent();
       const newCartId: string | undefined = cart?.id;
       if (!newCartId) {
-        console.error('[checkout] reconcile: cart_create returned no id', created);
+        console.error('[checkout] reconcile: createCartIdempotent returned no id', cart);
         return null;
       }
       const results = await Promise.allSettled(
