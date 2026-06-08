@@ -187,6 +187,24 @@ const Checkout = () => {
           ))}
         </div>
 
+        {checkoutBlocked && (
+          <div className="mb-8 border border-destructive/40 bg-destructive/5 p-5 flex gap-4">
+            <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+            <div className="flex-1 space-y-3">
+              <p className="text-sm text-foreground font-medium">Winkelwagen kon niet worden gesynchroniseerd</p>
+              <p className="text-xs text-muted-foreground">
+                Er ging iets mis bij het voorbereiden van je bestelling. Probeer de pagina te herladen of contacteer support als het probleem aanhoudt.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="border border-foreground text-foreground px-4 py-2 text-xs uppercase tracking-button hover:bg-foreground hover:text-background transition-colors"
+              >
+                Pagina herladen
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10">
           {/* Cart items */}
           <div className="space-y-6">
@@ -211,10 +229,12 @@ const Checkout = () => {
 
             <button
               onClick={() => navigate('/checkout/address')}
-              className="w-full border border-foreground text-foreground py-3.5 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors flex items-center justify-center gap-2"
+              disabled={checkoutBlocked}
+              className="w-full border border-foreground text-foreground py-3.5 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-foreground"
             >
               Doorgaan naar gegevens
             </button>
+
 
             <Link
               to="/cart"
