@@ -19,16 +19,74 @@ const Checkout = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [discountInput, setDiscountInput] = useState('');
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+  const [checkoutBlocked, setCheckoutBlocked] = useState(false);
+
+  // Reconcile a stale/empty server cart by re-creating it from the local CartContext.
+  // Returns the new cart_id on success, or null on failure.
+  const reconcileCart = async (staleCartId: string | null): Promise<string | null> => {
+    if (!cartItems.length) return null;
+    console.warn('[checkout] reconciling cart', { staleCartId, localItemCount: cartItems.length });
+    try {
+      const created = await cartAPI.create();
+      const newCart: any = (created as any)?.data ?? created;
+      const newCartId: string | undefined = newCart?.id;
+      if (!newCartId) {
+        console.error('[checkout] reconcile: cart_create returned no id', created);
+        return null;
+      }
+      const results = await Promise.allSettled(
+        cartItems.map(it => cartAPI.addItem(newCartId, {
+          product_id: it.product_id,
+          variant_id: it.variant_id,
+          quantity: it.quantity,
+        }))
+      );
+      const failed = results.filter(r => r.status === 'rejected');
+      if (failed.length > 0) {
+        console.error('[checkout] reconcile: item add failures', { newCartId, failed });
+        return null;
+      }
+      if (staleCartId && staleCartId !== newCartId) markCartOrphaned(staleCartId);
+      storeCartId(newCartId);
+      console.info('[checkout] reconcile success', { newCartId, items: cartItems.length });
+      return newCartId;
+    } catch (err) {
+      console.error('[checkout] reconcile threw', err);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const init = async () => {
-      const cartId = localStorage.getItem('mancini_cart_id');
+      let cartId = localStorage.getItem(CART_STORAGE_KEY);
       if (!cartId) {
         navigate('/cart');
         return;
       }
       try {
-        const data = await initCheckout(cartId);
+        let data = await initCheckout(cartId);
+
+        // Mismatch detection: local cart has items but server cart is empty/short
+        const serverCount = data.items?.length ?? 0;
+        const localCount = cartItems.length;
+        if (localCount > 0 && serverCount < localCount) {
+          console.warn('[checkout] cart mismatch detected', { cartId, serverCount, localCount });
+          const newCartId = await reconcileCart(cartId);
+          if (!newCartId) {
+            setCheckoutBlocked(true);
+            setIsInitializing(false);
+            return;
+          }
+          cartId = newCartId;
+          data = await initCheckout(newCartId);
+          if ((data.items?.length ?? 0) === 0) {
+            console.error('[checkout] post-reconcile cart still empty');
+            setCheckoutBlocked(true);
+            setIsInitializing(false);
+            return;
+          }
+        }
+
         // Only auto-select shipping if none is set yet
         if (data.shipping_cost == null && data.available_shipping_methods?.length) {
           try {
@@ -47,6 +105,7 @@ const Checkout = () => {
       }
     };
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleApplyDiscount = async () => {
