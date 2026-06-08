@@ -6,7 +6,7 @@ import SEO from '@/components/SEO';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCheckout } from '@/integrations/sellqo/CheckoutContext';
 import { checkoutAPI, cartAPI } from '@/integrations/sellqo/api';
-import type { Cart } from '@/integrations/sellqo/types';
+
 import { CART_STORAGE_KEY, markCartOrphaned, storeCartId, createCartIdempotent } from '@/integrations/sellqo/hooks';
 import { formatPrice } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
