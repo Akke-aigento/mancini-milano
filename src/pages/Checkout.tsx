@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { items: cartItems } = useSellQoCart();
   const { checkoutData, initCheckout, updateFromResponse } = useCheckout();
 
@@ -22,6 +23,11 @@ const Checkout = () => {
   const [discountInput, setDiscountInput] = useState('');
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
   const [checkoutBlocked, setCheckoutBlocked] = useState(false);
+  // Mount-guard: at most one reconcile attempt per Checkout page mount.
+  const reconcileAttempted = useRef(false);
+  // Init-guard: protects the init effect against StrictMode double-invocation
+  // and any other re-entry within the same mount.
+  const initStarted = useRef(false);
 
   // Reconcile a stale/empty server cart by re-creating it from the local CartContext.
   // Returns the new cart_id on success, or null on failure.
