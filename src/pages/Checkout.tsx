@@ -64,6 +64,8 @@ const Checkout = () => {
   };
 
   useEffect(() => {
+    if (initStarted.current) return;
+    initStarted.current = true;
     const init = async () => {
       let cartId = localStorage.getItem(CART_STORAGE_KEY);
       if (!cartId) {
@@ -73,10 +75,13 @@ const Checkout = () => {
       try {
         let data = await initCheckout(cartId);
 
-        // Mismatch detection: local cart has items but server cart is empty/short
-        const serverCount = data.items?.length ?? 0;
+        // Mismatch detection: only AFTER a successful init (data is non-null
+        // because initCheckout resolved). Mount-guard ensures max 1 reconcile.
+        const serverCount = data?.items?.length ?? 0;
         const localCount = cartItems.length;
-        if (localCount > 0 && serverCount < localCount) {
+        const mismatch = localCount > 0 && serverCount < localCount;
+        if (mismatch && !reconcileAttempted.current) {
+          reconcileAttempted.current = true;
           console.warn('[checkout] cart mismatch detected', { cartId, serverCount, localCount });
           const newCartId = await reconcileCart(cartId);
           if (!newCartId) {
@@ -94,6 +99,23 @@ const Checkout = () => {
           }
         }
 
+        // Sync local CartContext (react-query cache) with the authoritative
+        // server cart so rapid-refresh / item-add does not mix old+new state.
+        if (cartId && data?.items?.length) {
+          try {
+            queryClient.setQueryData(sellqoKeys.cart(cartId), {
+              id: cartId,
+              items: data.items,
+              item_count: data.items.reduce((s: number, it: any) => s + (it.quantity ?? 0), 0),
+              subtotal: data.subtotal ?? 0,
+              total: data.total ?? 0,
+              currency: data.currency,
+            } as any);
+          } catch (e) {
+            console.warn('[checkout] could not sync local cart cache', e);
+          }
+        }
+
         // Only auto-select shipping if none is set yet
         if (data.shipping_cost == null && data.available_shipping_methods?.length) {
           try {
@@ -104,9 +126,11 @@ const Checkout = () => {
           }
         }
       } catch (err) {
+        // initCheckout failed → show banner, do NOT reconcile (avoid creating
+        // a fresh cart on a transient backend error).
         console.error('Checkout start error:', err);
+        setCheckoutBlocked(true);
         toast.error('Kon checkout niet starten. Probeer opnieuw.');
-        navigate('/cart');
       } finally {
         setIsInitializing(false);
       }
