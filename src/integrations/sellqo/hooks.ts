@@ -152,25 +152,35 @@ function markCartOrphaned(cartId: string) {
 let inFlightCartCreate: Promise<Cart> | null = null;
 
 async function createCartIdempotent(): Promise<Cart> {
+  const ts = () => new Date().toISOString();
   const existing = getStoredCartId();
+  console.log('[createCartIdempotent] enter', { ts: ts(), existing, inFlight: !!inFlightCartCreate });
   if (existing) {
     try {
       const result = await cartAPI.get(existing);
       const raw = extractSingle<Cart>(result) || result;
-      return normalizeCart(raw);
+      const cart = normalizeCart(raw);
+      console.log('[createCartIdempotent] reused existing', { ts: ts(), cartId: cart?.id });
+      return cart;
     } catch {
       // stale id — fall through and create a fresh one
+      console.warn('[createCartIdempotent] stale existing, clearing', { ts: ts(), existing });
       try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
       try { sessionStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
     }
   }
-  if (inFlightCartCreate) return inFlightCartCreate;
+  if (inFlightCartCreate) {
+    console.log('[createCartIdempotent] joining in-flight create', { ts: ts() });
+    return inFlightCartCreate;
+  }
   inFlightCartCreate = (async () => {
     try {
+      console.log('[createCartIdempotent] cartAPI.create() start', { ts: ts() });
       const result = await cartAPI.create();
       const raw = extractSingle<Cart>(result) || result;
       const cart = normalizeCart(raw);
       storeCartId(cart.id);
+      console.log('[createCartIdempotent] cartAPI.create() done', { ts: ts(), cartId: cart?.id });
       return cart;
     } finally {
       inFlightCartCreate = null;
