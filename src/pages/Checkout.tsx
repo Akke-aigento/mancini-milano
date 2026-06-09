@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Loader2, Tag, X, ChevronLeft, AlertTriangle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/SEO';
@@ -7,7 +8,7 @@ import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCheckout } from '@/integrations/sellqo/CheckoutContext';
 import { checkoutAPI, cartAPI } from '@/integrations/sellqo/api';
 
-import { CART_STORAGE_KEY, markCartOrphaned, storeCartId, createCartIdempotent } from '@/integrations/sellqo/hooks';
+import { CART_STORAGE_KEY, markCartOrphaned, storeCartId, createCartIdempotent, sellqoKeys } from '@/integrations/sellqo/hooks';
 import { formatPrice } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
