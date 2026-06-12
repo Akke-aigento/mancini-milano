@@ -17,7 +17,7 @@ const Footer = () => {
     : 'Italian luxury streetwear. Elevated essentials for those who move with authority.';
 
   return (
-    <footer className={`${isClassic ? 'bg-secondary' : 'bg-card'} border-t border-border`}>
+    <footer className={`${isClassic ? 'bg-secondary' : 'bg-background'} border-t border-border`}>
       <div className="max-w-site mx-auto px-4 lg:px-8 py-16 lg:py-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
           {/* Brand */}
