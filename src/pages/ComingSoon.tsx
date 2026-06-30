@@ -1,14 +1,14 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import SEO from '@/components/SEO';
 
 const LABELS: Record<string, string> = {
-  sport: 'Sport',
-  kids: 'Kids',
+  '/sport': 'Sport',
+  '/kids': 'Kids',
 };
 
 const ComingSoon = () => {
-  const { world } = useParams();
-  const label = LABELS[world ?? ''] ?? 'Coming Soon';
+  const { pathname } = useLocation();
+  const label = LABELS[pathname] ?? 'Coming Soon';
 
   return (
     <>
