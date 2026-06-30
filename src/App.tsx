@@ -29,6 +29,7 @@ import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
 import ClassicHome from "./pages/classic/ClassicHome";
 import ClassicPlaceholder from "./pages/classic/ClassicPlaceholder";
+import ComingSoon from "./pages/ComingSoon";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,10 @@ const App = () => (
                   <Route path="/classic" element={<ClassicHome />} />
                   <Route path="/classic/collections/:slug" element={<Collection />} />
                   <Route path="/classic/products/:slug" element={<ProductDetail />} />
+
+                  {/* Coming soon worlds */}
+                  <Route path="/sport" element={<ComingSoon />} />
+                  <Route path="/kids" element={<ComingSoon />} />
 
                   {/* 301-equivalent redirects from legacy paths */}
                   <Route path="/collections/:slug" element={<RedirectCollection />} />
