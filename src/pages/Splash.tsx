@@ -62,12 +62,12 @@ const Splash = () => {
           </span>
         </header>
 
-        <main className="flex-1 grid grid-cols-2">
+        <main className="flex-1 grid grid-cols-2 content-center">
           {TILES.map((tile) => (
             <Link
               key={tile.to}
               to={tile.to}
-              className="group relative overflow-hidden aspect-square sm:aspect-auto sm:min-h-[50vh] bg-[#0a0a0a] border-border/40 [&:nth-child(odd)]:border-r [&:nth-child(-n+2)]:border-b"
+              className="group relative overflow-hidden aspect-square sm:aspect-auto sm:min-h-[50vh] bg-[#0a0a0a]"
               aria-label={`Discover ${tile.label} — Mancini Milano`}
             >
               <img
