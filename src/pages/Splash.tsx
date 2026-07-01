@@ -67,33 +67,36 @@ const Splash = () => {
         </header>
 
         <main className="flex-1 grid grid-cols-2 content-center">
-          {TILES.map((tile) => (
-            <Link
-              key={tile.to}
-              to={tile.to}
-              className="group relative overflow-hidden aspect-square sm:aspect-auto sm:min-h-[50vh] bg-[#0a0a0a]"
-              aria-label={`Discover ${tile.label} — Mancini Milano`}
-            >
-              <img
-                src={tile.img}
-                alt={tile.alt}
-                style={tile.objectPosition ? { objectPosition: tile.objectPosition } : undefined}
-                className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[1200ms] ease-out"
-                loading="eager"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30 group-hover:from-black/55 transition-all duration-700" />
+          {TILES.map((tile) => {
+            const Wrapper = tile.comingSoon ? 'div' : Link;
+            return (
+              <Wrapper
+                key={tile.to}
+                {...(!tile.comingSoon && { to: tile.to })}
+                className="group relative overflow-hidden aspect-square sm:aspect-auto sm:min-h-[50vh] bg-[#0a0a0a]"
+                aria-label={tile.comingSoon ? undefined : `Discover ${tile.label} — Mancini Milano`}
+              >
+                <img
+                  src={tile.img}
+                  alt={tile.alt}
+                  style={tile.objectPosition ? { objectPosition: tile.objectPosition } : undefined}
+                  className={`absolute inset-0 w-full h-full object-cover opacity-90 transition-all duration-[1200ms] ease-out ${tile.comingSoon ? '' : 'group-hover:opacity-100 group-hover:scale-105'}`}
+                  loading="eager"
+                />
+                <div className={`absolute inset-0 bgMT bg-gradient-to-t from-black/70 via-black/20 to-black/30 transition-all duration-700 ${tile.comingSoon ? '' : 'group-hover:from-black/55'}`} />
 
-              <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center text-center px-3 sm:px-6 pb-5 sm:pb-10 lg:pb-14">
-                <h2 className="font-heading text-foreground text-2xl sm:text-5xl lg:text-6xl xl:text-7xl leading-none">
-                  {tile.label}
-                </h2>
-                <div className="w-8 sm:w-10 h-px bg-foreground/70 mt-3 sm:mt-5 mb-2 sm:mb-3" />
-                <span className="text-[9px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-foreground/90 group-hover:text-foreground transition-colors">
-                  Discover More
-                </span>
-              </div>
-            </Link>
-          ))}
+                <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center text-center px-3 sm:px-6 pb-5 sm:pb-10 lg:pb-14">
+                  <h2 className="font-heading text-foreground text-2xl sm:text-5xl lg:text-6xl xl:text-7xl leading-none">
+                    {tile.label}
+                  </h2>
+                  <div className="w-8 sm:w-10 h-px bg-foreground/70 mt-3 sm:mt-5 mb-2 sm:mb-3" />
+                  <span className={`text-[9px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-foreground/90 transition-colors ${tile.comingSoon ? '' : 'group-hover:text-foreground'}`}>
+                    {tile.comingSoon ? 'Coming Soon' : 'Discover More'}
+                  </span>
+                </div>
+              </Wrapper>
+            );
+          })}
         </main>
       </div>
     </>
