@@ -27,6 +27,7 @@ const TILES: Tile[] = [
     label: 'Classic',
     img: splashClassic,
     alt: 'Mancini Milano Classic — model wearing a tailored blazer and polo',
+    comingSoon: true,
   },
   {
     to: '/sport',
@@ -34,6 +35,7 @@ const TILES: Tile[] = [
     img: splashSport,
     alt: 'Mancini Milano Sport — model wearing a Mancini Milano half-zip running top',
     objectPosition: '50% 20%',
+    comingSoon: true,
   },
   {
     to: '/kids',
@@ -41,6 +43,7 @@ const TILES: Tile[] = [
     img: splashKids,
     alt: 'Mancini Milano Kids — children wearing Mancini Milano sweatshirts',
     objectPosition: '50% 25%',
+    comingSoon: true,
   },
 ];
 
