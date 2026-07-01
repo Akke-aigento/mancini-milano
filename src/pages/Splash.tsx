@@ -11,6 +11,7 @@ type Tile = {
   img: string;
   alt: string;
   objectPosition?: string;
+  comingSoon?: boolean;
 };
 
 const TILES: Tile[] = [
