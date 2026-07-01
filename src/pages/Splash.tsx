@@ -83,7 +83,7 @@ const Splash = () => {
                   className={`absolute inset-0 w-full h-full object-cover opacity-90 transition-all duration-[1200ms] ease-out ${tile.comingSoon ? '' : 'group-hover:opacity-100 group-hover:scale-105'}`}
                   loading="eager"
                 />
-                <div className={`absolute inset-0 bgMT bg-gradient-to-t from-black/70 via-black/20 to-black/30 transition-all duration-700 ${tile.comingSoon ? '' : 'group-hover:from-black/55'}`} />
+                <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30 transition-all duration-700 ${tile.comingSoon ? '' : 'group-hover:from-black/55'}`} />
 
                 <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center text-center px-3 sm:px-6 pb-5 sm:pb-10 lg:pb-14">
                   <h2 className="font-heading text-foreground text-2xl sm:text-5xl lg:text-6xl xl:text-7xl leading-none">
