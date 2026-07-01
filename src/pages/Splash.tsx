@@ -62,12 +62,12 @@ const Splash = () => {
           </span>
         </header>
 
-        <main className="flex-1 grid grid-cols-1 sm:grid-cols-2">
+        <main className="flex-1 grid grid-cols-2">
           {TILES.map((tile) => (
             <Link
               key={tile.to}
               to={tile.to}
-              className="group relative overflow-hidden min-h-[45vh] sm:min-h-[50vh] bg-[#0a0a0a] border-b sm:border-b border-r-0 sm:[&:nth-child(odd)]:border-r border-border/40 sm:[&:nth-last-child(-n+2)]:border-b-0 last:border-b-0"
+              className="group relative overflow-hidden aspect-square sm:aspect-auto sm:min-h-[50vh] bg-[#0a0a0a] border-border/40 [&:nth-child(odd)]:border-r [&:nth-child(-n+2)]:border-b"
               aria-label={`Discover ${tile.label} — Mancini Milano`}
             >
               <img
@@ -79,12 +79,12 @@ const Splash = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30 group-hover:from-black/55 transition-all duration-700" />
 
-              <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center text-center px-6 pb-10 lg:pb-14">
-                <h2 className="font-heading text-foreground text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-none">
+              <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center text-center px-3 sm:px-6 pb-5 sm:pb-10 lg:pb-14">
+                <h2 className="font-heading text-foreground text-2xl sm:text-5xl lg:text-6xl xl:text-7xl leading-none">
                   {tile.label}
                 </h2>
-                <div className="w-10 h-px bg-foreground/70 mt-5 mb-3" />
-                <span className="text-[10px] lg:text-xs uppercase tracking-[0.3em] text-foreground/90 group-hover:text-foreground transition-colors">
+                <div className="w-8 sm:w-10 h-px bg-foreground/70 mt-3 sm:mt-5 mb-2 sm:mb-3" />
+                <span className="text-[9px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-foreground/90 group-hover:text-foreground transition-colors">
                   Discover More
                 </span>
               </div>
