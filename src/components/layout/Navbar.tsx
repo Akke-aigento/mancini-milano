@@ -236,7 +236,7 @@ const Navbar = () => {
     };
   }, [categories, effectiveWorld]);
 
-  const BrandMark = ({ className = 'h-9 w-auto' }: { className?: string }) =>
+  const BrandMark = ({ className = 'h-11 lg:h-9 w-auto' }: { className?: string }) =>
     isClassic ? (
       <span
         className="font-classic text-foreground uppercase leading-none whitespace-nowrap text-[15px] sm:text-base"
@@ -306,7 +306,7 @@ const Navbar = () => {
   return (
     <>
       <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-site mx-auto flex items-center justify-between h-16 px-4 lg:px-8">
+        <div className="max-w-site mx-auto flex items-center justify-between h-[72px] lg:h-16 px-4 lg:px-8">
           {/* Mobile left: hamburger only */}
           <div className="flex items-center gap-1 lg:hidden">
             <button
@@ -319,7 +319,7 @@ const Navbar = () => {
           </div>
 
           {/* Logo — centered on mobile, left on desktop */}
-          <Link to={homeHref} className="absolute left-1/2 -translate-x-1/2 lg:relative lg:left-auto lg:translate-x-0 h-10 flex items-center">
+          <Link to={homeHref} className="absolute left-1/2 -translate-x-1/2 lg:relative lg:left-auto lg:translate-x-0 h-12 lg:h-10 flex items-center">
             <BrandMark />
           </Link>
 
