@@ -1,19 +1,14 @@
-## Doel
-Op mobiel de splash/frontpage tonen als 2×2 vierkant grid (zoals desktop), i.p.v. de huidige verticaal gestapelde volle-hoogte tegels.
+## Plan: Seamless Splash Tiles
 
-## Wijziging
-Eén bestand: `src/pages/Splash.tsx`
+### Problem
+The 2×2 splash grid currently shows visible black spacing between tiles due to:
+1. `border-border/40` + positional border utilities (`border-r`, `border-b`) on grid items.
+2. Mobile `aspect-square` creates a fixed 195×195px tile inside a taller `main` area, leaving dead black space below the grid.
 
-- `<main>` grid: van `grid-cols-1 sm:grid-cols-2` → **`grid-cols-2`** (altijd 2 kolommen, ook op mobiel).
-- Tegels: `min-h-[45vh]` op mobiel is te groot voor een echt vierkant → vervangen door **`aspect-square`** op mobiel en `sm:aspect-auto sm:min-h-[50vh]` op groter, zodat desktop-gedrag hetzelfde blijft.
-- Borders herzien voor een net 2×2 raster op alle breakpoints: rechterrand op oneven tegels, onderrand op de bovenste rij.
-- Typografie schaalt mee: labels iets kleiner op mobiel (bv. `text-2xl sm:text-4xl lg:text-6xl`) en "Discover More" chip verkleinen zodat het in een vierkant tegel goed leesbaar blijft; padding terug naar `pb-5 sm:pb-10`.
-- Header (Mancini / Milano) blijft ongewijzigd.
+### Changes
+1. **Remove all tile borders** in `src/pages/Splash.tsx`: delete `border-border/40`, `[&:nth-child(odd)]:border-r`, and `[&:nth-child(-n+2)]:border-b` from the tile `<Link>` className.
+2. **Center the grid block vertically** within the remaining viewport so tiles meet edge-to-edge without floating awkwardly.
+3. **Verify both mobile and desktop** render edge-to-edge tiles with no visible black cracks between them.
 
-## Wat blijft hetzelfde
-- 4 werelden, afbeeldingen, routes, alt-teksten, hover/scale-animatie, gradient-overlay, SEO.
-- Desktop layout blijft visueel identiek.
-
-## Verificatie
-- Mobiel (375px & 414px): 2×2 vierkanten, geen horizontal scroll, tekst leesbaar en gecentreerd.
-- Tablet (sm ≥640px) en desktop: ongewijzigd t.o.v. huidige versie.
+### Expected Result
+Four tiles forming one contiguous image block with no borders or gaps, nicely centered on screen.
