@@ -1,20 +1,19 @@
-Het probleem: de SellQo API geeft bij `category_slug=men-classic` alleen producten terug die rechtstreeks aan die parent hangen, niet aan child-categorieën. "The Boss Fragrance Tee" zit in `men-classic-accessories-bags`, dus die valt buiten de huidige query. Daarnaast bestaan er Classic takken die niet met `men-classic`/`classic-women` beginnen (`outerware-men-classic`, `outerware-women-classic` en hun children) — die worden door de world-filter foutief als niet-Classic gezien.
+## Doel
+Op mobiel de splash/frontpage tonen als 2×2 vierkant grid (zoals desktop), i.p.v. de huidige verticaal gestapelde volle-hoogte tegels.
 
-Plan:
+## Wijziging
+Eén bestand: `src/pages/Splash.tsx`
 
-1. **Descendant-aware fetching op Classic collectiepagina's** (`src/pages/Collection.tsx`)
-   - Op elke Classic pagina (parent én sub) bouwen we uit de `useCategories()` boom de set van alle descendant-categorie-IDs/slugs van de gevraagde slug (inclusief de slug zelf).
-   - In plaats van één `useProducts({ category_slug })` call, halen we producten op voor elke descendant-slug parallel (via `useQueries`) en mergen we het resultaat, ontdubbeld op product-id.
-   - Streetwear blijft ongewijzigd: één enkele `useProducts({ category_slug })` call zoals nu.
+- `<main>` grid: van `grid-cols-1 sm:grid-cols-2` → **`grid-cols-2`** (altijd 2 kolommen, ook op mobiel).
+- Tegels: `min-h-[45vh]` op mobiel is te groot voor een echt vierkant → vervangen door **`aspect-square`** op mobiel en `sm:aspect-auto sm:min-h-[50vh]` op groter, zodat desktop-gedrag hetzelfde blijft.
+- Borders herzien voor een net 2×2 raster op alle breakpoints: rechterrand op oneven tegels, onderrand op de bovenste rij.
+- Typografie schaalt mee: labels iets kleiner op mobiel (bv. `text-2xl sm:text-4xl lg:text-6xl`) en "Discover More" chip verkleinen zodat het in een vierkant tegel goed leesbaar blijft; padding terug naar `pb-5 sm:pb-10`.
+- Header (Mancini / Milano) blijft ongewijzigd.
 
-2. **World-filter uitbreiden voor Classic outerware**
-   - `isClassicCat` herkent ook `outerware-men-classic*` en `outerware-women-classic*` als Classic, zodat producten in die takken op Classic blijven en niet per ongeluk in streetwear lekken.
+## Wat blijft hetzelfde
+- 4 werelden, afbeeldingen, routes, alt-teksten, hover/scale-animatie, gradient-overlay, SEO.
+- Desktop layout blijft visueel identiek.
 
-3. **Geen wijziging aan tegels of UI**
-   - De parent-tegelpagina is al vervangen door de flat collection layout uit de vorige iteratie; die blijft. Enkel de productfetch wordt descendant-aware.
-
-Technische notes:
-- Helper `collectDescendantSlugs(categories, rootSlug)` doet een BFS vanaf het category-id met die slug en geeft alle descendant slugs terug (incl. root).
-- We gebruiken `useQueries` van react-query zodat elke descendant-slug zijn eigen cache-key krijgt en we niet onnodig opnieuw fetchen.
-- Loading state = elke onderliggende query nog loading. Resultaat = `flatMap` + `dedupe` op `product.id`.
-- World-filter blijft als veiligheidsnet voor het geval een product in meerdere wereldcategorieën hangt.
+## Verificatie
+- Mobiel (375px & 414px): 2×2 vierkanten, geen horizontal scroll, tekst leesbaar en gecentreerd.
+- Tablet (sm ≥640px) en desktop: ongewijzigd t.o.v. huidige versie.
