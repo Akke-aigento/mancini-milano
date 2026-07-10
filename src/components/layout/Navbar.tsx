@@ -306,7 +306,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
+      <nav className={`sticky top-0 z-40 w-full border-b border-border ${isStreetwear ? 'bg-background' : 'bg-background/80 backdrop-blur-md'}`}>
         <div className="max-w-site mx-auto flex items-center justify-between h-[72px] lg:h-16 px-4 lg:px-8">
           {/* Mobile left: hamburger only */}
           <div className="flex items-center gap-1 lg:hidden">
