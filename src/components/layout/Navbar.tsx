@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
@@ -217,6 +217,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const mobileScrollY = useRef(0);
   const { isAuthenticated } = useCustomerAuth();
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
@@ -258,12 +259,11 @@ const Navbar = () => {
 
   useEffect(() => {
     if (!mobileOpen) return;
-    const scrollY = window.scrollY;
+    const scrollY = mobileScrollY.current;
     const prevOverflow = document.body.style.overflow;
     const prevPosition = document.body.style.position;
     const prevTop = document.body.style.top;
     const prevWidth = document.body.style.width;
-    const prevTouch = document.body.style.touchAction;
     const prevHtmlOverscroll = document.documentElement.style.overscrollBehavior;
     const prevBodyOverscroll = document.body.style.overscrollBehavior;
 
@@ -271,7 +271,6 @@ const Navbar = () => {
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = '100%';
-    document.body.style.touchAction = 'none';
     document.documentElement.style.overscrollBehavior = 'none';
     document.body.style.overscrollBehavior = 'none';
 
@@ -280,12 +279,16 @@ const Navbar = () => {
       document.body.style.position = prevPosition;
       document.body.style.top = prevTop;
       document.body.style.width = prevWidth;
-      document.body.style.touchAction = prevTouch;
       document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
       document.body.style.overscrollBehavior = prevBodyOverscroll;
       window.scrollTo(0, scrollY);
     };
   }, [mobileOpen]);
+
+  const toggleMobile = () => {
+    if (!mobileOpen) mobileScrollY.current = window.scrollY;
+    setMobileOpen(!mobileOpen);
+  };
 
   const closeMobile = () => setMobileOpen(false);
   const grouped = effectiveWorld === 'classic';
@@ -342,7 +345,7 @@ const Navbar = () => {
           {/* Mobile left: hamburger only */}
           <div className="flex items-center gap-1 lg:hidden">
             <button
-              onClick={() => setMobileOpen(!mobileOpen)}
+              onClick={toggleMobile}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             >
