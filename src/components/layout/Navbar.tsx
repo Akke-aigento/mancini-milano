@@ -348,7 +348,7 @@ const Navbar = () => {
 
           {/* Desktop right: search + account + cart */}
           <div className="hidden lg:flex items-center gap-3">
-            <WorldSwitch variant="desktop" className="mr-2" />
+            {!isStreetwear && <WorldSwitch variant="desktop" className="mr-2" />}
             <button
               onClick={() => setSearchOpen(true)}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
