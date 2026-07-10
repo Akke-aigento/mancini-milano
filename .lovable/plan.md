@@ -1,28 +1,24 @@
-## Probleem
-Wanneer het hamburger-menu open is op mobiel/tablet, scrollt de achterliggende hoofdpagina mee wanneer de gebruiker binnen het menu scrollt (of gewoon veegt). Dat voelt kapot.
+## Plan
 
-## Oplossing
-Body-scroll vergrendelen zolang het mobiele menu open is, in `src/components/layout/Navbar.tsx`.
+Ik ga de mobiele/tablet hamburger-overlay robuust fixen zodat de achterliggende pagina niet meer kan meescrollen.
 
-### Aanpak
-- `useEffect` toevoegen die reageert op `mobileOpen`.
-- Bij open: `document.body.style.overflow = 'hidden'` (en `position: fixed` truc niet nodig — `overflow:hidden` op body volstaat en behoudt de scrollpositie op moderne browsers; op iOS voegen we ook `touch-action: none` toe op de body om rubber-band scroll te blokkeren).
-- Bij close/unmount: originele waarden herstellen.
-- Geen wijzigingen aan de fullscreen overlay zelf (die heeft al `overflow-y-auto` op de inner container, dus het menu zelf blijft scrollbaar).
+### Wijzigingen
+- In `src/components/layout/Navbar.tsx` vervang ik de huidige simpele body-lock door een stevigere scroll lock:
+  - huidige `window.scrollY` bewaren
+  - `body` vastzetten met `position: fixed`
+  - `top` negatief zetten op de huidige scrollpositie
+  - `width: 100%` zetten zodat layout niet verspringt
+  - `overflow: hidden` behouden
+  - bij sluiten/unmount alles herstellen en terug naar dezelfde scrollpositie gaan
+- Op de fullscreen menu-overlay voeg ik scroll-isolatie toe:
+  - `overscroll-contain`
+  - `touch-none` op de buitenlaag waar nodig
+  - de menu-content zelf blijft `overflow-y-auto`, zodat het menu nog altijd kan scrollen als het hoger is dan het scherm
 
-### Technisch
-```ts
-useEffect(() => {
-  if (!mobileOpen) return;
-  const prevOverflow = document.body.style.overflow;
-  const prevTouch = document.body.style.touchAction;
-  document.body.style.overflow = 'hidden';
-  document.body.style.touchAction = 'none';
-  return () => {
-    document.body.style.overflow = prevOverflow;
-    document.body.style.touchAction = prevTouch;
-  };
-}, [mobileOpen]);
-```
-
-Geen andere componenten of styling worden aangepast.
+### Validatie
+- Testen op mobiel viewport `/streetwear`:
+  - pagina naar beneden scrollen
+  - hamburger openen
+  - swipen/scrollen in het menu
+  - controleren dat de achtergrondpagina op exact dezelfde positie blijft
+  - hamburger sluiten en controleren dat de pagina niet naar boven springt
