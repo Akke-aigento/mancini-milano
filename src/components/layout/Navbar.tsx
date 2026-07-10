@@ -258,13 +258,32 @@ const Navbar = () => {
 
   useEffect(() => {
     if (!mobileOpen) return;
+    const scrollY = window.scrollY;
     const prevOverflow = document.body.style.overflow;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevWidth = document.body.style.width;
     const prevTouch = document.body.style.touchAction;
+    const prevHtmlOverscroll = document.documentElement.style.overscrollBehavior;
+    const prevBodyOverscroll = document.body.style.overscrollBehavior;
+
     document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
     document.body.style.touchAction = 'none';
+    document.documentElement.style.overscrollBehavior = 'none';
+    document.body.style.overscrollBehavior = 'none';
+
     return () => {
       document.body.style.overflow = prevOverflow;
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.width = prevWidth;
       document.body.style.touchAction = prevTouch;
+      document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
+      document.body.style.overscrollBehavior = prevBodyOverscroll;
+      window.scrollTo(0, scrollY);
     };
   }, [mobileOpen]);
 
@@ -392,7 +411,7 @@ const Navbar = () => {
       </nav>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 bg-background lg:hidden">
+        <div className="fixed inset-0 z-50 bg-background overscroll-contain lg:hidden">
           <div className="flex items-center justify-between h-16 px-4 border-b border-border">
             <Link to={homeHref} onClick={closeMobile} className="h-10 flex items-center">
               <BrandMark className="h-8 w-auto" />
@@ -405,7 +424,7 @@ const Navbar = () => {
               <X className="h-5 w-5" />
             </button>
           </div>
-          <div className="px-6 py-4 overflow-y-auto h-[calc(100vh-64px)]">
+          <div className="px-6 py-4 overflow-y-auto overscroll-contain touch-pan-y h-[calc(100vh-64px)]">
             {/* Quick actions: search + account */}
             <div className="grid grid-cols-2 gap-2 pb-4 border-b border-border">
               <button
