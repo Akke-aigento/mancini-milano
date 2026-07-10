@@ -224,6 +224,7 @@ const Navbar = () => {
   const { homeHref, currentWorld, lastActiveWorld } = useWorld();
   const isHome = location.pathname === '/streetwear' || location.pathname === '/classic';
   const isClassic = currentWorld === 'classic';
+  const isStreetwear = currentWorld === 'streetwear';
   const effectiveWorld: World = currentWorld ?? lastActiveWorld ?? 'streetwear';
 
   const visibleItems = NAV_ITEMS.filter(item => item.showIn === 'both' || item.showIn === effectiveWorld);
