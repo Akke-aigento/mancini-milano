@@ -425,10 +425,12 @@ const Navbar = () => {
               <Link to="/size-guide" onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">Size Guide</Link>
             </div>
 
-            <div className="mt-6">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Shop</p>
-              <WorldSwitch variant="full" onSwitch={closeMobile} />
-            </div>
+            {!isStreetwear && (
+              <div className="mt-6">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Shop</p>
+                <WorldSwitch variant="full" onSwitch={closeMobile} />
+              </div>
+            )}
           </div>
         </div>
       )}
