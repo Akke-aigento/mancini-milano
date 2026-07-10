@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useSellQoCart } from '@/integrations/sellqo/CartContext';
@@ -217,6 +217,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const mobileScrollY = useRef(0);
   const { isAuthenticated } = useCustomerAuth();
   const { itemCount, openCart } = useSellQoCart();
   const { data: categories } = useCategories();
@@ -258,15 +259,36 @@ const Navbar = () => {
 
   useEffect(() => {
     if (!mobileOpen) return;
+    const scrollY = mobileScrollY.current;
     const prevOverflow = document.body.style.overflow;
-    const prevTouch = document.body.style.touchAction;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevWidth = document.body.style.width;
+    const prevHtmlOverscroll = document.documentElement.style.overscrollBehavior;
+    const prevBodyOverscroll = document.body.style.overscrollBehavior;
+
     document.body.style.overflow = 'hidden';
-    document.body.style.touchAction = 'none';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    document.documentElement.style.overscrollBehavior = 'none';
+    document.body.style.overscrollBehavior = 'none';
+
     return () => {
       document.body.style.overflow = prevOverflow;
-      document.body.style.touchAction = prevTouch;
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.width = prevWidth;
+      document.documentElement.style.overscrollBehavior = prevHtmlOverscroll;
+      document.body.style.overscrollBehavior = prevBodyOverscroll;
+      window.scrollTo(0, scrollY);
     };
   }, [mobileOpen]);
+
+  const toggleMobile = () => {
+    if (!mobileOpen) mobileScrollY.current = window.scrollY;
+    setMobileOpen(!mobileOpen);
+  };
 
   const closeMobile = () => setMobileOpen(false);
   const grouped = effectiveWorld === 'classic';
@@ -323,7 +345,7 @@ const Navbar = () => {
           {/* Mobile left: hamburger only */}
           <div className="flex items-center gap-1 lg:hidden">
             <button
-              onClick={() => setMobileOpen(!mobileOpen)}
+              onClick={toggleMobile}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             >
@@ -392,7 +414,7 @@ const Navbar = () => {
       </nav>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 bg-background lg:hidden">
+        <div className="fixed inset-0 z-50 bg-background overscroll-contain lg:hidden">
           <div className="flex items-center justify-between h-16 px-4 border-b border-border">
             <Link to={homeHref} onClick={closeMobile} className="h-10 flex items-center">
               <BrandMark className="h-8 w-auto" />
@@ -405,7 +427,7 @@ const Navbar = () => {
               <X className="h-5 w-5" />
             </button>
           </div>
-          <div className="px-6 py-4 overflow-y-auto h-[calc(100vh-64px)]">
+          <div className="px-6 py-4 overflow-y-auto overscroll-contain touch-pan-y h-[calc(100vh-64px)]">
             {/* Quick actions: search + account */}
             <div className="grid grid-cols-2 gap-2 pb-4 border-b border-border">
               <button
