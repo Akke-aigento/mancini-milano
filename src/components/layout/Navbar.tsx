@@ -224,6 +224,7 @@ const Navbar = () => {
   const { homeHref, currentWorld, lastActiveWorld } = useWorld();
   const isHome = location.pathname === '/streetwear' || location.pathname === '/classic';
   const isClassic = currentWorld === 'classic';
+  const isStreetwear = currentWorld === 'streetwear';
   const effectiveWorld: World = currentWorld ?? lastActiveWorld ?? 'streetwear';
 
   const visibleItems = NAV_ITEMS.filter(item => item.showIn === 'both' || item.showIn === effectiveWorld);
@@ -305,7 +306,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
+      <nav className={`sticky top-0 z-40 w-full border-b border-border ${isStreetwear ? 'bg-background' : 'bg-background/80 backdrop-blur-md'}`}>
         <div className="max-w-site mx-auto flex items-center justify-between h-[72px] lg:h-16 px-4 lg:px-8">
           {/* Mobile left: hamburger only */}
           <div className="flex items-center gap-1 lg:hidden">
@@ -330,7 +331,7 @@ const Navbar = () => {
 
           {/* Mobile right: world switch + cart */}
           <div className="flex items-center gap-0.5 lg:hidden">
-            <WorldSwitch variant="mobile" />
+            {!isStreetwear && <WorldSwitch variant="mobile" />}
             <button
               onClick={openCart}
               className="relative min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
@@ -347,7 +348,7 @@ const Navbar = () => {
 
           {/* Desktop right: search + account + cart */}
           <div className="hidden lg:flex items-center gap-3">
-            <WorldSwitch variant="desktop" className="mr-2" />
+            {!isStreetwear && <WorldSwitch variant="desktop" className="mr-2" />}
             <button
               onClick={() => setSearchOpen(true)}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
@@ -424,10 +425,12 @@ const Navbar = () => {
               <Link to="/size-guide" onClick={closeMobile} className="block py-2.5 text-sm text-muted-foreground min-h-[44px] flex items-center">Size Guide</Link>
             </div>
 
-            <div className="mt-6">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Shop</p>
-              <WorldSwitch variant="full" onSwitch={closeMobile} />
-            </div>
+            {!isStreetwear && (
+              <div className="mt-6">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Shop</p>
+                <WorldSwitch variant="full" onSwitch={closeMobile} />
+              </div>
+            )}
           </div>
         </div>
       )}
