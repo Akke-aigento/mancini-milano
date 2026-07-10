@@ -331,7 +331,7 @@ const Navbar = () => {
 
           {/* Mobile right: world switch + cart */}
           <div className="flex items-center gap-0.5 lg:hidden">
-            <WorldSwitch variant="mobile" />
+            {!isStreetwear && <WorldSwitch variant="mobile" />}
             <button
               onClick={openCart}
               className="relative min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
