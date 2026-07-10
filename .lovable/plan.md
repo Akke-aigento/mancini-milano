@@ -1,14 +1,28 @@
-## Plan: Seamless Splash Tiles
+## Probleem
+Wanneer het hamburger-menu open is op mobiel/tablet, scrollt de achterliggende hoofdpagina mee wanneer de gebruiker binnen het menu scrollt (of gewoon veegt). Dat voelt kapot.
 
-### Problem
-The 2×2 splash grid currently shows visible black spacing between tiles due to:
-1. `border-border/40` + positional border utilities (`border-r`, `border-b`) on grid items.
-2. Mobile `aspect-square` creates a fixed 195×195px tile inside a taller `main` area, leaving dead black space below the grid.
+## Oplossing
+Body-scroll vergrendelen zolang het mobiele menu open is, in `src/components/layout/Navbar.tsx`.
 
-### Changes
-1. **Remove all tile borders** in `src/pages/Splash.tsx`: delete `border-border/40`, `[&:nth-child(odd)]:border-r`, and `[&:nth-child(-n+2)]:border-b` from the tile `<Link>` className.
-2. **Center the grid block vertically** within the remaining viewport so tiles meet edge-to-edge without floating awkwardly.
-3. **Verify both mobile and desktop** render edge-to-edge tiles with no visible black cracks between them.
+### Aanpak
+- `useEffect` toevoegen die reageert op `mobileOpen`.
+- Bij open: `document.body.style.overflow = 'hidden'` (en `position: fixed` truc niet nodig — `overflow:hidden` op body volstaat en behoudt de scrollpositie op moderne browsers; op iOS voegen we ook `touch-action: none` toe op de body om rubber-band scroll te blokkeren).
+- Bij close/unmount: originele waarden herstellen.
+- Geen wijzigingen aan de fullscreen overlay zelf (die heeft al `overflow-y-auto` op de inner container, dus het menu zelf blijft scrollbaar).
 
-### Expected Result
-Four tiles forming one contiguous image block with no borders or gaps, nicely centered on screen.
+### Technisch
+```ts
+useEffect(() => {
+  if (!mobileOpen) return;
+  const prevOverflow = document.body.style.overflow;
+  const prevTouch = document.body.style.touchAction;
+  document.body.style.overflow = 'hidden';
+  document.body.style.touchAction = 'none';
+  return () => {
+    document.body.style.overflow = prevOverflow;
+    document.body.style.touchAction = prevTouch;
+  };
+}, [mobileOpen]);
+```
+
+Geen andere componenten of styling worden aangepast.
