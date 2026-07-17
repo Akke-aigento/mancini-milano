@@ -1,24 +1,16 @@
-## Plan
+## Doel
+Op **desktop** (md en groter) de grote hero-afbeelding met de 3 modellen bovenaan `/streetwear` verwijderen, zodat de header (announcement bar + navbar) direct bovenaan de pagina staat. Op mobiel/tablet blijft alles zoals het nu is (de banner was daar toch al verborgen).
 
-Ik ga de mobiele/tablet hamburger-overlay robuust fixen zodat de achterliggende pagina niet meer kan meescrollen.
+## Wijziging
+**`src/components/layout/Layout.tsx`**
+- De regel `{isHome && <LookbookBanner />}` verwijderen.
+- Import van `LookbookBanner` verwijderen.
 
-### Wijzigingen
-- In `src/components/layout/Navbar.tsx` vervang ik de huidige simpele body-lock door een stevigere scroll lock:
-  - huidige `window.scrollY` bewaren
-  - `body` vastzetten met `position: fixed`
-  - `top` negatief zetten op de huidige scrollpositie
-  - `width: 100%` zetten zodat layout niet verspringt
-  - `overflow: hidden` behouden
-  - bij sluiten/unmount alles herstellen en terug naar dezelfde scrollpositie gaan
-- Op de fullscreen menu-overlay voeg ik scroll-isolatie toe:
-  - `overscroll-contain`
-  - `touch-none` op de buitenlaag waar nodig
-  - de menu-content zelf blijft `overflow-y-auto`, zodat het menu nog altijd kan scrollen als het hoger is dan het scherm
+Resultaat: de `LookbookBanner` wordt niet meer gerenderd op `/streetwear`. Omdat de banner al `hidden md:block` was, verandert er niets op mobiel/tablet; op desktop verdwijnt de hero volledig en schuift de content direct onder de navbar.
 
-### Validatie
-- Testen op mobiel viewport `/streetwear`:
-  - pagina naar beneden scrollen
-  - hamburger openen
-  - swipen/scrollen in het menu
-  - controleren dat de achtergrondpagina op exact dezelfde positie blijft
-  - hamburger sluiten en controleren dat de pagina niet naar boven springt
+Het bestand `src/components/layout/LookbookBanner.tsx` laten we staan (ongebruikt, geen impact) voor het geval je hem later wil terugzetten. Als je hem meteen wil verwijderen, zeg het en ik doe het mee.
+
+## Validatie
+- `/streetwear` op desktop: geen hero-banner meer, navbar staat direct onder de announcement bar.
+- `/streetwear` op mobiel: onveranderd.
+- Andere pagina's: onveranderd (banner werd daar toch niet getoond).
