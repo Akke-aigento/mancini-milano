@@ -98,7 +98,9 @@ function DropdownMenu({
   grouped: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const upward = openUp && isHome && !scrolled;
+  // Always open downward — upward menus get clipped above the sticky navbar.
+  const upward = false;
+  void openUp; void isHome; void scrolled;
 
   return (
     <div
