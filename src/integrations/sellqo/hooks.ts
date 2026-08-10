@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { productsAPI, collectionsAPI, categoriesAPI, cartAPI, checkoutAPI, newsletterAPI } from './api';
+import { productsAPI, collectionsAPI, categoriesAPI, cartAPI, checkoutAPI, newsletterAPI, shippingAPI } from './api';
 import { extractArray, extractSingle } from './client';
 import { normalizeProducts, normalizeProduct, normalizeCollections, normalizeCart, normalizeCategories } from './normalizer';
 import type { Cart, Product, Collection, Category, ProductsParams } from './types';
@@ -21,6 +21,7 @@ export const sellqoKeys = {
     all: ['sellqo', 'categories'] as const,
   },
   cart: (cartId: string) => ['sellqo', 'cart', cartId] as const,
+  shippingCountries: ['sellqo', 'shipping', 'countries'] as const,
 };
 
 // === PRODUCT HOOKS ===
@@ -344,6 +345,29 @@ export function useCreateCheckout() {
     },
     onSuccess: (response: any) => {
       console.log('Checkout started:', response);
+    },
+  });
+}
+
+export interface ShippingCountriesInfo {
+  countries: string[];
+  unrestricted: boolean;
+  default_country: string | null;
+}
+
+export function useShippingCountries() {
+  return useQuery<ShippingCountriesInfo>({
+    queryKey: sellqoKeys.shippingCountries,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const res = await shippingAPI.getCountries();
+      const raw = (extractSingle<any>(res) || res) as any;
+      const codes = Array.isArray(raw?.countries) ? raw.countries : [];
+      return {
+        countries: codes.map((c: string) => String(c).toUpperCase()),
+        unrestricted: raw?.unrestricted === true,
+        default_country: raw?.default_country ? String(raw.default_country).toUpperCase() : null,
+      };
     },
   });
 }
