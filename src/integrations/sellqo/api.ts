@@ -164,7 +164,19 @@ export const checkoutAPI = {
     sellqoFetch<{ order_id: string; order_number: string; status: string; total: number; currency: string }>(`/checkout/order?stripe_session_id=${encodeURIComponent(stripe_session_id)}`),
 };
 
+// === SHIPPING ===
+export const shippingAPI = {
+  // NOTE: underscores are required — the proxy falls back to segments.join('_')
+  // so this maps to the storefront action `get_shipping_countries`.
+  getCountries: () =>
+    sellqoFetch<{ countries: string[]; unrestricted: boolean; default_country: string | null }>(
+      '/get_shipping_countries',
+      { method: 'POST', body: JSON.stringify({}) }
+    ),
+};
+
 // === NEWSLETTER ===
+
 export const newsletterAPI = {
   subscribe: (email: string) =>
     sellqoFetch<{ success: boolean; message: string }>('/newsletter/subscribe', {
