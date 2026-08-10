@@ -1,16 +1,65 @@
-## Doel
-Op **desktop** (md en groter) de grote hero-afbeelding met de 3 modellen bovenaan `/streetwear` verwijderen, zodat de header (announcement bar + navbar) direct bovenaan de pagina staat. Op mobiel/tablet blijft alles zoals het nu is (de banner was daar toch al verborgen).
+# SHIP-GEO-FE-1 — Dynamische verzendlandenlijst in de checkout
 
-## Wijziging
-**`src/components/layout/Layout.tsx`**
-- De regel `{isHome && <LookbookBanner />}` verwijderen.
-- Import van `LookbookBanner` verwijderen.
+De adresstap van de checkout gebruikt nu een vaste lijst van tien landen. Die lijst
+verdwijnt: de winkel bepaalt zelf naar welke landen verzonden wordt, en de dropdown
+toont uitsluitend die landen.
 
-Resultaat: de `LookbookBanner` wordt niet meer gerenderd op `/streetwear`. Omdat de banner al `hidden md:block` was, verandert er niets op mobiel/tablet; op desktop verdwijnt de hero volledig en schuift de content direct onder de navbar.
+## Wat de klant merkt
 
-Het bestand `src/components/layout/LookbookBanner.tsx` laten we staan (ongebruikt, geen impact) voor het geval je hem later wil terugzetten. Als je hem meteen wil verwijderen, zeg het en ik doe het mee.
+- De landenkeuze toont enkel landen waar echt naar verzonden wordt.
+- Is er precies één toegestaan land, dan staat er geen keuzelijst maar een vaste
+  regel met dat land (leest als bevestiging).
+- Verzendt de winkel tijdelijk nergens naartoe, dan komt er een melding
+  "Deze winkel verzendt momenteel niet" en is doorgaan naar betaling niet mogelijk.
+- Landnamen staan in de taal van de bezoeker (Nederlands als terugvaloptie),
+  alfabetisch gesorteerd op die naam.
+- Stond er nog een niet-toegestaan land opgeslagen (bijvoorbeeld uit een eerder
+  account-adres), dan wordt dat automatisch gecorrigeerd naar het standaardland.
 
-## Validatie
-- `/streetwear` op desktop: geen hero-banner meer, navbar staat direct onder de announcement bar.
-- `/streetwear` op mobiel: onveranderd.
-- Andere pagina's: onveranderd (banner werd daar toch niet getoond).
+## Technische uitvoering
+
+**1. API-call (`src/integrations/sellqo/api.ts`)**
+
+Nieuw: `shippingAPI.getCountries()` → `sellqoFetch('/get_shipping_countries', { method: 'POST', body: '{}' })`.
+De proxy heeft geen wijziging nodig: de fallback in `resolveAction` doet
+`segments.join('_')`, dus het pad met underscores mapt exact op action
+`get_shipping_countries` met de tenant-id uit de header. Geen streepjes gebruiken.
+
+Responsevorm: `{ countries: string[], unrestricted: boolean, default_country: string | null }`,
+gelezen via de bestaande `extractSingle`/plat-object-tolerantie.
+
+**2. Hook (`src/integrations/sellqo/hooks.ts`)**
+
+`useShippingCountries()` op react-query, `staleTime: 5 * 60 * 1000`, geen cart-afhankelijkheid.
+
+**3. Landnaam-helper (nieuw bestand `src/lib/countries.ts`)**
+
+- `localizedCountryName(code, locale)` via `Intl.DisplayNames(locale, { type: 'region' })`
+  met `try/catch` en `nl` als fallback, en de ISO-code zelf als laatste redmiddel.
+- `localizedCountryOptions(codes, locale)` → `{ code, name }[]` gesorteerd op naam
+  met `localeCompare`.
+- `FALLBACK_COUNTRY_CODES`: de volledige ISO-2 lijst die enkel gebruikt wordt wanneer
+  `unrestricted: true`.
+
+**4. Adresstap (`src/pages/CheckoutAddress.tsx`)**
+
+- Verwijder de hardcoded `countries`-constante volledig.
+- Bereken `options` uit de hook: `unrestricted` → `FALLBACK_COUNTRY_CODES`, anders
+  uitsluitend `countries`.
+- Effect dat `addressForm.country` (en `billingForm.country` bij een apart
+  factuuradres) corrigeert naar `default_country` zodra de lijst geladen is en de
+  huidige waarde er niet in staat. Initiële state wordt niet meer hard op `'BE'`
+  gezet maar leeg, tot de lijst binnen is.
+- Eén toegestaan land → geen `<select>`, maar een read-only regel met de
+  gelokaliseerde naam; de ISO-code gaat gewoon mee in de payload.
+- Lege lijst met `unrestricted: false` → melding boven het formulier en de knop
+  "Doorgaan naar betaling" verborgen/disabled.
+- Laadtoestand: select disabled zolang de lijst nog niet binnen is.
+
+Er komt geen eigen extra validatie bij: bij `checkout_shipping` blijft de server
+leidend en de foutmelding daarvan wordt ongewijzigd aan de klant getoond.
+
+**5. Opruiming**
+
+Grep na de wijziging op landenlijsten in checkout-code. `src/pages/Account.tsx`
+heeft een vrij tekstveld voor land (geen lijst) en valt buiten deze scope.
