@@ -7,6 +7,8 @@ import { useSellQoCart } from '@/integrations/sellqo/CartContext';
 import { useCheckout } from '@/integrations/sellqo/CheckoutContext';
 import { useCustomerAuth } from '@/integrations/sellqo/CustomerAuthContext';
 import { checkoutAPI } from '@/integrations/sellqo/api';
+import { useShippingCountries } from '@/integrations/sellqo/hooks';
+import { localizedCountryOptions, FALLBACK_COUNTRY_CODES } from '@/lib/countries';
 import { formatPrice } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -16,6 +18,15 @@ const CheckoutAddress = () => {
   const { items: cartItems } = useSellQoCart();
   const { checkoutData, initCheckout, updateFromResponse } = useCheckout();
   const { customer } = useCustomerAuth();
+  const { data: shipCountries, isLoading: countriesLoading } = useShippingCountries();
+
+  const locale = typeof navigator !== 'undefined' ? (navigator.language || 'nl') : 'nl';
+  const allowedCodes = shipCountries
+    ? (shipCountries.unrestricted ? FALLBACK_COUNTRY_CODES : shipCountries.countries)
+    : [];
+  const countryOptions = localizedCountryOptions(allowedCodes, locale);
+  const noShipping = !!shipCountries && !shipCountries.unrestricted && shipCountries.countries.length === 0;
+  const singleCountry = countryOptions.length === 1 ? countryOptions[0] : null;
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -24,11 +35,11 @@ const CheckoutAddress = () => {
     email: '', first_name: '', last_name: '', phone: '',
   });
   const [addressForm, setAddressForm] = useState({
-    street: '', house_number: '', postal_code: '', city: '', country: 'BE', company: '',
+    street: '', house_number: '', postal_code: '', city: '', country: '', company: '',
   });
   const [billingSame, setBillingSame] = useState(true);
   const [billingForm, setBillingForm] = useState({
-    street: '', house_number: '', postal_code: '', city: '', country: 'BE', company: '',
+    street: '', house_number: '', postal_code: '', city: '', country: '', company: '',
   });
 
   // Ensure checkout is initialized
@@ -59,12 +70,23 @@ const CheckoutAddress = () => {
           house_number: prev.house_number || addr.house_number || '',
           postal_code: prev.postal_code || addr.postal_code || '',
           city: prev.city || addr.city || '',
-          country: prev.country || addr.country || 'BE',
+          country: prev.country || addr.country || '',
           company: prev.company || '',
         }));
       }
     }
   }, [customer]);
+
+  // Correct invalid / empty country once the allowed list is known
+  useEffect(() => {
+    if (!shipCountries || countryOptions.length === 0) return;
+    const codes = countryOptions.map(o => o.code);
+    const fallback = shipCountries.default_country && codes.includes(shipCountries.default_country)
+      ? shipCountries.default_country
+      : codes[0];
+    setAddressForm(p => (codes.includes(p.country.toUpperCase()) ? p : { ...p, country: fallback }));
+    setBillingForm(p => (codes.includes(p.country.toUpperCase()) ? p : { ...p, country: fallback }));
+  }, [shipCountries, countryOptions.length]);
 
   const handleSubmit = async () => {
     setFieldErrors({});
@@ -72,7 +94,7 @@ const CheckoutAddress = () => {
       toast.error('Vul alle verplichte velden in');
       return;
     }
-    if (!addressForm.street || !addressForm.postal_code || !addressForm.city) {
+    if (!addressForm.street || !addressForm.postal_code || !addressForm.city || !addressForm.country) {
       toast.error('Vul alle adresvelden in');
       return;
     }
@@ -154,14 +176,6 @@ const CheckoutAddress = () => {
       setIsProcessing(false);
     }
   };
-
-  const countries = [
-    { code: 'BE', name: 'België' }, { code: 'NL', name: 'Nederland' },
-    { code: 'DE', name: 'Duitsland' }, { code: 'FR', name: 'Frankrijk' },
-    { code: 'LU', name: 'Luxemburg' }, { code: 'GB', name: 'Verenigd Koninkrijk' },
-    { code: 'IT', name: 'Italië' }, { code: 'ES', name: 'Spanje' },
-    { code: 'AT', name: 'Oostenrijk' }, { code: 'US', name: 'Verenigde Staten' },
-  ];
 
   const displayItems = checkoutData?.items?.length ? checkoutData.items : cartItems;
 
@@ -245,13 +259,20 @@ const CheckoutAddress = () => {
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Land *</label>
-                <select
-                  value={addressForm.country}
-                  onChange={e => setAddressForm(p => ({ ...p, country: e.target.value }))}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  {countries.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
-                </select>
+                {singleCountry ? (
+                  <p className="flex h-10 w-full items-center border border-input bg-muted/30 px-3 text-sm text-foreground">
+                    {singleCountry.name}
+                  </p>
+                ) : (
+                  <select
+                    value={addressForm.country}
+                    onChange={e => setAddressForm(p => ({ ...p, country: e.target.value }))}
+                    disabled={countriesLoading || countryOptions.length === 0}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                  >
+                    {countryOptions.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                  </select>
+                )}
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Bedrijf (optioneel)</label>
@@ -290,25 +311,38 @@ const CheckoutAddress = () => {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">Land *</label>
-                  <select
-                    value={billingForm.country}
-                    onChange={e => setBillingForm(p => ({ ...p, country: e.target.value }))}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {countries.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
-                  </select>
+                  {singleCountry ? (
+                    <p className="flex h-10 w-full items-center border border-input bg-muted/30 px-3 text-sm text-foreground">
+                      {singleCountry.name}
+                    </p>
+                  ) : (
+                    <select
+                      value={billingForm.country}
+                      onChange={e => setBillingForm(p => ({ ...p, country: e.target.value }))}
+                      disabled={countriesLoading || countryOptions.length === 0}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                    >
+                      {countryOptions.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                    </select>
+                  )}
                 </div>
               </div>
             )}
 
-            <button
+            {noShipping && (
+              <p className="border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-foreground">
+                Deze winkel verzendt momenteel niet.
+              </p>
+            )}
+
+            {!noShipping && <button
               onClick={handleSubmit}
               disabled={isProcessing}
               className="w-full border border-foreground text-foreground py-3.5 text-xs uppercase tracking-button font-medium hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
               Doorgaan naar betaling
-            </button>
+            </button>}
 
             <button
               onClick={() => navigate('/checkout')}
