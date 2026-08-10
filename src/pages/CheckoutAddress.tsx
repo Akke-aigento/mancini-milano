@@ -8,7 +8,7 @@ import { useCheckout } from '@/integrations/sellqo/CheckoutContext';
 import { useCustomerAuth } from '@/integrations/sellqo/CustomerAuthContext';
 import { checkoutAPI } from '@/integrations/sellqo/api';
 import { useShippingCountries } from '@/integrations/sellqo/hooks';
-import { localizedCountryName, localizedCountryOptions, FALLBACK_COUNTRY_CODES } from '@/lib/countries';
+import { localizedCountryOptions, FALLBACK_COUNTRY_CODES } from '@/lib/countries';
 import { formatPrice } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
