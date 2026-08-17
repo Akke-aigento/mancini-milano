@@ -260,7 +260,7 @@ to="/streetwear/collections/women"
                   to={`/streetwear/products/${product.slug}`}
                   className="group block"
                 >
-                  <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card border border-transparent group-hover:border-classic-gold/40 transition-colors">
+                  <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card border border-transparent group-hover:border-white/40 transition-colors">
                     {product.images?.[0] && (
                       <img
                         src={product.images[0].url}
