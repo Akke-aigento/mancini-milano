@@ -367,7 +367,18 @@ const Navbar = () => {
 
           {/* Mobile right: world switch + cart */}
           <div className="flex items-center gap-0.5 lg:hidden">
-            {!isStreetwear && <WorldSwitch variant="mobile" />}
+            {isStreetwear ? (
+              <Link
+                to="/"
+                aria-label="Back to worlds menu"
+                className="flex items-center gap-1 h-8 px-2.5 border border-foreground/30 text-foreground text-[9px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background transition-colors"
+              >
+                <span aria-hidden="true">←</span>
+                <span>Menu</span>
+              </Link>
+            ) : (
+              <WorldSwitch variant="mobile" />
+            )}
             <button
               onClick={openCart}
               className="relative min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
