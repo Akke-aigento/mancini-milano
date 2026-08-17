@@ -272,7 +272,7 @@ to="/streetwear/collections/women"
                     <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <h3 className="text-sm font-medium text-foreground mb-1 truncate">{product.title}</h3>
-                  <p className="text-sm text-classic-gold font-medium">{formatPrice(product.price)}</p>
+                  <p className="text-sm text-white font-medium">{formatPrice(product.price)}</p>
                 </Link>
               ))}
             </div>
