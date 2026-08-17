@@ -280,7 +280,7 @@ to="/streetwear/collections/women"
             <div className="flex justify-center mt-12">
               <Link
                 to="/streetwear/collections/tracksuits"
-                className="inline-block border border-classic-gold text-classic-gold px-10 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors"
+                className="inline-block border border-white text-white px-10 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-white hover:text-background transition-colors"
               >
                 Shop Tracksuits
               </Link>
