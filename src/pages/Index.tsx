@@ -134,7 +134,7 @@ to="/streetwear/collections/women"
             alt="Mancini Milano — Italian luxury streetwear brand illustration featuring signature Doberman design"
             fetchPriority="high"
             decoding="async"
-            className="absolute inset-0 w-full h-full object-cover object-top"
+            className="absolute inset-0 w-full h-full object-contain object-center"
           />
           <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent" />
         </div>
