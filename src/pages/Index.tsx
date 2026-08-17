@@ -25,6 +25,7 @@ function formatPrice(price: number) {
 
 const Index = () => {
   const { data: trendingProducts = [] } = useProducts({ category_slug: 'trending' });
+  const { data: tracksuitProducts = [] } = useProducts({ category_slug: 'tracksuits' });
   const { data: shopTheLookProducts = [] } = useProducts({ category_slug: 'shop-the-look' });
   const { data: fragrance } = useProduct('mancini-milano');
   const { data: categories = [] } = useCategories();
