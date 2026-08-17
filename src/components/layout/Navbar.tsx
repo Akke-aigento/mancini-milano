@@ -367,16 +367,7 @@ const Navbar = () => {
 
           {/* Mobile right: world switch + cart */}
           <div className="flex items-center gap-0.5 lg:hidden">
-            {isStreetwear ? (
-              <Link
-                to="/"
-                aria-label="Back to worlds menu"
-                className="flex items-center gap-1 h-8 px-2.5 border border-foreground/30 text-foreground text-[9px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background transition-colors"
-              >
-                <span aria-hidden="true">←</span>
-                <span>Menu</span>
-              </Link>
-            ) : (
+            {isStreetwear ? null : (
               <WorldSwitch variant="mobile" />
             )}
             <button
@@ -452,6 +443,16 @@ const Navbar = () => {
             </button>
           </div>
           <div className="px-6 py-4 overflow-y-auto overscroll-contain touch-pan-y h-[calc(100vh-64px)]">
+            {isStreetwear && (
+              <Link
+                to="/"
+                onClick={closeMobile}
+                className="flex items-center justify-center gap-2 h-12 mb-4 border border-border text-xs uppercase tracking-button text-foreground hover:border-classic-gold/60 hover:text-classic-gold transition-colors min-h-[44px]"
+              >
+                <span aria-hidden="true">←</span>
+                <span>Back to Worlds</span>
+              </Link>
+            )}
             {/* Quick actions: search + account */}
             <div className="grid grid-cols-2 gap-2 pb-4 border-b border-border">
               <button
