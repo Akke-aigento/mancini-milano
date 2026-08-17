@@ -241,13 +241,13 @@ to="/streetwear/collections/women"
         <section className="pb-20 lg:pb-28">
           <div className="max-w-site mx-auto px-4 lg:px-8">
             <div className="flex flex-col items-center text-center mb-10">
-              <span className="text-classic-gold text-[10px] uppercase tracking-[0.35em] font-medium mb-4">
+              <span className="text-white text-[10px] uppercase tracking-[0.35em] font-medium mb-4">
                 Featured
               </span>
               <h2 className="font-heading text-2xl lg:text-4xl tracking-heading uppercase text-foreground">
                 Tracksuits
               </h2>
-              <div className="w-10 h-px bg-classic-gold/70 mt-5" />
+              <div className="w-10 h-px bg-white/70 mt-5" />
               <p className="text-muted-foreground text-sm mt-5 max-w-md">
                 Tailored comfort in premium fabrics — the Mancini Milano tracksuit, engineered for effortless presence.
               </p>
