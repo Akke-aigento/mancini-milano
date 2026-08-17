@@ -236,6 +236,59 @@ to="/streetwear/collections/women"
         </div>
       </section>
 
+      {/* SECTION 4B: FEATURED TRACKSUITS */}
+      {tracksuitProducts.length > 0 && (
+        <section className="pb-20 lg:pb-28">
+          <div className="max-w-site mx-auto px-4 lg:px-8">
+            <div className="flex flex-col items-center text-center mb-10">
+              <span className="text-classic-gold text-[10px] uppercase tracking-[0.35em] font-medium mb-4">
+                Featured
+              </span>
+              <h2 className="font-heading text-2xl lg:text-4xl tracking-heading uppercase text-foreground">
+                Tracksuits
+              </h2>
+              <div className="w-10 h-px bg-classic-gold/70 mt-5" />
+              <p className="text-muted-foreground text-sm mt-5 max-w-md">
+                Tailored comfort in premium fabrics — the Mancini Milano tracksuit, engineered for effortless presence.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              {tracksuitProducts.slice(0, 8).map((product: Product) => (
+                <Link
+                  key={product.id}
+                  to={`/streetwear/products/${product.slug}`}
+                  className="group block"
+                >
+                  <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card border border-transparent group-hover:border-classic-gold/40 transition-colors">
+                    {product.images?.[0] && (
+                      <img
+                        src={product.images[0].url}
+                        alt={product.images[0].alt || product.title}
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <h3 className="text-sm font-medium text-foreground mb-1 truncate">{product.title}</h3>
+                  <p className="text-sm text-classic-gold font-medium">{formatPrice(product.price)}</p>
+                </Link>
+              ))}
+            </div>
+
+            <div className="flex justify-center mt-12">
+              <Link
+                to="/streetwear/collections/tracksuits"
+                className="inline-block border border-classic-gold text-classic-gold px-10 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-classic-gold hover:text-background transition-colors"
+              >
+                Shop Tracksuits
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* SECTION 5: SHOP THE LOOK */}
       {shopTheLookProducts.length > 0 && (
         <section className="pb-20 lg:pb-28">
