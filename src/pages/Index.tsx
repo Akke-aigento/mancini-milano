@@ -53,12 +53,12 @@ const Index = () => {
       await newsletterMutation.mutateAsync({ email });
       setNewsletterStatus('success');
       setEmail('');
-      toast.success('Je bent ingeschreven!', {
-        description: 'Welcome to the movement. Verwacht exclusieve drops en updates.',
+      toast.success("You're subscribed!", {
+        description: 'Welcome to the movement. Expect exclusive drops and updates.',
       });
     } catch {
       setNewsletterStatus('error');
-      toast.error('Er ging iets mis. Probeer het opnieuw.');
+      toast.error('Something went wrong. Please try again.');
     }
   };
 
@@ -296,7 +296,7 @@ to="/streetwear/collections/women"
               <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-md mx-auto lg:mx-0">
                   A fragrance for men who dominate without speaking. Intense. Powerful. Unforgettable. Crafted with bold notes of black pepper, cedarwood, and deep patchouli.
                 </p>
-                {/* Afbeelding — alleen op mobiel/tablet */}
+                {/* Image — mobile/tablet only */}
                 <div className="flex justify-center my-8 lg:hidden">
                   <div className="w-56">
                     {fragrance.images?.[0] && (
@@ -338,8 +338,8 @@ to="/streetwear/collections/women"
               <div className="flex items-center gap-3">
                 <Check className="h-4 w-4 text-primary flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">Je bent ingeschreven!</p>
-                  <p className="text-xs text-muted-foreground mt-1">Verwacht exclusieve drops en updates in je inbox.</p>
+                  <p className="text-sm font-medium text-foreground">You're subscribed!</p>
+                  <p className="text-xs text-muted-foreground mt-1">Expect exclusive drops and updates in your inbox.</p>
                 </div>
               </div>
             </div>

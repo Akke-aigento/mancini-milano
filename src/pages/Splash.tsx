@@ -91,7 +91,7 @@ const Splash = () => {
                   </h2>
                   <div className="w-8 sm:w-10 h-px bg-foreground/70 mt-3 sm:mt-5 mb-2 sm:mb-3" />
                   <span className={`text-[9px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-foreground/90 transition-colors ${tile.comingSoon ? '' : 'group-hover:text-foreground'}`}>
-                    {tile.comingSoon ? 'Coming Soon' : 'Discover More'}
+                    {tile.comingSoon ? 'Coming Soon' : 'Shop Now'}
                   </span>
                 </div>
               </Wrapper>

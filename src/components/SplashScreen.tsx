@@ -47,7 +47,7 @@ const SplashScreen = () => {
       <button
         onClick={handleClose}
         className="absolute top-6 right-6 text-foreground/60 hover:text-foreground transition-colors z-10"
-        aria-label="Sluiten"
+        aria-label="Close"
       >
         <X className="h-6 w-6" />
       </button>
