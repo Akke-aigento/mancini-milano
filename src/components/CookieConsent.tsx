@@ -24,9 +24,9 @@ const CookieConsent = () => {
       <div className="border-t border-border bg-card px-4 py-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">
-            Wij gebruiken cookies om je ervaring te verbeteren. Essentiële cookies zijn noodzakelijk voor het functioneren van de site. Met "Accepteren" sta je ook analytische cookies toe.{' '}
+            We use cookies to improve your experience. Essential cookies are required for the site to function. By choosing "Accept" you also allow analytics cookies.{' '}
             <Link to="/privacy-policy" className="underline underline-offset-2 hover:text-foreground transition-colors">
-              Privacybeleid
+              Privacy Policy
             </Link>
           </p>
           <div className="flex items-center gap-3 shrink-0">
@@ -34,13 +34,13 @@ const CookieConsent = () => {
               onClick={() => handleConsent('essential')}
               className="text-xs border border-border text-muted-foreground hover:text-foreground hover:border-foreground px-4 py-2 transition-colors"
             >
-              Alleen noodzakelijk
+              Essential only
             </button>
             <button
               onClick={() => handleConsent('all')}
               className="text-xs border border-foreground bg-foreground text-background hover:bg-transparent hover:text-foreground px-4 py-2 transition-colors"
             >
-              Accepteren
+              Accept
             </button>
           </div>
         </div>

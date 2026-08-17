@@ -83,8 +83,8 @@ const Footer = () => {
                 <div className="flex items-center gap-3">
                   <Check className="h-4 w-4 text-primary flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-foreground">Je bent ingeschreven!</p>
-                    <p className="text-xs text-muted-foreground mt-1">Verwacht exclusieve drops en updates in je inbox.</p>
+                    <p className="text-sm font-medium text-foreground">You're subscribed!</p>
+                    <p className="text-xs text-muted-foreground mt-1">Expect exclusive drops and updates in your inbox.</p>
                   </div>
                 </div>
               </div>
@@ -97,7 +97,7 @@ const Footer = () => {
                   await newsletterAPI.subscribe(email);
                   setSubmitted(true);
                   toast.success('Welcome to the movement!', {
-                    description: 'Je ontvangt binnenkort exclusieve drops en updates.',
+                    description: 'You will receive exclusive drops and updates soon.',
                   });
                 } catch {
                   toast.error('Something went wrong. Please try again.');

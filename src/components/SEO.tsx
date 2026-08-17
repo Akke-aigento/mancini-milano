@@ -13,7 +13,7 @@ interface SEOProps {
 const SITE_URL = 'https://mancinimilano.com';
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 const DEFAULT_DESC =
-  'Mancini Milano crafts luxury streetwear with Italian heritage. Premium fabrics, limited drops, and uncompromising design — born in Milan, worn worldwide.';
+  'Luxury apparel inspired by Italian craftsmanship. Premium streetwear, classic apparel, sportswear, and kidswear crafted with exceptional quality, timeless design, and exclusive limited drops.';
 
 const SEO = ({
   title,
