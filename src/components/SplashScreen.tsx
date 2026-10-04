@@ -17,8 +17,8 @@ const SplashScreen = () => {
     }
     sessionStorage.setItem('splash_shown', '1');
 
-    const inTimer = setTimeout(() => setPhase('hold'), 500);
-    const outTimer = setTimeout(() => setPhase('out'), 2500);
+    const inTimer = setTimeout(() => setPhase((p) => (p === 'in' ? 'hold' : p)), 500);
+    const outTimer = setTimeout(() => setPhase((p) => (p === 'hold' ? 'out' : p)), 2500);
 
     return () => {
       clearTimeout(inTimer);
@@ -26,8 +26,15 @@ const SplashScreen = () => {
     };
   }, []);
 
+  // Fallback: transitionend does not always fire, which would leave the overlay blocking clicks.
+  useEffect(() => {
+    if (phase !== 'out') return;
+    const doneTimer = setTimeout(() => setPhase('done'), 1200);
+    return () => clearTimeout(doneTimer);
+  }, [phase]);
+
   const handleClose = () => {
-    setPhase('out');
+    setPhase(phase === 'in' ? 'done' : 'out');
   };
 
   const handleTransitionEnd = () => {
@@ -41,7 +48,7 @@ const SplashScreen = () => {
   return (
     <div
       onTransitionEnd={handleTransitionEnd}
-      className="fixed inset-0 z-[100] bg-background flex items-center justify-center transition-opacity duration-1000 ease-out"
+      className={`fixed inset-0 z-[100] bg-background flex items-center justify-center transition-opacity duration-1000 ease-out${phase !== 'hold' ? ' pointer-events-none' : ''}`}
       style={{ opacity: phase === 'in' ? 0 : phase === 'out' ? 0 : 1 }}
     >
       <button

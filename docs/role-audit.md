@@ -20,3 +20,11 @@
 - Mismatch detection only runs AFTER a successful `initCheckout` resolve. If `initCheckout` throws, the page shows the error-banner via `setCheckoutBlocked(true)` and does NOT attempt reconcile (prevents creating a fresh cart on transient backend errors).
 - After a successful init with items, `Checkout` writes the authoritative server cart into the react-query cache at `sellqoKeys.cart(cartId)` so `useSellQoCart()` / `CartContext` follows the server-state. This eliminates the "old + new items mix" after rapid-refresh + add-item.
 - Diagnostic logging added in `createCartIdempotent` (timestamp + in-flight state + resulting cart_id) for future race diagnosis.
+
+## 2026-10-04 — Splash-fallback + categoryvolgorde
+- `SplashScreen`: fallback `setTimeout(() => setPhase('done'), 1200)` zodra phase `'out'` wordt (opgeruimd in de effect-cleanup); `onTransitionEnd` blijft. `handleClose` gaat vanuit `'in'` direct naar `'done'`, anders `'out'`. Root-div is `pointer-events-none` zolang phase `!== 'hold'`. Visueel identiek.
+- Mount-timers gebruiken functionele guards (`inTimer`: `p === 'in' ? 'hold' : p`, `outTimer`: `p === 'hold' ? 'out' : p`) zodat een vroege close niet wordt overschreven: anders zette de inTimer de splash na een close tijdens `'in'` weer op `'hold'` (zichtbaar), en zette de outTimer na een close tijdens `'hold'` opnieuw `'out'` op een vers gemounte div zonder transitie.
+- Oorzaak klik-bug: `'done'` werd alleen via `transitionend` bereikt. Vuurde dat event niet (o.a. de outTimer-herstart hierboven, achtergrondtab), dan bleef een onzichtbare `fixed inset-0 z-[100]`-laag alle kliks blokkeren.
+- `normalizeCategory(raw, index)`: `position = raw.position ?? raw.sort_order ?? index`; `normalizeCategories` geeft de array-index mee.
+- Oorzaak menuvolgorde: de storefront-API levert categorieën al gesorteerd op `sort_order` maar stuurt het veld niet mee → `position` stond altijd op 0 → Navbar sorteerde alfabetisch.
+- Verificatie volgt na publish.

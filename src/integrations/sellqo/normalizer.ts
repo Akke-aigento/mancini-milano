@@ -118,7 +118,7 @@ export function normalizeCollections(rawCollections: any[]): Collection[] {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function normalizeCategory(raw: any): Category {
+export function normalizeCategory(raw: any, index = 0): Category {
   return {
     id: raw.id,
     slug: raw.slug || '',
@@ -127,12 +127,13 @@ export function normalizeCategory(raw: any): Category {
     image: raw.image_url || raw.image || undefined,
     product_count: raw.product_count ?? undefined,
     parent_id: raw.parent_id || undefined,
-    position: raw.position ?? 0,
+    // Storefront API returns categories pre-sorted by sort_order but omits the field itself.
+    position: raw.position ?? raw.sort_order ?? index,
   };
 }
 
 export function normalizeCategories(rawCategories: any[]): Category[] {
-  return (rawCategories || []).map(normalizeCategory);
+  return (rawCategories || []).map((c, i) => normalizeCategory(c, i));
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
