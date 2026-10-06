@@ -40,6 +40,24 @@ export function extractSingle<T>(response: unknown): T | null {
   return null;
 }
 
+/**
+ * Error thrown for non-2xx SellQo responses. `code`/`details` are only present
+ * when the proxy forwards them (error_code / error_details).
+ */
+export class SellQoError extends Error {
+  status?: number;
+  code?: string;
+  details?: Record<string, unknown>;
+
+  constructor(message: string, opts: { status?: number; code?: string; details?: Record<string, unknown> } = {}) {
+    super(message);
+    this.name = 'SellQoError';
+    this.status = opts.status;
+    this.code = opts.code;
+    this.details = opts.details;
+  }
+}
+
 export async function sellqoFetch<T = unknown>(
   endpoint: string,
   options?: RequestInit
@@ -68,7 +86,11 @@ export async function sellqoFetch<T = unknown>(
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: `HTTP ${res.status}` }));
     console.error(`SellQo API error (${res.status}):`, error);
-    throw new Error(error.message || error.error || `SellQo API error: ${res.status}`);
+    throw new SellQoError(error.message || error.error || `SellQo API error: ${res.status}`, {
+      status: res.status,
+      code: typeof error.error_code === 'string' ? error.error_code : undefined,
+      details: error.error_details && typeof error.error_details === 'object' ? error.error_details : undefined,
+    });
   }
 
   return res.json();

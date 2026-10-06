@@ -28,3 +28,12 @@
 - `normalizeCategory(raw, index)`: `position = raw.position ?? raw.sort_order ?? index`; `normalizeCategories` geeft de array-index mee.
 - Oorzaak menuvolgorde: de storefront-API levert categorieën al gesorteerd op `sort_order` maar stuurt het veld niet mee → `position` stond altijd op 0 → Navbar sorteerde alfabetisch.
 - Verificatie volgt na publish.
+
+## 2026-10-06 — MM-CART-FIX
+- Oorzaak: `cart_get` geeft bij een verlopen cart (30 dagen) `{ success: true, data: null }`. `createCartIdempotent` deed `extractSingle(result) || result` → `normalizeCart` → cart met `id: ''`, behandelde die als "reused existing" → `addItem` op `/cart//items` → generieke toast. Het stale ID werd nooit gewist, dus de browser bleef permanent vastzitten.
+- `readCart()` (hooks.ts) geeft alleen een cart terug met een niet-leeg id. `createCartIdempotent` hergebruikt alleen zo'n cart; anders `clearStoredCartId()` en een nieuwe cart aanmaken. `useCartQuery` past dezelfde regel toe (data null → ID wissen).
+- `useAddToCart`: faalt `addItem` met een cart-fout (code `CART_NOT_FOUND`/`CART_EXPIRED`/`INVALID_CART`, of een message over cart not found/expired/invalid of een ongeldige uuid), dan wordt het ID gewist, een nieuwe cart aangemaakt en één keer opnieuw geprobeerd. Geeft `addItem` geen bruikbare cart terug (core `cartAddItem` checkt `expires_at` niet), dan geldt dat als `CART_EXPIRED` → retry. Er wordt niet op HTTP-status gematcht: upstream geeft hier 500's.
+- Foutmeldingen: `sellqoFetch` gooit `SellQoError` (status/code/details; message ongewijzigd). `INSUFFICIENT_STOCK` → "Only {n} left" (n = `error_details.available_stock` > 0), anders "Sorry, this size is sold out". Andere codes → de message van de API. Geen code → de bestaande generieke tekst.
+- `sellqo-proxy`: bij non-2xx wordt `error` (object, of een JSON-string `{code, message, available_stock}`) geparst. `error` blijft een string; `error_code` en `error_details` worden toegevoegd. De frontend werkt vóór en na de proxy-deploy (zonder code → generieke tekst).
+- De diagnostische logging in `createCartIdempotent` (zie "Rapid-refresh race fix") is verwijderd.
+- Verificatie volgt na publish en na de proxy-deploy.

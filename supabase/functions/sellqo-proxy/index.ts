@@ -180,12 +180,30 @@ Deno.serve(async (req) => {
     const responseBody = await response.text();
     console.log(`[proxy-v3] upstream ${response.status} len=${responseBody.length}`);
 
-    // Fix upstream responses that contain "[object Object]" as error
+    // Fix upstream responses that contain "[object Object]" as error, and forward
+    // the error code/details. Upstream sometimes sends error as a JSON string
+    // ({ code, message, available_stock }); `error` itself stays a string.
     if (!response.ok) {
       try {
         const parsed = JSON.parse(responseBody);
+        let errObj: Record<string, unknown> | null = null;
         if (parsed.error && typeof parsed.error === 'object') {
-          parsed.error = parsed.error.message || JSON.stringify(parsed.error);
+          errObj = parsed.error;
+        } else if (typeof parsed.error === 'string') {
+          try {
+            const inner = JSON.parse(parsed.error);
+            if (inner && typeof inner === 'object' && !Array.isArray(inner)) errObj = inner;
+          } catch { /* plain string error */ }
+        }
+        if (errObj) {
+          const { code, message, details, ...rest } = errObj;
+          parsed.error = (typeof message === 'string' && message) || JSON.stringify(errObj);
+          if (typeof code === 'string' && code) parsed.error_code = code;
+          const errorDetails = {
+            ...(details && typeof details === 'object' ? details as Record<string, unknown> : {}),
+            ...rest,
+          };
+          if (Object.keys(errorDetails).length > 0) parsed.error_details = errorDetails;
           return new Response(JSON.stringify(parsed), {
             status: response.status,
             headers: { ...corsHeaders, "Content-Type": "application/json" },

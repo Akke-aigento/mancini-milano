@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productsAPI, collectionsAPI, categoriesAPI, cartAPI, checkoutAPI, newsletterAPI, shippingAPI } from './api';
-import { extractArray, extractSingle } from './client';
+import { extractArray, extractSingle, SellQoError } from './client';
 import { normalizeProducts, normalizeProduct, normalizeCollections, normalizeCart, normalizeCategories } from './normalizer';
 import type { Cart, Product, Collection, Category, ProductsParams } from './types';
 
@@ -134,6 +134,28 @@ function getStoredCartId(): string | null {
   return id;
 }
 
+function clearStoredCartId() {
+  try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
+  try { sessionStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
+}
+
+// Returns null for responses without a usable cart. cart_get returns
+// { success: true, data: null } for an expired (30 days) cart.
+function readCart(result: unknown): Cart | null {
+  const raw = extractSingle<Cart>(result);
+  if (!raw) return null;
+  const cart = normalizeCart(raw);
+  return cart?.id ? cart : null;
+}
+
+// Errors that mean the stored cart id is unusable (expired, not found, malformed).
+// Matches on code or message only: upstream returns 500 for these, so status is not reliable.
+function isStaleCartError(err: unknown): boolean {
+  if (err instanceof SellQoError && err.code && /CART_NOT_FOUND|CART_EXPIRED|INVALID_CART/.test(err.code)) return true;
+  const message = err instanceof Error ? err.message : '';
+  return /cart.*(not found|expired|invalid)|invalid input syntax for type uuid|invalid.*uuid/i.test(message);
+}
+
 function storeCartId(cartId: string) {
   try { localStorage.setItem(CART_STORAGE_KEY, cartId); } catch { /* noop */ }
   try { sessionStorage.setItem(CART_STORAGE_KEY, cartId); } catch { /* noop */ }
@@ -153,35 +175,25 @@ function markCartOrphaned(cartId: string) {
 let inFlightCartCreate: Promise<Cart> | null = null;
 
 async function createCartIdempotent(): Promise<Cart> {
-  const ts = () => new Date().toISOString();
   const existing = getStoredCartId();
-  console.log('[createCartIdempotent] enter', { ts: ts(), existing, inFlight: !!inFlightCartCreate });
   if (existing) {
     try {
-      const result = await cartAPI.get(existing);
-      const raw = extractSingle<Cart>(result) || result;
-      const cart = normalizeCart(raw);
-      console.log('[createCartIdempotent] reused existing', { ts: ts(), cartId: cart?.id });
-      return cart;
+      const cart = readCart(await cartAPI.get(existing));
+      if (cart) return cart;
     } catch {
       // stale id — fall through and create a fresh one
-      console.warn('[createCartIdempotent] stale existing, clearing', { ts: ts(), existing });
-      try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
-      try { sessionStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
     }
+    clearStoredCartId();
   }
   if (inFlightCartCreate) {
-    console.log('[createCartIdempotent] joining in-flight create', { ts: ts() });
     return inFlightCartCreate;
   }
   inFlightCartCreate = (async () => {
     try {
-      console.log('[createCartIdempotent] cartAPI.create() start', { ts: ts() });
       const result = await cartAPI.create();
       const raw = extractSingle<Cart>(result) || result;
       const cart = normalizeCart(raw);
       storeCartId(cart.id);
-      console.log('[createCartIdempotent] cartAPI.create() done', { ts: ts(), cartId: cart?.id });
       return cart;
     } finally {
       inFlightCartCreate = null;
@@ -196,14 +208,14 @@ export function useCartQuery() {
     queryKey: sellqoKeys.cart(cartId || ''),
     queryFn: async () => {
       try {
-        const result = await cartAPI.get(cartId!);
-        const raw = extractSingle<Cart>(result) || result;
-        return normalizeCart(raw);
+        const cart = readCart(await cartAPI.get(cartId!));
+        // data: null means the cart expired — clear stale ID
+        if (!cart) clearStoredCartId();
+        return cart ?? undefined;
       } catch (err) {
         // Cart doesn't exist anymore — clear stale ID
         console.warn('Cart not found, clearing stored cart ID');
-        try { localStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
-        try { sessionStorage.removeItem(CART_STORAGE_KEY); } catch { /* noop */ }
+        clearStoredCartId();
         return undefined;
       }
     },
@@ -228,11 +240,30 @@ export function useAddToCart() {
 
   return useMutation({
     mutationFn: async (item: { product_id: string; variant_id?: string; quantity: number }) => {
-      const cart = await createCartIdempotent();
-      const activeCartId = cart.id;
-      const result = await cartAPI.addItem(activeCartId, item);
-      const raw = extractSingle<Cart>(result) || result;
-      return normalizeCart(raw);
+      const attempt = async () => {
+        const cart = await createCartIdempotent();
+        const result = await cartAPI.addItem(cart.id, item);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const body = result as any;
+        if (body?.success === false) {
+          throw new SellQoError(
+            typeof body.error === 'string' ? body.error : body.error?.message || 'Add to cart failed',
+            { code: body.error_code ?? body.error?.code, details: body.error_details },
+          );
+        }
+        const updated = readCart(result);
+        // cartAddItem does not check expires_at, so an item can land in a just-expired cart.
+        if (!updated) throw new SellQoError('cart expired', { code: 'CART_EXPIRED' });
+        return updated;
+      };
+      try {
+        return await attempt();
+      } catch (err) {
+        if (!isStaleCartError(err)) throw err;
+        // Stored cart is unusable: start a fresh cart and retry once.
+        clearStoredCartId();
+        return await attempt();
+      }
     },
     onSuccess: (cart) => {
       queryClient.setQueryData(sellqoKeys.cart(cart.id), cart);

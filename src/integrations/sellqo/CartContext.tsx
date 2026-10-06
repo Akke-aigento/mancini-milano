@@ -1,7 +1,21 @@
 import React, { createContext, useContext, useCallback, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCartQuery, useAddToCart, useUpdateCartItem, useRemoveCartItem, useApplyDiscount, useCreateCheckout, CART_STORAGE_KEY, getStoredCartId, sellqoKeys } from './hooks';
+import { SellQoError } from './client';
 import type { Cart, CartItem } from './types';
+
+// error_code is only present once the proxy forwards it; without it we keep the generic text.
+function addToCartErrorMessage(error: unknown): string {
+  if (error instanceof SellQoError && error.code) {
+    if (error.code === 'INSUFFICIENT_STOCK') {
+      const available = Number(error.details?.available_stock);
+      return available > 0 ? `Only ${available} left` : 'Sorry, this size is sold out';
+    }
+    // CART_EXPIRED is raised client-side (hooks.ts) and has no customer-facing message.
+    if (error.code !== 'CART_EXPIRED' && error.message) return error.message;
+  }
+  return 'Could not add to cart. Please try again.';
+}
 
 interface CartContextType {
   cart: Cart | undefined;
@@ -51,7 +65,7 @@ export function SellQoCartProvider({ children }: { children: React.ReactNode }) 
     } catch (error) {
       console.error('Add to cart failed:', error);
       const { toast } = await import('sonner');
-      toast.error('Could not add to cart. Please try again.');
+      toast.error(addToCartErrorMessage(error));
     }
   }, [addToCartMutation]);
 
