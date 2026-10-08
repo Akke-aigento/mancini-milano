@@ -8,6 +8,7 @@ import { SellQoCartProvider } from "@/integrations/sellqo/CartContext";
 import { CustomerAuthProvider } from "@/integrations/sellqo/CustomerAuthContext";
 import { WorldProvider } from "@/contexts/WorldContext";
 import ScrollToTop from "@/components/ScrollToTop";
+import { useApplyUpdateOnNavigation } from "@/lib/versionCheck";
 import Splash from "./pages/Splash";
 import Index from "./pages/Index";
 import Collection from "./pages/Collection";
@@ -48,6 +49,11 @@ const RedirectProduct = () => {
   return <Navigate to={`/streetwear/products/${slug}${search}${hash}`} replace />;
 };
 
+const ApplyUpdateOnNavigation = () => {
+  useApplyUpdateOnNavigation();
+  return null;
+};
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
@@ -59,6 +65,7 @@ const App = () => (
             <BrowserRouter>
               <WorldProvider>
                 <ScrollToTop />
+                <ApplyUpdateOnNavigation />
                 <Routes>
                   {/* Splash */}
                   <Route path="/" element={<Splash />} />

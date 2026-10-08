@@ -37,3 +37,13 @@
 - `sellqo-proxy`: bij non-2xx wordt `error` (object, of een JSON-string `{code, message, available_stock}`) geparst. `error` blijft een string; `error_code` en `error_details` worden toegevoegd. De frontend werkt vóór en na de proxy-deploy (zonder code → generieke tekst).
 - De diagnostische logging in `createCartIdempotent` (zie "Rapid-refresh race fix") is verwijderd.
 - Verificatie volgt na publish en na de proxy-deploy.
+
+## 2026-10-08 — MM-AUTO-REFRESH
+- Aanleiding: na een publish bleven open tabbladen de oude bundle draaien. Een tester zag na MM-CART-FIX de cart-bug nog in oude tabs.
+- Build-ID: een inline Vite-plugin in `vite.config.ts` (geen dependency) zet bij `build` een id (`Date.now()` + korte random) als define `__BUILD_ID__` in de bundle en schrijft `dist/version.json` (`{"build":"<id>"}`). In dev is `__BUILD_ID__` `"dev"` en staat de check uit.
+- `src/lib/versionCheck.ts`: haalt `/version.json?t=<now>` op (`cache: 'no-store'`) bij `visibilitychange` → visible en elke 10 min (alleen als het tabblad zichtbaar is). Een ander id dan `__BUILD_ID__` → update pending. Fouten (offline, 404, SPA-fallback-HTML) worden stil genegeerd.
+- Herladen gebeurt alleen bij de volgende route-wissel (`useApplyUpdateOnNavigation`, in `App.tsx` binnen `BrowserRouter`), op de nieuwe URL. Nooit als de huidige of de nieuwe route met `/checkout` begint, en nooit als er een veld met focus of een ingevuld veld in de DOM staat; dan wacht de update op een volgende wissel (dus na de checkout).
+- Loop-bescherming: sessionStorage `mancini_reload_guard`, max 1 reload per build-ID per tab. `vite:preloadError` (kapotte lazy chunk na een publish) → één `location.reload()` met dezelfde guard (key `preload:<build-id>`).
+- Hosting: `version.json` wordt client-side ge-cache-bust (`?t=` + `no-store`), dus er is geen cache-header nodig. Kanttekening: als de host `index.html` zelf agressief zou cachen, kan een reload nog oude code geven; de guard voorkomt dan een loop.
+- Cart en login (localStorage) blijven bewaard; er wordt niets gewist.
+- Verificatie: build → `dist/version.json` met hetzelfde id als in de bundle. Playwright tegen `vite preview` met gemockte `version.json`: reload bij navigatie (1x), geen tweede reload, geen reload binnen of bij het verlaten van `/checkout`, geen reload bij een ingevuld of gefocust blijvend veld, preloadError 1x, en 404/HTML stil. Productie-verificatie volgt na publish.
