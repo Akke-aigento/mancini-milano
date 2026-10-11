@@ -4,7 +4,7 @@
   For a dynamic sitemap, expose this XML via a Supabase edge function that
   fetches products + categories from the SellQo Storefront API on request.
 -->
-<urlset xmlns="http://www.w3.org/1999/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Splash (brand entry) -->
   <url>
     <loc>https://mancinimilano.com/</loc>

@@ -2,6 +2,7 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { seoPages } from "./seo-pages-plugin";
 
 // Stamps each build with an id (__BUILD_ID__ in the bundle, dist/version.json)
 // so open tabs can detect a newer publish. Dev gets "dev" and skips the check.
@@ -27,7 +28,7 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), buildIdPlugin(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [react(), buildIdPlugin(), mode === "development" && componentTagger(), seoPages()].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
