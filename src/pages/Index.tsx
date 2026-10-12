@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import heroDoberman from '@/assets/hero-doberman.png';
 import brandBanner from '@/assets/brand-banner.png';
 import lookbookBanner from '@/assets/lookbook-banner.jpg';
-import shopTheLookImage from '@/assets/shop-the-look.png';
+import shopTheLookImage from '@/assets/shop-the-look.jpg';
 import Layout from '@/components/layout/Layout';
 
 import SEO from '@/components/SEO';
@@ -294,9 +294,9 @@ to="/streetwear/collections/women"
         <section className="pb-20 lg:pb-28">
           <div className="max-w-site mx-auto px-4 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
-              <div className="aspect-[4/5] overflow-hidden bg-card">
+              <div className="aspect-[2/3] overflow-hidden bg-card">
                 <img
-                  src={shopTheLookImage}
+                  src={shopTheLookCategory?.image || shopTheLookImage}
                   alt="Shop the Look — Mancini Milano"
                   className="w-full h-full object-cover"
                 />

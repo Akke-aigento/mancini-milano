@@ -164,7 +164,9 @@ const Collection = () => {
     return subs.map((sub) => {
       const apiCat = categories.find((c: any) => c.slug === sub.slug);
       return {
-        label: sub.label,
+        // Name comes from SellQo so a rename in the admin shows up here too;
+        // the hardcoded label is only a fallback while categories load.
+        label: apiCat?.name || sub.label,
         slug: sub.slug,
         image: apiCat?.image || '',
       };

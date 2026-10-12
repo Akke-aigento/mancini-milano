@@ -47,3 +47,13 @@
 - Hosting: `version.json` wordt client-side ge-cache-bust (`?t=` + `no-store`), dus er is geen cache-header nodig. Kanttekening: als de host `index.html` zelf agressief zou cachen, kan een reload nog oude code geven; de guard voorkomt dan een loop.
 - Cart en login (localStorage) blijven bewaard; er wordt niets gewist.
 - Verificatie: build → `dist/version.json` met hetzelfde id als in de bundle. Playwright tegen `vite preview` met gemockte `version.json`: reload bij navigatie (1x), geen tweede reload, geen reload binnen of bij het verlaten van `/checkout`, geen reload bij een ingevuld of gefocust blijvend veld, preloadError 1x, en 404/HTML stil. Productie-verificatie volgt na publish.
+
+## 2026-10-12 — MM-STL-TEES: Shop the Look-beeld + "Tees & Long Sleeves"
+- Verzoek Sander: nieuwe Shop the Look-foto op de homepage; categorie T-shirts → "Tees & Long Sleeves".
+- DB (query_database, 12-10, snapshot vooraf):
+  - categories `fc46caa8` (t-shirts, For Him) + `a5676487` (t-shirts-women, For Her): naam "T-shirts" → "Tees & Long Sleeves". Slug ongewijzigd (URL's/SEO blijven). Geen content_translations die de naam overschrijven. Classic-subcategorieën niet aangeraakt ("Long sleeves" bestaat daar apart).
+  - categories `4af4bdfe` (shop-the-look): `is_active` false → true, `image_url` '' → marketing-assets/...1791796382402-ez2xoj.jpeg. Veilig: hoofdcategorie zonder kinderen, frontend zoekt hem alleen op slug op (niet in menu). Live geverifieerd via proxy `/categories`.
+- Code:
+  - `Index.tsx`: Shop the Look-beeld = `shopTheLookCategory?.image` (categorie-afbeelding uit de admin), fallback gebundeld `src/assets/shop-the-look.jpg` (nieuwe look, 110 KB; oude .png 850 KB verwijderd). Beeldvak `aspect-[4/5]` → `aspect-[2/3]` zodat hoofd en schoenen niet wegvallen. Voortaan wisselt de foto via de admin, zonder code.
+  - `Collection.tsx`: subcategorie-kaarten tonen de naam uit SellQo (fallback = hardcoded label), zodat hernoemingen in de admin ook daar doorkomen.
+- Checks: vite build groen, tsc groen, eslint gelijk aan baseline (15). SEO-titel van /streetwear/collections/t-shirts komt bij de Lovable-build uit SellQo (sandbox kon de API niet bereiken).
