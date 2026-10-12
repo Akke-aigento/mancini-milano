@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { overrideFor } from '@/seo/insights';
 
 interface SEOProps {
   title?: string;
@@ -24,12 +25,16 @@ const SEO = ({
   noindex = false,
   jsonLd,
 }: SEOProps) => {
-  const fullTitle = title
-    ? title.includes('Mancini Milano')
-      ? title
-      : `${title} — Mancini Milano`
-    : 'Mancini Milano — Luxury Streetwear from Milan';
-  const desc = description || DEFAULT_DESC;
+  // Goedgekeurde teksten uit Akke Insights gaan voor (zelfde bron als de statische head).
+  const ov = typeof window !== 'undefined' ? overrideFor(window.location.pathname) : undefined;
+  const fullTitle =
+    ov?.title ??
+    (title
+      ? title.includes('Mancini Milano')
+        ? title
+        : `${title} — Mancini Milano`
+      : 'Mancini Milano — Luxury Streetwear from Milan');
+  const desc = ov?.description ?? (description || DEFAULT_DESC);
   const ogImage = image || DEFAULT_IMAGE;
   const fullCanonical =
     canonical ||

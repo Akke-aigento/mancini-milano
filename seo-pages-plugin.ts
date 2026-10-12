@@ -14,6 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { Plugin } from "vite";
+import { fetchSeoOverrides, withOverride, type SeoOverrides } from "./src/seo/insights";
 import {
   COLLECTIONS,
   PAGES,
@@ -149,10 +150,17 @@ async function dynamicPages(supabaseUrl: string | undefined): Promise<PageMeta[]
 
 export function seoPages(): Plugin {
   let outDir = "dist";
+  let overrides: SeoOverrides = {};
   let supabaseUrl: string | undefined;
   return {
     name: "mancini-seo-pages",
     apply: "build",
+    // Goedgekeurde teksten uit Akke Insights ophalen; ook aan de browser meegeven.
+    async config() {
+      overrides = await fetchSeoOverrides();
+      console.log(`[seo-pages] ${Object.keys(overrides).length} goedgekeurde teksten uit Insights`);
+      return { define: { __SEO_OVERRIDES__: JSON.stringify(overrides) } };
+    },
     configResolved(config) {
       outDir = path.resolve(config.root, config.build.outDir);
       supabaseUrl = config.env["VITE_SUPABASE_URL"] ?? process.env["VITE_SUPABASE_URL"];
@@ -161,7 +169,7 @@ export function seoPages(): Plugin {
       const indexPath = path.join(outDir, "index.html");
       if (!fs.existsSync(indexPath)) return;
       const base = fs.readFileSync(indexPath, "utf8");
-      const pages = [...PAGES, ...(await dynamicPages(supabaseUrl))];
+      const pages = [...PAGES, ...(await dynamicPages(supabaseUrl))].map((p) => withOverride(p, overrides));
       for (const page of pages) {
         const html = applyHead(base, page);
         for (const file of [
