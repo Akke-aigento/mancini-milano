@@ -79,6 +79,7 @@ const PrivacyPolicy = () => (
         <div>
           <h2 className="text-foreground font-medium text-base mb-3">7. Cookies</h2>
           <p>Our website uses essential cookies to ensure proper functionality (e.g., cart session). We may also use analytics cookies with your consent to understand how visitors interact with our site. You can manage cookie preferences through your browser settings.</p>
+          <p className="mt-2">We measure visits anonymously with Akke Insights: no cookies, and no IP addresses or personal data are stored. This only tells us which pages are used.</p>
         </div>
 
         <div>
