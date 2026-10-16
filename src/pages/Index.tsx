@@ -214,12 +214,12 @@ to="/streetwear/collections/women"
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {trendingProducts.map((product: Product) => (
               <Link key={product.id} to={`/streetwear/products/${product.slug}`} className="group block">
-                <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card">
+                <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-background">
                   {product.images?.[0] && (
                     <img
                       src={product.images[0].url}
                       alt={product.images[0].alt || product.title}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="absolute inset-0 w-full h-full object-contain"
                     />
                   )}
                   <div className="absolute inset-0 bg-background/0 group-hover:bg-background/30 transition-colors flex items-center justify-center">
@@ -260,13 +260,13 @@ to="/streetwear/collections/women"
                   to={`/streetwear/products/${product.slug}`}
                   className="group block"
                 >
-                  <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-card border border-transparent group-hover:border-white/40 transition-colors">
+                  <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-background border border-transparent group-hover:border-white/40 transition-colors">
                     {product.images?.[0] && (
                       <img
                         src={product.images[0].url}
                         alt={product.images[0].alt || product.title}
                         loading="lazy"
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="absolute inset-0 w-full h-full object-contain"
                       />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
