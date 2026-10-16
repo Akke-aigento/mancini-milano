@@ -82,7 +82,8 @@ const App = () => (
 
                   {/* Coming soon worlds */}
                   <Route path="/sport" element={<ComingSoon />} />
-                  <Route path="/kids" element={<ComingSoon />} />
+                  <Route path="/adventure" element={<ComingSoon />} />
+                  <Route path="/kids" element={<Navigate to="/adventure" replace />} />
 
                   {/* 301-equivalent redirects from legacy paths */}
                   <Route path="/collections/:slug" element={<RedirectCollection />} />

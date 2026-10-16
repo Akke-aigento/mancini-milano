@@ -3,7 +3,7 @@ import SEO from '@/components/SEO';
 import splashClassic from '@/assets/splash-classic.jpg';
 import splashStreetwear from '@/assets/splash-streetwear.jpg';
 import splashSport from '@/assets/splash-sport.jpg';
-import splashKids from '@/assets/splash-kids.jpg';
+import splashAdventure from '@/assets/splash-adventure.jpg';
 
 type Tile = {
   to: string;
@@ -38,11 +38,11 @@ const TILES: Tile[] = [
     comingSoon: true,
   },
   {
-    to: '/kids',
-    label: 'Kids',
-    img: splashKids,
-    alt: 'Mancini Milano Kids — children wearing Mancini Milano sweatshirts',
-    objectPosition: '50% 25%',
+    to: '/adventure',
+    label: 'Adventure',
+    img: splashAdventure,
+    alt: 'Mancini Milano Adventure — man with a Mancini Milano backpack overlooking a mountain lake at sunset',
+    objectPosition: '50% 40%',
     comingSoon: true,
   },
 ];
@@ -52,7 +52,7 @@ const Splash = () => {
     <>
       <SEO
         title="Mancini Milano — Four Worlds, One Vision"
-        description="Step into the world of Mancini Milano. Choose between Streetwear, Classic, Sport or Kids."
+        description="Step into the world of Mancini Milano. Choose between Streetwear, Classic, Sport or Adventure."
         canonical="https://mancinimilano.com/"
       />
       <div className="min-h-screen bg-background flex flex-col">
