@@ -3,7 +3,7 @@ import SEO from '@/components/SEO';
 
 const LABELS: Record<string, string> = {
   '/sport': 'Sport',
-  '/kids': 'Kids',
+  '/adventure': 'Adventure',
 };
 
 const ComingSoon = () => {

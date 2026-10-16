@@ -14,7 +14,7 @@ interface SEOProps {
 const SITE_URL = 'https://mancinimilano.com';
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 const DEFAULT_DESC =
-  'Luxury apparel inspired by Italian craftsmanship. Premium streetwear, classic apparel, sportswear, and kidswear crafted with exceptional quality, timeless design, and exclusive limited drops.';
+  'Luxury apparel inspired by Italian craftsmanship. Premium streetwear, classic apparel, sportswear, and adventure wear crafted with exceptional quality, timeless design, and exclusive limited drops.';
 
 const SEO = ({
   title,
