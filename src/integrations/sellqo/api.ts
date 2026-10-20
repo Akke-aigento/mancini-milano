@@ -178,10 +178,10 @@ export const shippingAPI = {
 // === NEWSLETTER ===
 
 export const newsletterAPI = {
-  subscribe: (email: string) =>
-    sellqoFetch<{ success: boolean; message: string }>('/newsletter/subscribe', {
+  subscribe: (email: string, language: string) =>
+    sellqoFetch<{ success: boolean; message?: string; data?: { requires_confirmation?: boolean; message?: string } }>('/newsletter/subscribe', {
       method: 'POST',
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, language }),
     }),
 };
 

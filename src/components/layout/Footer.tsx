@@ -4,11 +4,13 @@ import { newsletterAPI } from '@/integrations/sellqo/api';
 import { toast } from 'sonner';
 import { Check } from 'lucide-react';
 import { useWorld } from '@/contexts/WorldContext';
+import { getNewsletterLanguage, getNewsletterOutcome, NEWSLETTER_TEXTS, type NewsletterOutcome } from '@/lib/newsletter';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [outcome, setOutcome] = useState<NewsletterOutcome>('subscribed');
   const { currentWorld } = useWorld();
   const isClassic = currentWorld === 'classic';
 
@@ -82,10 +84,16 @@ const Footer = () => {
               <div className="border-l-2 border-primary bg-primary/5 p-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <div className="flex items-center gap-3">
                   <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-foreground">You're subscribed!</p>
-                    <p className="text-xs text-muted-foreground mt-1">Expect exclusive drops and updates in your inbox.</p>
-                  </div>
+                  {outcome === 'subscribed' ? (
+                    <div>
+                      <p className="text-sm font-medium text-foreground">You're subscribed!</p>
+                      <p className="text-xs text-muted-foreground mt-1">Expect exclusive drops and updates in your inbox.</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{NEWSLETTER_TEXTS[outcome]}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
@@ -94,11 +102,17 @@ const Footer = () => {
                 if (!email || loading) return;
                 setLoading(true);
                 try {
-                  await newsletterAPI.subscribe(email);
+                  const res = await newsletterAPI.subscribe(email, getNewsletterLanguage());
+                  const result = getNewsletterOutcome(res);
+                  setOutcome(result);
                   setSubmitted(true);
-                  toast.success('Welcome to the movement!', {
-                    description: 'You will receive exclusive drops and updates soon.',
-                  });
+                  if (result === 'subscribed') {
+                    toast.success('Welcome to the movement!', {
+                      description: 'You will receive exclusive drops and updates soon.',
+                    });
+                  } else {
+                    toast.success(NEWSLETTER_TEXTS[result]);
+                  }
                 } catch {
                   toast.error('Something went wrong. Please try again.');
                 } finally {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { Check } from 'lucide-react';
 import { newsletterAPI } from '@/integrations/sellqo/api';
+import { getNewsletterLanguage, getNewsletterOutcome, NEWSLETTER_TEXTS, type NewsletterOutcome } from '@/lib/newsletter';
 
 interface Props {
   source?: string;
@@ -12,15 +13,17 @@ const ClassicNewsletter = ({ source = 'classic-launch', className = '' }: Props)
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [outcome, setOutcome] = useState<NewsletterOutcome>('subscribed');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || loading) return;
     setLoading(true);
     try {
-      // newsletterAPI currently accepts only `email`; source kept for future segmentation.
+      // newsletterAPI currently accepts only `email` and `language`; source kept for future segmentation.
       void source;
-      await newsletterAPI.subscribe(email);
+      const res = await newsletterAPI.subscribe(email, getNewsletterLanguage());
+      setOutcome(getNewsletterOutcome(res));
       setSubmitted(true);
       setEmail('');
     } catch {
@@ -34,7 +37,7 @@ const ClassicNewsletter = ({ source = 'classic-launch', className = '' }: Props)
     return (
       <div className={`flex items-center justify-center gap-2 text-sm text-classic-gold ${className}`}>
         <Check className="h-4 w-4" />
-        <span>Thank you. We will be in touch.</span>
+        <span>{outcome === 'subscribed' ? 'Thank you. We will be in touch.' : NEWSLETTER_TEXTS[outcome]}</span>
       </div>
     );
   }

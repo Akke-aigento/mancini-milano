@@ -405,7 +405,7 @@ export function useShippingCountries() {
 
 export function useNewsletterSubscribe() {
   return useMutation({
-    mutationFn: ({ email }: { email: string }) => newsletterAPI.subscribe(email),
+    mutationFn: ({ email, language }: { email: string; language: string }) => newsletterAPI.subscribe(email, language),
   });
 }
 
