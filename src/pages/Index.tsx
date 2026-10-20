@@ -10,6 +10,7 @@ import Layout from '@/components/layout/Layout';
 
 import SEO from '@/components/SEO';
 import { useProducts, useProduct, useCategories, useNewsletterSubscribe } from '@/integrations/sellqo/hooks';
+import { getNewsletterLanguage, getNewsletterOutcome, NEWSLETTER_TEXTS, type NewsletterOutcome } from '@/lib/newsletter';
 import type { Product } from '@/integrations/sellqo/types';
 
 
@@ -32,6 +33,7 @@ const Index = () => {
   const newsletterMutation = useNewsletterSubscribe();
   const [email, setEmail] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [newsletterOutcome, setNewsletterOutcome] = useState<NewsletterOutcome>('subscribed');
 
   const featuredCategories = featuredCategorySlugs.map((slug) => {
     const apiCat = categories.find((c: any) => c.slug === slug);
@@ -51,12 +53,18 @@ const Index = () => {
     e.preventDefault();
     if (!email) return;
     try {
-      await newsletterMutation.mutateAsync({ email });
+      const res = await newsletterMutation.mutateAsync({ email, language: getNewsletterLanguage() });
+      const outcome = getNewsletterOutcome(res);
+      setNewsletterOutcome(outcome);
       setNewsletterStatus('success');
       setEmail('');
-      toast.success("You're subscribed!", {
-        description: 'Welcome to the movement. Expect exclusive drops and updates.',
-      });
+      if (outcome === 'subscribed') {
+        toast.success("You're subscribed!", {
+          description: 'Welcome to the movement. Expect exclusive drops and updates.',
+        });
+      } else {
+        toast.success(NEWSLETTER_TEXTS[outcome]);
+      }
     } catch {
       setNewsletterStatus('error');
       toast.error('Something went wrong. Please try again.');
@@ -391,10 +399,16 @@ to="/streetwear/collections/women"
             <div className="max-w-md mx-auto border-l-2 border-primary bg-primary/5 p-4 animate-in fade-in slide-in-from-bottom-2 duration-500 text-left">
               <div className="flex items-center gap-3">
                 <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-foreground">You're subscribed!</p>
-                  <p className="text-xs text-muted-foreground mt-1">Expect exclusive drops and updates in your inbox.</p>
-                </div>
+                {newsletterOutcome === 'subscribed' ? (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">You're subscribed!</p>
+                    <p className="text-xs text-muted-foreground mt-1">Expect exclusive drops and updates in your inbox.</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{NEWSLETTER_TEXTS[newsletterOutcome]}</p>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
